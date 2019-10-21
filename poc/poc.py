@@ -6,7 +6,11 @@ def compute_signatures(data, signature_config):
 
 
 def filter_signatures(candidate_signatures, filter_config):
-    pass
+    typ = filter_config.get('type', 'not specified')
+    if typ == 'none':
+        return candidate_signatures
+    else:
+        NotImplementedError(f"filter type '{typ}' is not implemented, yet")
 
 
 def candidate_block_filter_from_signatures(signatures, config):
