@@ -25,10 +25,12 @@ def compute_signatures(data, signature_config):
         index = int(index)
         if algorithm == 'feature-value':
             for dtuple in data:
-                signature.append(dtuple[index])
+                signatures.append(dtuple[index])
+            return signatures
         else:
             msg = 'The algorithm {} is not implemented yet'.format(algorithm)
             NotImplementedError(msg)
+
 
 
 def filter_signatures(candidate_signatures, filter_config):
