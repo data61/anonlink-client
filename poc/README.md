@@ -1,3 +1,4 @@
+
 # Blocking POC 
 
 A simple end to end demonstrator of blocking for record linkage.
@@ -13,3 +14,10 @@ Output should be candidate blocks.
 }
 ```
 
+
+## Software Components
+
+- anonlink-client
+- blocklib
+- anonlink
+- clkhash
