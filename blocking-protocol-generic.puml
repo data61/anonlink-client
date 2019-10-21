@@ -1,0 +1,34 @@
+@startuml
+
+Alice x--x Bob: Agree on Blocking Strategy
+
+Alice --> blocklib: Do thy bidding
+Bob --> blocklib: Do thy bidding
+
+Alice <--- blocklib: Computed Database Signature BF
+Bob  <-- blocklib: Computed Database Signature BF
+
+Alice -> Anonlink: Send db signature bf
+Bob -> Anonlink: Send db signature bf
+
+
+Alice <- Anonlink: Send common signature
+Bob <- Anonlink: Send common signature
+
+blocklib <-- Alice: Assign blocks (data + common signature)
+blocklib <-- Bob: Assign blocks (data + common signature)
+
+
+Alice <-- blocklib: Records per block
+Bob <-- blocklib: Records per block
+
+Alice --> Alice: Compute record encodings
+Bob --> Bob: Compute record encodings
+
+Alice -> Anonlink: Encodings per block
+Bob -> Anonlink: Encodings per block
+
+Anonlink <--> Anonlink: Similarities per block
+Anonlink <--> Anonlink: Solve!
+
+@enduml
