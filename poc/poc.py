@@ -1,6 +1,18 @@
 import clkhash
 
 
+def compute_signatures(data, signature_config):
+    pass
+
+
+def filter_signatures(candidate_signatures, filter_config):
+    pass
+
+
+def candidate_block_filter_from_signatures(signatures, config):
+    pass
+
+
 def compute_candidate_block_filter(data, blocking_config):
     signature_config = blocking_config['signature']
     filter_config = blocking_config['filter']
