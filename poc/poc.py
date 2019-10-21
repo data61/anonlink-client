@@ -13,7 +13,22 @@ def compute_signatures(data, signature_config):
         'feature-index': 3
     :return: A list of "signatures" per record in data
     """
-    pass
+    algorithm = signature_config.get('type', 'not specified')
+    index = signature_config.get('feature_index', 'not specified')
+
+    if algorithm == 'not specified':
+        ValueError("Compute signature type is not specified.")
+    elif index == 'not specified':
+        ValueError("Signature index is not specified.")
+    else:
+        signatures = []
+        index = int(index)
+        if algorithm == 'feature-value':
+            for dtuple in data:
+                signature.append(dtuple[index])
+        else:
+            msg = 'The algorithm {} is not implemented yet'.format(algorithm)
+            NotImplementedError(msg)
 
 
 def filter_signatures(candidate_signatures, filter_config):
