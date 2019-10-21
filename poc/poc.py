@@ -14,7 +14,7 @@ def compute_signatures(data, signature_config):
     :return: A list of "signatures" per record in data
     """
     algorithm = signature_config.get('type', 'not specified')
-    index = signature_config.get('feature_index', 'not specified')
+    index = signature_config.get('feature-index', 'not specified')
 
     if algorithm == 'not specified':
         ValueError("Compute signature type is not specified.")
@@ -95,8 +95,8 @@ def run():
 
     }
 
-    compute_candidate_block_filter(data, blocking_config)
-
+    res = compute_candidate_block_filter(data, blocking_config)
+    print(res)
 
 
 if __name__ == '__main__':
