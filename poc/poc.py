@@ -57,7 +57,7 @@ def _dummy_candidate_block_filer_from_signature(signatures, config):
             vector_output[values.index(value)] = 1
         else:
             raise ValueError("Value '{}' not part of the configuration. Should be amongst '{}'.".format(value, values))
-
+    return vector_output
 
 
 def compute_candidate_block_filter(data, blocking_config):
@@ -72,8 +72,7 @@ def compute_candidate_block_filter(data, blocking_config):
 
 
 def run():
-    data = list(clkhash.randomnames.NameList(100).names)
-
+    data = list(clkhash.randomnames.NameList(2).names)
     print(data[0])
 
     blocking_config = {
