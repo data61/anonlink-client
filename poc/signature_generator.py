@@ -1,6 +1,8 @@
 import re
 from typing import Sequence, Tuple
+
 from blocklib import PPRLIndexPSignature
+from poc.validation import validate_signature_config
 
 
 def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
@@ -8,6 +10,7 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
     :param data: list of tuples E.g. ('0', 'Kenneth Bain', '1964/06/17', 'M')
     :param signature_config:
         A description of how the signatures should be generated.
+
         A simple type is "feature-value" which simply takes the feature
         mentioned at `feature-index`::
 
@@ -16,10 +19,17 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
                 'feature-index': 3,
                 'regex-pattern': ""
             }
-    :return: A list of "signatures" per record in data.
-    """
-    algorithm = signature_config.get('type', 'not specified')
+        Schema for the signature config is found in
+        ``docs/schema/signature-config-schema.json``
 
+    :return: A 2-tuple containing
+        A list of "signatures" per record in data.
+        Internal state object from the signature generation (or None).
+
+    """
+    validate_signature_config(signature_config)
+    algorithm = signature_config.get('type', 'not specified')
+    state = None
     if algorithm == 'not specified':
         raise ValueError("Compute signature type is not specified.")
 
@@ -40,14 +50,14 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
         config = signature_config.get('config', 'not specified')
         if config == 'not specified':
             raise ValueError('Please provide config for P-Sig from blocklib')
-        psig = PPRLIndexPSignature(config)
-        dic_signatures_record, bf = psig.build_inverted_index(data)
+        state = PPRLIndexPSignature(config)
+        dic_signatures_record, candidate_blocking_filter = state.build_inverted_index(data)
 
     else:
         msg = 'The algorithm {} is not implemented yet'.format(algorithm)
         raise NotImplementedError(msg)
 
-    return dic_signatures_record
+    return dic_signatures_record, state
 
 
 def _compute_feature_value_signature(record, feature_value_config):

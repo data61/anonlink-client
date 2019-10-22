@@ -3,3 +3,4 @@ numpy == 1.17.3
 pytest == 5.2.1
 recordlinkage == 0.13.2
 anonlink == 0.12.5
+jsonschema == 3.0.2
