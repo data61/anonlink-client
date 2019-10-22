@@ -1,6 +1,8 @@
 import re
 from typing import Sequence, Tuple
+
 from blocklib import PPRLIndexPSignature
+from poc.validation import validate_signature_config
 
 
 def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
@@ -8,6 +10,7 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
     :param data: list of tuples E.g. ('0', 'Kenneth Bain', '1964/06/17', 'M')
     :param signature_config:
         A description of how the signatures should be generated.
+
         A simple type is "feature-value" which simply takes the feature
         mentioned at `feature-index`::
 
@@ -16,8 +19,15 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
                 'feature-index': 3,
                 'regex-pattern': ""
             }
-    :return: A list of "signatures" per record in data.
+        Schema for the signature config is found in
+        ``docs/schema/signature-config-schema.json``
+
+    :return: A 2-tuple containing
+        A list of "signatures" per record in data.
+        Internal state object from the signature generation (or None).
+
     """
+    validate_signature_config(signature_config)
     algorithm = signature_config.get('type', 'not specified')
 
     if algorithm == 'not specified':
