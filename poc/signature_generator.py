@@ -20,14 +20,19 @@ def compute_signatures(data, signature_config):
 
     if algorithm == 'not specified':
         raise ValueError("Compute signature type is not specified.")
-    signatures = []
-    for dtuple in data:
+    dic_signatures_record = {}
+    for index in range(len(data)):
         if algorithm == 'feature-value':
-            signatures.append(_compute_feature_value_signature(dtuple, signature_config))
-        return signatures
-    else:
-        msg = 'The algorithm {} is not implemented yet'.format(algorithm)
-        raise NotImplementedError(msg)
+            signatures = _compute_feature_value_signature(data[index], signature_config)
+        else:
+            msg = 'The algorithm {} is not implemented yet'.format(algorithm)
+            raise NotImplementedError(msg)
+        for signature in signatures:
+            if signature in dic_signatures_record:
+                dic_signatures_record[signature].append(index)
+            else:
+                dic_signatures_record[signature] = [index]
+    return dic_signatures_record
 
 
 def _compute_feature_value_signature(record, feature_value_config):
