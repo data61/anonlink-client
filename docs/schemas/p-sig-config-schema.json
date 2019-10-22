@@ -1,0 +1,48 @@
+{
+  "$id": "https://data61.github.io/schemas/anonlink/p-sig-config-schema-v1dev.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "p-sig-config-schema",
+  "type": "object",
+  "required": [
+    "number_hash_functions",
+    "bf_len",
+    "max_occur_ratio",
+    "min_occur_ratio",
+    "signatures"
+  ],
+  "properties": {
+    "number_hash_functions": {
+      "type": "number",
+      "minimum": 1,
+      "examples": [1, 20],
+      "description": "The number of bits in the blocking filter set by each signature"
+    },
+    "bf_len": {
+      "type": "number",
+      "description": "Length of the blocking filter in bits",
+      "examples": [
+        2048,
+        40000
+      ]
+    },
+    "signatures": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/pSigStrategy"}
+    }
+  },
+  "definitions": {
+    "pSigStrategy": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {"type":  "string",
+          "description": "The type of p-signature generation strategy",
+          "examples": ["feature-value", "metaphone", "n-gram"]
+        },
+        "config": {"type": "object", "default":  {},
+          "description": "config for a specific p-signature generation strategy"
+        }
+      }
+    }
+  }
+}
