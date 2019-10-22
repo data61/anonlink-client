@@ -1,7 +1,8 @@
+
 from poc.filter import filter_signatures
 from poc.block_filter_generator import candidate_block_filter_from_signatures
 from poc.reverse_index import create_reverse_index
-from poc.server import compute_blocking_filter
+from poc.server import compute_blocking_filter, mapping_from_clks
 from poc.signature_generator import compute_signatures
 from recordlinkage.datasets import load_febrl4
 from poc.clk_util import generate_clks, febrl4_schema
@@ -226,17 +227,32 @@ def run_gender_blocking():
 
     encodings_dp1 = generate_clks(df1, schema=febrl4_schema(), secret_keys=("tick", "tock"))
     encodings_dp2 = generate_clks(df2, schema=febrl4_schema(), secret_keys=("tick", "tock"))
-    #for every dp_pair in ...
-    for block_id in dp1_blocks:
-        records_1 = dp1_blocks[block_id]
-        records_2 = dp2_blocks[block_id]
 
-        print(f"Block {block_id}")
-        print("DP 1")
-        print(records_1)
+    record_id_1 = [s.split('-')[1] for s in df1.index]
+    record_id_2 = [s.split('-')[1] for s in df2.index]
+
+    # todo for every dp_pair in ...
+    for block_id in dp1_blocks:
+        index_1 = dp1_blocks[block_id]
+        index_2 = dp2_blocks[block_id]
+
+        block_encodings_1 = [encodings_dp1[index] for index in index_1]
+        block_encodings_2 = [encodings_dp2[index] for index in index_2]
+
+        mapping_from_clks(block_encodings_1, block_encodings_2, threshold=0.95)
+
+        records_1 = [record_id_1[index] for index in index_1]
+        records_2 = [record_id_2[index] for index in index_2]
+
+        print(f"Block {block_id}:")
+        print("DP 1 records")
+        print(set(records_1))
 
         print("DP 2")
-        print(records_2)
+        print(set(records_2))
+
+        print("Intersection:")
+        print(set(records_1).intersection(set(records_2)))
 
 
 if __name__ == '__main__':
