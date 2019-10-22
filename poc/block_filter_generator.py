@@ -25,7 +25,12 @@ def candidate_block_filter_from_signatures(
         # blocklib can compute the candidate blocking filter using
         # the signature state (PPRLIndex instance).
         cbf, cbf_index_to_sig_map = signature_state.generate_bloom_filter(signatures)
-        return cbf, cbf_index_to_sig_map
+
+        # have to massage the cbf into a numpy bool array from a set
+        candidate_block_filter = np.zeros(config['signature']['config']['bf_len'], dtype=bool)
+        candidate_block_filter[list(cbf)] = True
+
+        return candidate_block_filter, cbf_index_to_sig_map
     else:
         candidate_block_filter_type = config['type']
         if candidate_block_filter_type == 'dummy':
