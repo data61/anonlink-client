@@ -26,21 +26,16 @@ def compute_candidate_block_filter(data, blocking_config):
     return candidate_block_filter_from_signatures(signatures, config)
 
 
-def create_reverse_index(block_filter, bf_map, sig_rec_map):
+def filter_reverse_index(block_filter, bf_map, sig_rec_map):
     """
-    Two methods have been implemented that map to a list of records.
 
-    - index based blocking: creates a block for every high bit in the
-      bloom filter.
-    - signature based blocking: creates a block for every individual
-      signature.
-
-    :param block_filter:
-    :param bf_map:
-    :param param:
+    :param block_filter: The combined blocking filter - a numpy bool array.
+    :param bf_map: Dict mapping block id to list of signatures.
+    :param sig_rec_map: Dict mapping signatures to records.
     :return:
+        Dict mapping block id to list of records.
     """
-
+    pass
 
 
 
@@ -77,7 +72,7 @@ def run_gender_blocking():
     block_filter = compute_blocking_filter((dp1_candidate_block_filter, dp2_candidate_block_filter))
     print("Block filter:", block_filter)
 
-    dp1_index = create_reverse_index(block_filter, cbf_map_1, 'todo GS? signature -> record mapping')
+    dp1_index = filter_reverse_index(block_filter, cbf_map_1, 'todo GS? signature -> record mapping')
 
 
 
