@@ -44,6 +44,8 @@ def run_gender_blocking():
                 'attr_select_list': [6],
                 'max_occur_ratio': 1.0,
                 'min_occur_ratio': 0.001,
+                'signature_strategies': ['feature-value', 'soundex', 'metaphone', 'n-gram'],
+                'signature_strategies_config': [{}, {}, {}, {'n': 2}]
             }
         },
         'filter': {
