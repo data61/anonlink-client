@@ -12,8 +12,8 @@ def candidate_block_filter_from_signatures(signatures: Sequence[Sequence[str]], 
     :param config:
     :return:
         A 2-tuple containing the candidate block filter (CBF) and
-        a list mapping index in the cbf to the list of signatures
-        that are in that block.
+        a dict mapping block index (e.g. index in the cbf) to the list of
+        signatures that are associated with that cbf location.
     """
     candidate_block_filter_type = config['type']
     if candidate_block_filter_type == 'dummy':
@@ -24,10 +24,13 @@ def candidate_block_filter_from_signatures(signatures: Sequence[Sequence[str]], 
 
 def _dummy_candidate_block_filer_from_signature(signatures, config):
     values = config['values']
+    cbf_map = {}
     vector_output = np.zeros(len(values), dtype=np.int8)
     for value in set([x[0] for x in signatures]):
         if value in values:
-            vector_output[values.index(value)] = 1
+            block_id = values.index(value)
+            vector_output[block_id] = 1
+            cbf_map[block_id] = value
         else:
             raise ValueError("Value '{}' not part of the configuration. Should be amongst '{}'.".format(value, values))
-    return vector_output
+    return vector_output, cbf_map
