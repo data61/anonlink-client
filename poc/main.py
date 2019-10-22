@@ -1,6 +1,7 @@
 import clkhash
 from poc.filter import filter_signatures
 from poc.block_filter_generator import candidate_block_filter_from_signatures
+from poc.server import compute_blocking_filter
 from poc.signature_generator import compute_signatures
 
 
