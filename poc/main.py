@@ -24,7 +24,9 @@ def compute_candidate_block_filter(data, blocking_config):
 
     candidate_signatures = compute_signatures(data, signature_config)
     signatures = filter_signatures(candidate_signatures, filter_config)
-    return candidate_block_filter_from_signatures(signatures, config).append(candidate_signatures)
+    return tuple([candidate_block_filter_from_signatures(signatures, config)[0],
+                 candidate_block_filter_from_signatures(signatures, config)[1],
+                  candidate_signatures])
 
 
 def run_gender_blocking():

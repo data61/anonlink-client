@@ -30,6 +30,6 @@ def _single_index_reverse_index(blocking_filter, cbf_map, sig_to_record_map, con
     # We do not use the config here
     block_map = {}
     for i in range(len(blocking_filter)):
-        if blocking_filter.get(i) == 1:
-            block_map[i] = sig_to_record_map[cbf_map[i]]
+        if blocking_filter[i] == 1:
+            block_map[i] = [y for x in cbf_map[i] for y in sig_to_record_map[x]]
     return block_map
