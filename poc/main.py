@@ -1,6 +1,6 @@
-import clkhash
 from poc.filter import filter_signatures
 from poc.block_filter_generator import candidate_block_filter_from_signatures
+from poc.reverse_index import create_reverse_index
 from poc.server import compute_blocking_filter
 from poc.signature_generator import compute_signatures
 from recordlinkage.datasets import load_febrl4
@@ -25,20 +25,9 @@ def compute_candidate_block_filter(data, blocking_config):
 
     candidate_signatures = compute_signatures(data, signature_config)
     signatures = filter_signatures(candidate_signatures, filter_config)
-    return candidate_block_filter_from_signatures(signatures, config)
-
-
-def filter_reverse_index(block_filter, bf_map, sig_rec_map):
-    """
-
-    :param block_filter: The combined blocking filter - a numpy bool array.
-    :param bf_map: Dict mapping block id to list of signatures.
-    :param sig_rec_map: Dict mapping signatures to records.
-    :return:
-        Dict mapping block id to list of records.
-    """
-    return {}
-
+    return tuple([candidate_block_filter_from_signatures(signatures, config)[0],
+                 candidate_block_filter_from_signatures(signatures, config)[1],
+                  candidate_signatures])
 
 
 def run_gender_blocking():
@@ -64,7 +53,6 @@ def run_gender_blocking():
         },
         'candidate-blocking-filter': {
             'type': 'dummy',
-            'filter-length': 2,
             'values': ['5104', '3856', '3045', '2387', '5079', '2300', '3182', '2147', '2154', '6405', '3164', '5048',
                        '2171', '5453', '2584', '3130', '4869', '4454', '2257', '2619', '2162', '6159', '4725', '6147',
                        '2608', '3215', '4068', '4737', '6362', '4750', '5371', '2285', '6714', '4035', '2534', '2174',
@@ -211,8 +199,10 @@ def run_gender_blocking():
                        '2197', '3213', '5042', '2289', '2118', '6302', '2617', '2210', '3103', '6001', '6326', '6532',
                        '6136', '2356', '5334', '5330', '6564', '5163', '4016', '4707', '2747', '2357', '3034', '3156',
                        '3128', '4105', '6135', '4390']
+        },
+        'reverse-index': {
+            'type': 'group-single-index'
         }
-
     }
 
     df1, df2 = load_febrl4()
@@ -221,8 +211,8 @@ def run_gender_blocking():
     data1 = df1.to_dict(orient='split')['data']
     data2 = df2.to_dict(orient='split')['data']
     print("Example PII", data1[0])
-    dp1_candidate_block_filter, cbf_map_1 = compute_candidate_block_filter(data1, blocking_config)
-    dp2_candidate_block_filter, cbf_map_2 = compute_candidate_block_filter(data2, blocking_config)
+    dp1_candidate_block_filter, cbf_map_1, sig_records_map_1 = compute_candidate_block_filter(data1, blocking_config)
+    dp2_candidate_block_filter, cbf_map_2, sig_records_map_2 = compute_candidate_block_filter(data2, blocking_config)
     print("Candidate block filter dp1:", dp1_candidate_block_filter)
     print("Candidate block filter dp2:", dp2_candidate_block_filter)
     print("Candidate block filter map 1:", cbf_map_1)
@@ -231,8 +221,8 @@ def run_gender_blocking():
     block_filter = compute_blocking_filter((dp1_candidate_block_filter, dp2_candidate_block_filter))
     print("Block filter:", block_filter)
 
-    dp1_blocks = filter_reverse_index(block_filter, cbf_map_1, 'todo GS? signature -> record mapping')
-    dp2_blocks = filter_reverse_index(block_filter, cbf_map_2, 'todo GS? signature -> record mapping')
+    dp1_blocks = create_reverse_index(block_filter, cbf_map_1, sig_records_map_1, blocking_config['reverse-index'])
+    dp2_blocks = create_reverse_index(block_filter, cbf_map_2, sig_records_map_2, blocking_config['reverse-index'])
 
     encodings_dp1 = generate_clks(df1, schema=febrl4_schema(), secret_keys=("tick", "tock"))
     encodings_dp2 = generate_clks(df2, schema=febrl4_schema(), secret_keys=("tick", "tock"))
