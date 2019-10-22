@@ -48,8 +48,16 @@ def run_gender_blocking():
 
     blocking_config = {
         'signature': {
-            'type': 'feature-value',
-            'feature-index': 3
+            # 'type': 'feature-value',
+            'type': 'p-sig',
+            'feature-index': 3,
+            'config': {
+                'num_hash_funct': 5,
+                'bf_len': 2048,
+                'attr_select_list': [3],
+                'max_occur_ratio': 1.0,
+                'min_occur_ratio': 0.001,
+            }
         },
         'filter': {
             'type': 'none'

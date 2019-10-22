@@ -1,5 +1,6 @@
 import re
 from typing import Sequence, Tuple
+from blocklib import PPRLIndexPSignature
 
 
 def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
@@ -25,14 +26,22 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
     for index in range(len(data)):
         if algorithm == 'feature-value':
             signatures = _compute_feature_value_signature(data[index], signature_config)
+            for signature in signatures:
+                if signature in dic_signatures_record:
+                    dic_signatures_record[signature].append(index)
+                else:
+                    dic_signatures_record[signature] = [index]
+        elif algorithm == 'p-sig':
+            config = signature_config.get('config', 'not specified')
+            if config == 'not specified':
+                raise ValueError('Please provide config for P-Sig from blocklib')
+            psig = PPRLIndexPSignature(config)
+            # import IPython; IPython.embed()
+            dic_signatures_record, bf= psig.build_invert_index(data)
         else:
             msg = 'The algorithm {} is not implemented yet'.format(algorithm)
             raise NotImplementedError(msg)
-        for signature in signatures:
-            if signature in dic_signatures_record:
-                dic_signatures_record[signature].append(index)
-            else:
-                dic_signatures_record[signature] = [index]
+
     return dic_signatures_record
 
 
