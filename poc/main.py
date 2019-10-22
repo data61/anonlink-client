@@ -4,6 +4,7 @@ from poc.block_filter_generator import candidate_block_filter_from_signatures
 from poc.server import compute_blocking_filter
 from poc.signature_generator import compute_signatures
 from recordlinkage.datasets import load_febrl4
+from poc.clk_util import generate_clks, febrl4_schema
 
 
 def compute_candidate_block_filter(data, blocking_config):
@@ -233,6 +234,8 @@ def run_gender_blocking():
     dp1_blocks = filter_reverse_index(block_filter, cbf_map_1, 'todo GS? signature -> record mapping')
     dp2_blocks = filter_reverse_index(block_filter, cbf_map_2, 'todo GS? signature -> record mapping')
 
+    encodings_dp1 = generate_clks(df1, schema=febrl4_schema(), secret_keys=("tick", "tock"))
+    encodings_dp2 = generate_clks(df2, schema=febrl4_schema(), secret_keys=("tick", "tock"))
     #for every dp_pair in ...
     for block_id in dp1_blocks:
         records_1 = dp1_blocks[block_id]
