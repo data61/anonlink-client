@@ -29,7 +29,7 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
     """
     validate_signature_config(signature_config)
     algorithm = signature_config.get('type', 'not specified')
-
+    state = None
     if algorithm == 'not specified':
         raise ValueError("Compute signature type is not specified.")
 
@@ -50,14 +50,14 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
         config = signature_config.get('config', 'not specified')
         if config == 'not specified':
             raise ValueError('Please provide config for P-Sig from blocklib')
-        psig = PPRLIndexPSignature(config)
-        dic_signatures_record, bf = psig.build_inverted_index(data)
+        state = PPRLIndexPSignature(config)
+        dic_signatures_record, candidate_blocking_filter = state.build_inverted_index(data)
 
     else:
         msg = 'The algorithm {} is not implemented yet'.format(algorithm)
         raise NotImplementedError(msg)
 
-    return dic_signatures_record
+    return dic_signatures_record, state
 
 
 def _compute_feature_value_signature(record, feature_value_config):

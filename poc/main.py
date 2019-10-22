@@ -24,7 +24,7 @@ def compute_candidate_block_filter(data, blocking_config):
     filter_config = blocking_config['filter']
     config = blocking_config['candidate-blocking-filter']
 
-    candidate_signatures = compute_signatures(data, signature_config)
+    candidate_signatures, signature_state = compute_signatures(data, signature_config)
     signatures = filter_signatures(candidate_signatures, filter_config)
     return tuple([candidate_block_filter_from_signatures(signatures, config)[0],
                  candidate_block_filter_from_signatures(signatures, config)[1],
