@@ -36,7 +36,7 @@ def filter_reverse_index(block_filter, bf_map, sig_rec_map):
     :return:
         Dict mapping block id to list of records.
     """
-    pass
+    return {}
 
 
 
@@ -222,8 +222,20 @@ def run_gender_blocking():
     block_filter = compute_blocking_filter((dp1_candidate_block_filter, dp2_candidate_block_filter))
     print("Block filter:", block_filter)
 
-    dp1_index = filter_reverse_index(block_filter, cbf_map_1, 'todo GS? signature -> record mapping')
+    dp1_blocks = filter_reverse_index(block_filter, cbf_map_1, 'todo GS? signature -> record mapping')
+    dp2_blocks = filter_reverse_index(block_filter, cbf_map_2, 'todo GS? signature -> record mapping')
 
+    #for every dp_pair in ...
+    for block_id in dp1_blocks:
+        records_1 = dp1_blocks[block_id]
+        records_2 = dp2_blocks[block_id]
+
+        print(f"Block {block_id}")
+        print("DP 1")
+        print(records_1)
+
+        print("DP 2")
+        print(records_2)
 
 
 if __name__ == '__main__':

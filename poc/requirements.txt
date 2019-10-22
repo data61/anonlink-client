@@ -1,4 +1,4 @@
 clkhash == 0.14.0
-numpy == 1.17.
+numpy == 1.17.3
 pytest == 5.2.1
 recordlinkage == 0.13.2
