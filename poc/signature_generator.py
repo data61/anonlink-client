@@ -22,25 +22,30 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
 
     if algorithm == 'not specified':
         raise ValueError("Compute signature type is not specified.")
-    dic_signatures_record = {}
-    for index in range(len(data)):
-        if algorithm == 'feature-value':
-            signatures = _compute_feature_value_signature(data[index], signature_config)
-            for signature in signatures:
-                if signature in dic_signatures_record:
-                    dic_signatures_record[signature].append(index)
-                else:
-                    dic_signatures_record[signature] = [index]
-        elif algorithm == 'p-sig':
-            config = signature_config.get('config', 'not specified')
-            if config == 'not specified':
-                raise ValueError('Please provide config for P-Sig from blocklib')
-            psig = PPRLIndexPSignature(config)
-            # import IPython; IPython.embed()
-            dic_signatures_record, bf= psig.build_invert_index(data)
-        else:
-            msg = 'The algorithm {} is not implemented yet'.format(algorithm)
-            raise NotImplementedError(msg)
+
+    # Naive feature value
+    elif algorithm == 'feature-value':
+        dic_signatures_record = {}
+        for index in range(len(data)):
+            if algorithm == 'feature-value':
+                signatures = _compute_feature_value_signature(data[index], signature_config)
+                for signature in signatures:
+                    if signature in dic_signatures_record:
+                        dic_signatures_record[signature].append(index)
+                    else:
+                        dic_signatures_record[signature] = [index]
+
+    # P-Sig from blocklib
+    elif algorithm == 'p-sig':
+        config = signature_config.get('config', 'not specified')
+        if config == 'not specified':
+            raise ValueError('Please provide config for P-Sig from blocklib')
+        psig = PPRLIndexPSignature(config)
+        dic_signatures_record, bf= psig.build_invert_index(data)
+
+    else:
+        msg = 'The algorithm {} is not implemented yet'.format(algorithm)
+        raise NotImplementedError(msg)
 
     return dic_signatures_record
 

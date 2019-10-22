@@ -50,7 +50,7 @@ def run_gender_blocking():
             'config': {
                 'num_hash_funct': 5,
                 'bf_len': 2048,
-                'attr_select_list': [3],
+                'attr_select_list': [6],
                 'max_occur_ratio': 1.0,
                 'min_occur_ratio': 0.001,
             }
