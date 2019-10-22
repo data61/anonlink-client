@@ -1,34 +1,59 @@
+import re
+from typing import Sequence, Tuple
 
 
-def compute_signatures(data, signature_config):
+def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
     """
     :param data: list of tuples E.g. ('0', 'Kenneth Bain', '1964/06/17', 'M')
     :param signature_config:
-        A description of how the filters should be generated.
+        A description of how the signatures should be generated.
         A simple type is "feature-value" which simply takes the feature
         mentioned at `feature-index`::
 
             {
                 'type': 'feature-value',
-                'feature-index': 3
+                'feature-index': 3,
+                'regex-pattern': ""
             }
-
     :return: A list of "signatures" per record in data.
     """
     algorithm = signature_config.get('type', 'not specified')
-    index = signature_config.get('feature-index', 'not specified')
 
     if algorithm == 'not specified':
-        ValueError("Compute signature type is not specified.")
-    elif index == 'not specified':
-        ValueError("Signature index is not specified.")
-    else:
-        signatures = []
-        index = int(index)
+        raise ValueError("Compute signature type is not specified.")
+    dic_signatures_record = {}
+    for index in range(len(data)):
         if algorithm == 'feature-value':
-            for dtuple in data:
-                signatures.append([dtuple[index]])
-            return signatures
+            signatures = _compute_feature_value_signature(data[index], signature_config)
         else:
             msg = 'The algorithm {} is not implemented yet'.format(algorithm)
-            NotImplementedError(msg)
+            raise NotImplementedError(msg)
+        for signature in signatures:
+            if signature in dic_signatures_record:
+                dic_signatures_record[signature].append(index)
+            else:
+                dic_signatures_record[signature] = [index]
+    return dic_signatures_record
+
+
+def _compute_feature_value_signature(record, feature_value_config):
+    """
+
+    :param record: a tuple of values from the dataset
+    :param feature_value_config: the configuration for a single signature algorithm
+    :return: a list of signatures for this record.
+    """
+    index = feature_value_config.get('feature-index', 'not specified')
+    # By default, keep the whole value if no regex-pattern is provided
+    pattern = feature_value_config.get('regex-pattern', '.*')
+
+    if index == 'not specified':
+        raise ValueError("Signature index is not specified.")
+
+    index = int(index)
+    prog = re.compile(pattern)
+
+    prog_output = prog.search(record[index])
+    if prog_output:
+        return [prog_output.group()]
+    return []
