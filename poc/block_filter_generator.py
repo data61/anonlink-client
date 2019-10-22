@@ -30,7 +30,7 @@ def _dummy_candidate_block_filer_from_signature(signatures, config):
         if key in values:
             block_id = values.index(key)
             vector_output[block_id] = 1
-            cbf_map[block_id] = key
+            cbf_map[block_id] = [key]
         else:
             raise ValueError("Value '{}' not part of the configuration. Should be amongst '{}'.".format(key, values))
     return vector_output, cbf_map
