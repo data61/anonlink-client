@@ -1,7 +1,8 @@
 import re
+from typing import Sequence, Tuple
 
 
-def compute_signatures(data, signature_config):
+def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
     """
     :param data: list of tuples E.g. ('0', 'Kenneth Bain', '1964/06/17', 'M')
     :param signature_config:
@@ -44,12 +45,15 @@ def _compute_feature_value_signature(record, feature_value_config):
     """
     index = feature_value_config.get('feature-index', 'not specified')
     # By default, keep the whole value if no regex-pattern is provided
-    pattern = feature_value_config.get('pattern', '.*')
+    pattern = feature_value_config.get('regex-pattern', '.*')
 
     if index == 'not specified':
         raise ValueError("Signature index is not specified.")
 
     index = int(index)
     prog = re.compile(pattern)
-    list_signatures = prog.match(record[index])
-    return list_signatures
+
+    prog_output = prog.search(record[index])
+    if prog_output:
+        return [prog_output.group()]
+    return []

@@ -26,11 +26,11 @@ def _dummy_candidate_block_filer_from_signature(signatures, config):
     values = config['values']
     cbf_map = {}
     vector_output = np.zeros(len(values), dtype=np.int8)
-    for value in set([x[0] for x in signatures]):
-        if value in values:
-            block_id = values.index(value)
+    for key in signatures.keys():
+        if key in values:
+            block_id = values.index(key)
             vector_output[block_id] = 1
-            cbf_map[block_id] = value
+            cbf_map[block_id] = key
         else:
-            raise ValueError("Value '{}' not part of the configuration. Should be amongst '{}'.".format(value, values))
+            raise ValueError("Value '{}' not part of the configuration. Should be amongst '{}'.".format(key, values))
     return vector_output, cbf_map
