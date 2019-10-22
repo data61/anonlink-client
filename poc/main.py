@@ -18,17 +18,17 @@ def compute_candidate_block_filter(data, blocking_config):
         - the candidate block filter (CBF) and
         - a dict mapping block index (e.g. index in the cbf) to the list of
           signatures that are associated with that cbf location, and
-        - a dict mapping signatures to records
+        - candidate signatures a dict mapping signatures to records
     """
     signature_config = blocking_config['signature']
     filter_config = blocking_config['filter']
-    config = blocking_config['candidate-blocking-filter']
 
     candidate_signatures, signature_state = compute_signatures(data, signature_config)
     signatures = filter_signatures(candidate_signatures, filter_config)
-    return tuple([candidate_block_filter_from_signatures(signatures, config)[0],
-                 candidate_block_filter_from_signatures(signatures, config)[1],
-                  candidate_signatures])
+
+    return tuple(
+        [*candidate_block_filter_from_signatures(signatures, signature_state, blocking_config),
+        candidate_signatures])
 
 
 def run_gender_blocking():
