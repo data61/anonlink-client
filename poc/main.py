@@ -106,9 +106,12 @@ def run_gender_blocking():
     encodings_dp1 = generate_clks(df1, schema=febrl4_schema(), secret_keys=("tick", "tock"))
     encodings_dp2 = generate_clks(df2, schema=febrl4_schema(), secret_keys=("tick", "tock"))
 
+    num_blocks = _count_blocks(dp1_blocks)
+    print(f"Number of blocks {num_blocks}")
+
     solution = solve((encodings_dp1, encodings_dp2), (dp1_blocks, dp2_blocks))
     print('Found {} matches'.format(len(solution)))
-    found_matches =set((a, b) for ((_, a), (_, b)) in solution)
+    found_matches = set((a, b) for ((_, a), (_, b)) in solution)
 
     the_truth = load_truth(df1, df2, id_col='rec_id')
 
@@ -119,6 +122,15 @@ def run_gender_blocking():
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
     print(f'precision: {precision}, recall: {recall}')
+
+
+def _count_blocks(dp1_blocks):
+    blockidset = set()
+    for record_id in dp1_blocks:
+        for block in dp1_blocks[record_id]:
+            blockidset.add(block)
+    num_blocks = len(blockidset)
+    return num_blocks
 
 
 if __name__ == '__main__':
