@@ -3,6 +3,7 @@ from poc.filter import filter_signatures
 from poc.block_filter_generator import candidate_block_filter_from_signatures
 from poc.server import compute_blocking_filter
 from poc.signature_generator import compute_signatures
+from recordlinkage.datasets import load_febrl4
 
 
 def compute_candidate_block_filter(data, blocking_config):
@@ -40,10 +41,14 @@ def run_gender_blocking():
 
     }
 
-    data = list(clkhash.randomnames.NameList(100).names)
-    print("Example PII", data[0])
-    dp1_candidate_block_filter, cbf_map_1 = compute_candidate_block_filter(data[:75], blocking_config)
-    dp2_candidate_block_filter, cbf_map_2 = compute_candidate_block_filter(data[50:], blocking_config)
+    df1, df2 = load_febrl4()
+    df1 = df1.fillna('')
+    df2 = df2.fillna('')
+    data1 = df1.to_dict(orient='split')['data']
+    data2 = df2.to_dict(orient='split')['data']
+    print("Example PII", data1[0])
+    dp1_candidate_block_filter, cbf_map_1 = compute_candidate_block_filter(data1, blocking_config)
+    dp2_candidate_block_filter, cbf_map_2 = compute_candidate_block_filter(data2, blocking_config)
     print("Candidate block filter dp1:", dp1_candidate_block_filter)
     print("Candidate block filter dp2:", dp2_candidate_block_filter)
     print("Candidate block filter map 1:", cbf_map_1)
