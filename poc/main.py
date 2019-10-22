@@ -6,6 +6,7 @@ from poc.server import compute_blocking_filter, solve
 from poc.signature_generator import compute_signatures
 from recordlinkage.datasets import load_febrl4
 from poc.clk_util import generate_clks, febrl4_schema
+from poc.data_util import load_truth
 
 
 def compute_candidate_block_filter(data, blocking_config):
@@ -209,8 +210,11 @@ def run_gender_blocking():
     }
 
     df1, df2 = load_febrl4()
-    df1 = df1.fillna('')
-    df2 = df2.fillna('')
+    """creates a new index called 'id' which only contains entity id. no 'rec-1070-dup0' shit"""
+    df1['rec_id'] = [int(s.split('-')[1]) for s in df1.index]
+    df2['rec_id'] = [int(s.split('-')[1]) for s in df2.index]
+    df1 = df1.set_index('rec_id').fillna('')
+    df2 = df2.set_index('rec_id').fillna('')
     data1 = df1.to_dict(orient='split')['data']
     data2 = df2.to_dict(orient='split')['data']
     print("Example PII", data1[0])
@@ -232,8 +236,17 @@ def run_gender_blocking():
 
     solution = solve((encodings_dp1, encodings_dp2), (dp1_blocks, dp2_blocks))
     print('Found {} matches'.format(len(solution)))
-    mapping = {a: b for ((_, a), (_, b)) in solution}
-    print(f'the mapping: {mapping}')
+    found_matches =set((a, b) for ((_, a), (_, b)) in solution)
+
+    the_truth = load_truth(df1, df2, id_col='rec_id')
+
+    tp = len(found_matches & the_truth)
+    fp = len(found_matches - the_truth)
+    fn = len(the_truth - found_matches)
+
+    precision = tp / (tp + fp)
+    recall = tp / (tp + fn)
+    print(f'precision: {precision}, recall: {recall}')
 
 
 if __name__ == '__main__':
