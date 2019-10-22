@@ -41,7 +41,7 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
         if config == 'not specified':
             raise ValueError('Please provide config for P-Sig from blocklib')
         psig = PPRLIndexPSignature(config)
-        dic_signatures_record, bf= psig.build_inverted_index(data)
+        dic_signatures_record, bf = psig.build_inverted_index(data)
 
     else:
         msg = 'The algorithm {} is not implemented yet'.format(algorithm)
