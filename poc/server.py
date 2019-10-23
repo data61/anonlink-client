@@ -33,6 +33,7 @@ def solve(encodings: Sequence[List[bitarray]], rec_to_blocks: Sequence[Dict[int,
         anonlink.similarities.dice_coefficient,
         threshold=threshold,
         blocking_f=my_blocking_f)
-
-    return anonlink.solving.greedy_solve(candidate_pairs)
+    # Need to use the probabilistic greedy solver to be able to remove the duplicate. It is not configurable
+    # with the native greedy solver.
+    return anonlink.solving.probabilistic_greedy_solve(candidate_pairs, merge_threshold=1.0)
 

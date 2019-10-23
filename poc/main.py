@@ -1,14 +1,17 @@
-
+from clkhash.schema import from_json_dict
 from poc.filter import filter_signatures
 from poc.block_filter_generator import candidate_block_filter_from_signatures
 from poc.reverse_index import create_block_list_lookup
 from poc.server import compute_blocking_filter, solve
 from poc.signature_generator import compute_signatures
-from recordlinkage.datasets import load_febrl4
-from poc.clk_util import generate_clks, febrl4_schema
-from poc.data_util import load_truth
+from poc.clk_util import generate_clks
+from poc.data_util import load_truth, download_data
+import json
+import os
+import pandas as pd
 from poc.statistics import BlockStats
 import numpy as np
+
 
 
 def compute_candidate_block_filter(data, blocking_config):
@@ -34,7 +37,7 @@ def compute_candidate_block_filter(data, blocking_config):
         candidate_signatures])
 
 
-def run_gender_blocking():
+def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
 
     blocking_config = {
         'signature': {
@@ -51,7 +54,7 @@ def run_gender_blocking():
                 # signatures from? Or should each
                 # signature generation strategy
                 # identify the features...?
-                'default_features': [0, 1, 3, 4],
+                'default_features': [1, 2, 4, 5],
 
                 # could be under "filters" key?
                 'max_occur_ratio': 0.05,
@@ -83,12 +86,16 @@ def run_gender_blocking():
         }
     }
 
-    df1, df2 = load_febrl4()
-    """creates a new index called 'id' which only contains entity id. no 'rec-1070-dup0' shit"""
-    df1['rec_id'] = [int(s.split('-')[1]) for s in df1.index]
-    df2['rec_id'] = [int(s.split('-')[1]) for s in df2.index]
-    df1 = df1.set_index('rec_id').fillna('')
-    df2 = df2.set_index('rec_id').fillna('')
+    path_file_1 = os.path.join(data_folder, "{}Parties".format(nb_parties),
+                 "PII_{}_{}.csv".format(chr(0 + 97), sizes))
+    df1 = pd.read_csv(path_file_1)
+    path_file_2 = os.path.join(data_folder, "{}Parties".format(nb_parties),
+                 "PII_{}_{}.csv".format(chr(1 + 97), sizes))
+    df2 = pd.read_csv(path_file_2)
+    """Use the entity_id column as index, but keep it as column too."""
+    print(df1.index)
+    df1 = df1.set_index('entity_id', drop=False).fillna('')
+    df2 = df2.set_index('entity_id', drop=False).fillna('')
     data1 = df1.to_dict(orient='split')['data']
     data2 = df2.to_dict(orient='split')['data']
     print("Example PII", data1[0])
@@ -105,14 +112,21 @@ def run_gender_blocking():
     dp1_blocks = create_block_list_lookup(block_filter, cbf_map_1, sig_records_map_1, blocking_config['reverse-index'])
     dp2_blocks = create_block_list_lookup(block_filter, cbf_map_2, sig_records_map_2, blocking_config['reverse-index'])
 
-    stats = BlockStats(block_filter, (cbf_map_1, cbf_map_2), (sig_records_map_1, sig_records_map_2), blocking_config['reverse-index'])
+    stats = BlockStats(block_filter, (cbf_map_1, cbf_map_2), (sig_records_map_1, sig_records_map_2),
+                       blocking_config['reverse-index'])
     print(f'total comparisons: {int(stats.total_comparisons()):,}')
     el_per_block = stats.elements_per_block()
-    print(f'elements per block, max: {el_per_block.max()}, min: {el_per_block.min()}, mean: {el_per_block.mean()}, median: {np.median(el_per_block)}')
+    print(
+        f'elements per block, max: {el_per_block.max()}, min: {el_per_block.min()}, mean: {el_per_block.mean()}, median: {np.median(el_per_block)}')
     print(f'number of blocks: {stats.number_of_blocks()}')
 
-    encodings_dp1 = generate_clks(df1, schema=febrl4_schema(), secret_keys=("tick", "tock"))
-    encodings_dp2 = generate_clks(df2, schema=febrl4_schema(), secret_keys=("tick", "tock"))
+
+    schema_json_fp = os.path.join(data_folder, 'schema.json')
+    with open(schema_json_fp, "r") as read_file:
+        schema_json = json.load(read_file)
+    schema = from_json_dict(schema_json)
+    encodings_dp1 = generate_clks(df1, schema=schema, secret_keys=("tick", "tock"))
+    encodings_dp2 = generate_clks(df2, schema=schema, secret_keys=("tick", "tock"))
 
     num_blocks = _count_blocks(dp1_blocks)
     print(f"Number of blocks {num_blocks}")
@@ -121,7 +135,7 @@ def run_gender_blocking():
     print('Found {} matches'.format(len(solution)))
     found_matches = set((a, b) for ((_, a), (_, b)) in solution)
 
-    the_truth = load_truth(df1, df2, id_col='rec_id')
+    the_truth = load_truth(df1, df2, id_col='entity_id')
 
     tp = len(found_matches & the_truth)
     fp = len(found_matches - the_truth)
@@ -142,4 +156,6 @@ def _count_blocks(dp1_blocks):
 
 
 if __name__ == '__main__':
-    run_gender_blocking()
+    download_data(2, 10000)
+    run_gender_blocking(2, 10000)
+

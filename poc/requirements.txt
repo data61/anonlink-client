@@ -1,6 +1,7 @@
-clkhash == 0.14.0
-numpy == 1.17.3
-pytest == 5.2.1
-recordlinkage == 0.13.2
 anonlink == 0.12.5
+clkhash == 0.14.0
 jsonschema == 3.0.2
+numpy == 1.17.3
+pandas == 0.25.2
+pytest == 5.2.1
+requests == 2.22.0
