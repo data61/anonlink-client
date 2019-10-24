@@ -14,8 +14,10 @@ def create_reverse_index(block_filter, cbf_map, sig_rec_map, config):
     if method_type == 'not provided':
         raise ValueError("reverse-index type not provided.")
 
-    if method_type == 'group-single-index':
+    if method_type == 'index-based-blocks':
         return _single_index_reverse_index(block_filter, cbf_map, sig_rec_map, config)
+    elif method_type == 'signature-based-blocks':
+        return _signature_based_reverse_index(block_filter, cbf_map, sig_rec_map, config)
     else:
         raise ValueError("reverse index type '{}' is not recognized.".format(method_type))
 
@@ -38,6 +40,10 @@ def _single_index_reverse_index(blocking_filter, cbf_map, sig_to_record_map, con
     return block_map
 
 
+def _signature_based_reverse_index(block_filter, cbf_map, sig_rec_map, config):
+    raise NotImplementedError("implement me, please")
+
+
 def create_block_list_lookup(block_filter, cbf_map, sig_rec_map, config):
     """
 
@@ -51,8 +57,10 @@ def create_block_list_lookup(block_filter, cbf_map, sig_rec_map, config):
     if method_type == 'not provided':
         raise ValueError("reverse-index type not provided.")
 
-    if method_type == 'group-single-index':
+    if method_type == 'index-based-blocks':
         return _single_index_block_list_lookup(block_filter, cbf_map, sig_rec_map)
+    elif method_type == 'signature-based-blocks':
+        return _signature_based_block_list_lookup(block_filter, cbf_map, sig_rec_map)
     else:
         raise ValueError("reverse index type '{}' is not recognized.".format(method_type))
 
@@ -72,4 +80,21 @@ def _single_index_block_list_lookup(blocking_filter, cbf_map, sig_to_record_map)
             for x in cbf_map[i]:
                 for y in sig_to_record_map[x]:
                     block_map[y].append(i)
+    return block_map
+
+
+def _signature_based_block_list_lookup(block_filter, cbf_map, sig_rec_map):
+    # reverse cbf_map
+    sig_pos = defaultdict(list)
+    for pos, sig_list in cbf_map.items():
+        for sig in sig_list:
+            sig_pos[sig].append(pos)
+    for sig, positions in sig_pos.items():
+        if not all(block_filter[i] for i in positions):
+            del sig_rec_map[sig]
+    #now reverse sig_rec_map...
+    block_map = defaultdict(list)
+    for sig, rec_ids in sig_rec_map.items():
+        for rec_id in rec_ids:
+            block_map[rec_id].append(sig)
     return block_map

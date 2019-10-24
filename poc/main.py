@@ -46,7 +46,7 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
             'type': 'p-sig',
             'version': 1,
             'config': {
-                'number_hash_functions': 1,
+                'number_hash_functions': 4,
                 'bf_len': 4096,
 
                 # Does it make sense to have a
@@ -57,7 +57,7 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
                 'default_features': [1, 2, 4, 5],
 
                 # could be under "filters" key?
-                'max_occur_ratio': 0.05,
+                'max_occur_ratio': 0.02,
                 'min_occur_ratio': 0.001,
 
                 # Maybe a config for how to join the
@@ -82,7 +82,7 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
             'type': 'dummy'
         },
         'reverse-index': {
-            'type': 'group-single-index'
+            'type': 'signature-based-blocks'
         }
     }
 
@@ -112,7 +112,7 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
     dp1_blocks = create_block_list_lookup(block_filter, cbf_map_1, sig_records_map_1, blocking_config['reverse-index'])
     dp2_blocks = create_block_list_lookup(block_filter, cbf_map_2, sig_records_map_2, blocking_config['reverse-index'])
 
-    stats = BlockStats(block_filter, (cbf_map_1, cbf_map_2), (sig_records_map_1, sig_records_map_2),
+    stats = BlockStats.get_stats(block_filter, (cbf_map_1, cbf_map_2), (sig_records_map_1, sig_records_map_2),
                        blocking_config['reverse-index'])
     print(f'total comparisons: {int(stats.total_comparisons()):,}')
     el_per_block = stats.elements_per_block()
@@ -131,7 +131,7 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
     num_blocks = _count_blocks(dp1_blocks)
     print(f"Number of blocks {num_blocks}")
 
-    solution = solve((encodings_dp1, encodings_dp2), (dp1_blocks, dp2_blocks))
+    solution = solve((encodings_dp1, encodings_dp2), (dp1_blocks, dp2_blocks), threshold=0.85)
     print('Found {} matches'.format(len(solution)))
     found_matches = set((a, b) for ((_, a), (_, b)) in solution)
 
