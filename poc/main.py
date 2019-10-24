@@ -88,10 +88,10 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
 
     path_file_1 = os.path.join(data_folder, "{}Parties".format(nb_parties),
                  "PII_{}_{}.csv".format(chr(0 + 97), sizes))
-    df1 = pd.read_csv(path_file_1)
+    df1 = pd.read_csv(path_file_1, skipinitialspace=True)
     path_file_2 = os.path.join(data_folder, "{}Parties".format(nb_parties),
                  "PII_{}_{}.csv".format(chr(1 + 97), sizes))
-    df2 = pd.read_csv(path_file_2)
+    df2 = pd.read_csv(path_file_2, skipinitialspace=True)
     """Use the entity_id column as index, but keep it as column too."""
     print(df1.index)
     df1 = df1.set_index('entity_id', drop=False).fillna('')
