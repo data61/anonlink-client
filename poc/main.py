@@ -6,7 +6,7 @@ from poc.reverse_index import create_block_list_lookup
 from poc.server import compute_blocking_filter, solve
 from poc.signature_generator import compute_signatures
 from poc.clk_util import generate_clks
-from poc.data_util import load_truth, download_data
+from poc.data_util import load_truth, download_data, download_reference_data
 import json
 import os
 import pandas as pd
@@ -191,4 +191,5 @@ def _count_blocks(dp1_blocks):
 
 if __name__ == '__main__':
     download_data(2, 10000)
+    download_reference_data(2, 200000)
     run_gender_blocking(2, 10000)

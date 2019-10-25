@@ -55,3 +55,19 @@ def download_data(nb_parties, size, data_folder="./data"):
         _download_file_if_not_present(folder, local_data_folder, pii_file)
 
     print('Downloads complete')
+
+
+def download_reference_data(nb_parties, size, data_folder="./data"):
+    """Download reference data."""
+    print('Downloading reference dataset from S3')
+    base = 'https://s3-ap-southeast-2.amazonaws.com/blocklib/'
+    # os.makedirs(data_folder, exist_ok=True)
+    # _download_file_if_not_present(base, data_folder, 'schema.json')
+
+    folder = base
+    local_data_folder = os.path.join(data_folder, "{}Parties/".format(nb_parties))
+
+    pii_file = f"PII_reference_{size}.csv"
+    _download_file_if_not_present(folder, local_data_folder, pii_file)
+
+    print('Reference data downloads complete')
