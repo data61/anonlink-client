@@ -1,5 +1,5 @@
 from typing import Sequence
-
+from collections import defaultdict
 import numpy as np
 
 
@@ -51,3 +51,18 @@ def _dummy_candidate_block_filer_from_signature(signatures, config):
         else:
             raise ValueError("Value '{}' not part of the configuration. Should be amongst '{}'.".format(key, values))
     return vector_output, cbf_map
+
+
+def generate_block(dp1_signatures, dp2_signatures):
+    """Generate rec to block ID dict for blocking without overlapping."""
+    dp1_blocks = defaultdict(list)
+    dp2_blocks = defaultdict(list)
+
+    for blk_id, rec_list in dp1_signatures.items():
+        for rec in rec_list:
+            dp1_blocks[rec].append(blk_id)
+    for blk_id, rec_list in dp2_signatures.items():
+        for rec in rec_list:
+            dp2_blocks[rec].append(blk_id)
+
+    return dp1_blocks, dp2_blocks

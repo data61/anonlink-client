@@ -1,6 +1,7 @@
 from clkhash.schema import from_json_dict
 from poc.filter import filter_signatures
 from poc.block_filter_generator import candidate_block_filter_from_signatures
+from poc.block_filter_generator import generate_block
 from poc.reverse_index import create_block_list_lookup
 from poc.server import compute_blocking_filter, solve
 from poc.signature_generator import compute_signatures
@@ -43,33 +44,53 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
         'signature': {
             # 'type': 'feature-value',
             #'config': {'feature-index': 3},
-            'type': 'p-sig',
+            # 'type': 'p-sig',
+            # 'version': 1,
+            # 'config': {
+            #     'number_hash_functions': 4,
+            #     'bf_len': 4096,
+            #
+            #     # Does it make sense to have a
+            #     # common list of features to make
+            #     # signatures from? Or should each
+            #     # signature generation strategy
+            #     # identify the features...?
+            #     'default_features': [1, 2, 4, 5],
+            #
+            #     # could be under "filters" key?
+            #     'max_occur_ratio': 0.02,
+            #     'min_occur_ratio': 0.001,
+            #
+            #     # Maybe a config for how to join the
+            #     # signatures back together?
+            #     'join': {},
+            #
+            #     'signatures': [
+            #         {"type": 'feature-value'},
+            #         #{"type": 'soundex'},
+            #         {"type": 'metaphone'},
+            #         {"type": 'n-gram', 'config': {'n': 2}},
+            #     ]
+            # }
+            'type': 'kasn',
             'version': 1,
             'config': {
-                'number_hash_functions': 4,
-                'bf_len': 4096,
-
-                # Does it make sense to have a
-                # common list of features to make
-                # signatures from? Or should each
-                # signature generation strategy
-                # identify the features...?
+                'k': 10,
+                'sim_measure': {'algorithm': 'Dice',
+                                'ngram_len': '3',
+                                'ngram_padding': True,
+                                'padding_start_char': '\x01',
+                                'padding_end_char': '\x01'},
+                'min_sim_threshold': 0.8,
+                'overlap': 3,
+                'sim_or_size': 'SIZE',
                 'default_features': [1, 2, 4, 5],
-
-                # could be under "filters" key?
-                'max_occur_ratio': 0.02,
-                'min_occur_ratio': 0.001,
-
-                # Maybe a config for how to join the
-                # signatures back together?
-                'join': {},
-
-                'signatures': [
-                    {"type": 'feature-value'},
-                    #{"type": 'soundex'},
-                    {"type": 'metaphone'},
-                    {"type": 'n-gram', 'config': {'n': 2}},
-                ]
+                'sorted_first_val': '\x01',
+                'ref_data_config': {'path': 'data/2Parties/PII_reference.csv',
+                                    'header_line': True,
+                                    'default_features': [1, 2, 4, 5],
+                                    'num_vals': 10,
+                                    'random_seed': 0}
             }
         },
         'filter': {
@@ -99,27 +120,43 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
     data1 = df1.to_dict(orient='split')['data']
     data2 = df2.to_dict(orient='split')['data']
     print("Example PII", data1[0])
-    dp1_candidate_block_filter, cbf_map_1, sig_records_map_1 = compute_candidate_block_filter(data1, blocking_config)
-    dp2_candidate_block_filter, cbf_map_2, sig_records_map_2 = compute_candidate_block_filter(data2, blocking_config)
-    print("Candidate block filter dp1:", dp1_candidate_block_filter)
-    print("Candidate block filter dp2:", dp2_candidate_block_filter)
-    print("Candidate block filter map 1:", cbf_map_1)
-    print("Candidate block filter map 2:", cbf_map_2)
 
-    block_filter = compute_blocking_filter((dp1_candidate_block_filter, dp2_candidate_block_filter))
-    print("Block filter:", block_filter)
+    # blocking with overlapping -> needs filter
+    blocking_algorithm = blocking_config['signature']['type']
+    if blocking_algorithm in {'p-sig'}:
+        dp1_candidate_block_filter, cbf_map_1, sig_records_map_1 = compute_candidate_block_filter(data1, blocking_config)
+        dp2_candidate_block_filter, cbf_map_2, sig_records_map_2 = compute_candidate_block_filter(data2, blocking_config)
+        print("Candidate block filter dp1:", dp1_candidate_block_filter)
+        print("Candidate block filter dp2:", dp2_candidate_block_filter)
+        print("Candidate block filter map 1:", cbf_map_1)
+        print("Candidate block filter map 2:", cbf_map_2)
 
-    dp1_blocks = create_block_list_lookup(block_filter, cbf_map_1, sig_records_map_1, blocking_config['reverse-index'])
-    dp2_blocks = create_block_list_lookup(block_filter, cbf_map_2, sig_records_map_2, blocking_config['reverse-index'])
+        block_filter = compute_blocking_filter((dp1_candidate_block_filter, dp2_candidate_block_filter))
+        print("Block filter:", block_filter)
 
-    stats = BlockStats.get_stats(block_filter, (cbf_map_1, cbf_map_2), (sig_records_map_1, sig_records_map_2),
-                       blocking_config['reverse-index'])
-    print(f'total comparisons: {int(stats.total_comparisons()):,}')
-    el_per_block = stats.elements_per_block()
-    print(
-        f'elements per block, max: {el_per_block.max()}, min: {el_per_block.min()}, mean: {el_per_block.mean()}, median: {np.median(el_per_block)}')
-    print(f'number of blocks: {stats.number_of_blocks()}')
+        dp1_blocks = create_block_list_lookup(block_filter, cbf_map_1, sig_records_map_1, blocking_config['reverse-index'])
+        dp2_blocks = create_block_list_lookup(block_filter, cbf_map_2, sig_records_map_2, blocking_config['reverse-index'])
 
+        stats = BlockStats.get_stats(block_filter, (cbf_map_1, cbf_map_2), (sig_records_map_1, sig_records_map_2),
+                           blocking_config['reverse-index'])
+        print(f'total comparisons: {int(stats.total_comparisons()):,}')
+        el_per_block = stats.elements_per_block()
+        print(
+            f'elements per block, max: {el_per_block.max()}, min: {el_per_block.min()}, mean: {el_per_block.mean()}, median: {np.median(el_per_block)}')
+        print(f'number of blocks: {stats.number_of_blocks()}')
+
+        num_blocks = _count_blocks(dp1_blocks)
+        print(f"Number of blocks {num_blocks}")
+
+    # blocking without overlapping -> no need for filter
+    elif blocking_algorithm in {'kasn'} :
+        dp1_signatures, _ = compute_signatures(data1, blocking_config['signature'])
+        dp2_signatures, _ = compute_signatures(data2, blocking_config['signature'])
+        dp1_blocks, dp2_blocks = generate_block(dp1_signatures, dp2_signatures)
+
+    # exception
+    else:
+        raise NotImplementedError('Blocking algorithm "{}" is not supported yet'.format(blocking_algorithm))
 
     schema_json_fp = os.path.join(data_folder, 'schema.json')
     with open(schema_json_fp, "r") as read_file:
@@ -127,9 +164,6 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
     schema = from_json_dict(schema_json)
     encodings_dp1 = generate_clks(df1, schema=schema, secret_keys=("tick", "tock"))
     encodings_dp2 = generate_clks(df2, schema=schema, secret_keys=("tick", "tock"))
-
-    num_blocks = _count_blocks(dp1_blocks)
-    print(f"Number of blocks {num_blocks}")
 
     solution = solve((encodings_dp1, encodings_dp2), (dp1_blocks, dp2_blocks), threshold=0.85)
     print('Found {} matches'.format(len(solution)))
@@ -158,4 +192,3 @@ def _count_blocks(dp1_blocks):
 if __name__ == '__main__':
     download_data(2, 10000)
     run_gender_blocking(2, 10000)
-

@@ -2,6 +2,7 @@ import re
 from typing import Sequence, Tuple
 
 from blocklib import PPRLIndexPSignature
+from blocklib import PPRLIndexKAnonymousSortedNeighbour
 from poc.validation import validate_signature_config
 
 
@@ -51,7 +52,16 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
         if config == 'not specified':
             raise ValueError('Please provide config for P-Sig from blocklib')
         state = PPRLIndexPSignature(config)
-        dic_signatures_record, candidate_blocking_filter = state.build_inverted_index(data)
+        dic_signatures_record = state.build_inverted_index(data)
+
+    # K Anonymous Sorted Nearest Neighbor
+    elif algorithm == 'kasn':
+        config = signature_config.get('config', 'not specfied')
+        if config == 'not specified':
+            raise ValueError('Please provide config for P-Sig from blocklib')
+        state = PPRLIndexKAnonymousSortedNeighbour(config)
+        dic_signatures_record = state.build_inverted_index(data)
+        state.summarize_invert_index(dic_signatures_record)
 
     else:
         msg = 'The algorithm {} is not implemented yet'.format(algorithm)
