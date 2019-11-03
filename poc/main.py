@@ -1,7 +1,7 @@
 from clkhash.schema import from_json_dict
 from poc.filter import filter_signatures
 from poc.block_filter_generator import candidate_block_filter_from_signatures
-from poc.block_filter_generator import generate_block
+from poc.block_filter_generator import generate_block, generate_reverse_blocks
 from poc.reverse_index import create_block_list_lookup
 from poc.server import compute_blocking_filter, solve
 from poc.signature_generator import compute_signatures
@@ -10,9 +10,8 @@ from poc.data_util import load_truth, download_data, download_reference_data
 import json
 import os
 import pandas as pd
-from poc.statistics import BlockStats
+from poc.block_statistics import BlockStats, assess_blocks
 import numpy as np
-
 
 
 def compute_candidate_block_filter(data, blocking_config):
@@ -28,77 +27,71 @@ def compute_candidate_block_filter(data, blocking_config):
         - candidate signatures a dict mapping signatures to records
     """
     signature_config = blocking_config['signature']
-    filter_config = blocking_config['filter']
 
     candidate_signatures, signature_state = compute_signatures(data, signature_config)
-    signatures = filter_signatures(candidate_signatures, filter_config)
 
     return tuple(
-        [*candidate_block_filter_from_signatures(signatures, signature_state, blocking_config),
-        candidate_signatures])
+        [*candidate_block_filter_from_signatures(candidate_signatures, signature_state, blocking_config),
+         candidate_signatures])
 
 
 def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
-
     blocking_config = {
         'signature': {
-            # 'type': 'feature-value',
-            #'config': {'feature-index': 3},
-            # 'type': 'p-sig',
+            "type": "p-sig",
+            "version": 1,
+            "output": {
+                "type": "reverse_index",
+            },
+            "config": {
+                # "blocking_features": ["given_name", "surname", "address_1", "address_2"],
+                "blocking_features": [1, 2, 4, 5],
+                "filter": {
+                    "type": "ratio",
+                    "max_occur_ratio": 0.02,
+                    "min_occur_ratio": 0.001,
+                },
+                "blocking-filter": {
+                    "type": "bloom filter",
+                    "number_hash_functions": 4,
+                    "bf_len": 4096,
+                },
+                "map_to_block_algorithm": {
+                    "type": "signature-based-blocks",
+                },
+                "signatures": [
+                    {"type": "feature-value", "columns": [2]},
+                    # {"type": "soundex", "columns": [1, 2]},
+                    {"type": "metaphone", "columns": [4, 5]},
+                    {"type": "n-gram", "columns": [1, 2, 4, 5], "config": {"n": 3}},
+                    # {"type": "feature-value", "columns": ["given_name", "surname", "address_1", "address_2"]},
+                    # {"type": "soundex", "columns": ["given_name", "surname"]},
+                    # {"type": "metaphone", "columns": ["address_1", "address_2"]},
+                    # {"type": "n-gram", "columns": ["surname", "address_1"],  "config": {"n": 2}},
+                ],
+            }
+            # 'type': 'kasn',
             # 'version': 1,
             # 'config': {
-            #     'number_hash_functions': 4,
-            #     'bf_len': 4096,
-            #
-            #     # Does it make sense to have a
-            #     # common list of features to make
-            #     # signatures from? Or should each
-            #     # signature generation strategy
-            #     # identify the features...?
+            #     'k': 10,
+            #     'sim_measure': {'algorithm': 'Edit',
+            #                     'ngram_len': '3',
+            #                     'ngram_padding': True,
+            #                     'padding_start_char': '\x01',
+            #                     'padding_end_char': '\x01'},
+            #     'min_sim_threshold': 0.8,
+            #     'overlap': 0,
+            #     'sim_or_size': 'SIZE',
             #     'default_features': [1, 2, 4, 5],
-            #
-            #     # could be under "filters" key?
-            #     'max_occur_ratio': 0.02,
-            #     'min_occur_ratio': 0.001,
-            #
-            #     # Maybe a config for how to join the
-            #     # signatures back together?
-            #     'join': {},
-            #
-            #     'signatures': [
-            #         {"type": 'feature-value'},
-            #         #{"type": 'soundex'},
-            #         {"type": 'metaphone'},
-            #         {"type": 'n-gram', 'config': {'n': 2}},
-            #     ]
+            #     'sorted_first_val': '\x01',
+            #     'ref_data_config': {'path': 'data/2Parties/PII_reference_200000.csv',
+            #                         'header_line': True,
+            #                         'default_features': [1, 2, 4, 5],
+            #                         'num_vals': 500,
+            #                         'random_seed': 0}
             # }
-            'type': 'kasn',
-            'version': 1,
-            'config': {
-                'k': 10,
-                'sim_measure': {'algorithm': 'Dice',
-                                'ngram_len': '3',
-                                'ngram_padding': True,
-                                'padding_start_char': '\x01',
-                                'padding_end_char': '\x01'},
-                'min_sim_threshold': 0.8,
-                'overlap': 3,
-                'sim_or_size': 'SIZE',
-                'default_features': [1, 2, 4, 5],
-                'sorted_first_val': '\x01',
-                'ref_data_config': {'path': 'data/2Parties/PII_reference.csv',
-                                    'header_line': True,
-                                    'default_features': [1, 2, 4, 5],
-                                    'num_vals': 10,
-                                    'random_seed': 0}
-            }
         },
-        'filter': {
-            'type': 'none'
-            # 'type': 'frequency',
-            # 'min': 2,
-            # 'max': 1000
-        },
+
         'candidate-blocking-filter': {
             'type': 'dummy'
         },
@@ -108,10 +101,10 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
     }
 
     path_file_1 = os.path.join(data_folder, "{}Parties".format(nb_parties),
-                 "PII_{}_{}.csv".format(chr(0 + 97), sizes))
+                               "PII_{}_{}.csv".format(chr(0 + 97), sizes))
     df1 = pd.read_csv(path_file_1, skipinitialspace=True)
     path_file_2 = os.path.join(data_folder, "{}Parties".format(nb_parties),
-                 "PII_{}_{}.csv".format(chr(1 + 97), sizes))
+                               "PII_{}_{}.csv".format(chr(1 + 97), sizes))
     df2 = pd.read_csv(path_file_2, skipinitialspace=True)
     """Use the entity_id column as index, but keep it as column too."""
     print(df1.index)
@@ -124,8 +117,10 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
     # blocking with overlapping -> needs filter
     blocking_algorithm = blocking_config['signature']['type']
     if blocking_algorithm in {'p-sig'}:
-        dp1_candidate_block_filter, cbf_map_1, sig_records_map_1 = compute_candidate_block_filter(data1, blocking_config)
-        dp2_candidate_block_filter, cbf_map_2, sig_records_map_2 = compute_candidate_block_filter(data2, blocking_config)
+        dp1_candidate_block_filter, cbf_map_1, sig_records_map_1 = compute_candidate_block_filter(data1,
+                                                                                                  blocking_config)
+        dp2_candidate_block_filter, cbf_map_2, sig_records_map_2 = compute_candidate_block_filter(data2,
+                                                                                                  blocking_config)
         print("Candidate block filter dp1:", dp1_candidate_block_filter)
         print("Candidate block filter dp2:", dp2_candidate_block_filter)
         print("Candidate block filter map 1:", cbf_map_1)
@@ -134,11 +129,13 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
         block_filter = compute_blocking_filter((dp1_candidate_block_filter, dp2_candidate_block_filter))
         print("Block filter:", block_filter)
 
-        dp1_blocks = create_block_list_lookup(block_filter, cbf_map_1, sig_records_map_1, blocking_config['reverse-index'])
-        dp2_blocks = create_block_list_lookup(block_filter, cbf_map_2, sig_records_map_2, blocking_config['reverse-index'])
+        dp1_blocks = create_block_list_lookup(block_filter, cbf_map_1, sig_records_map_1,
+                                              blocking_config['reverse-index'])
+        dp2_blocks = create_block_list_lookup(block_filter, cbf_map_2, sig_records_map_2,
+                                              blocking_config['reverse-index'])
 
         stats = BlockStats.get_stats(block_filter, (cbf_map_1, cbf_map_2), (sig_records_map_1, sig_records_map_2),
-                           blocking_config['reverse-index'])
+                                     blocking_config['reverse-index'])
         print(f'total comparisons: {int(stats.total_comparisons()):,}')
         el_per_block = stats.elements_per_block()
         print(
@@ -149,10 +146,14 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
         print(f"Number of blocks {num_blocks}")
 
     # blocking without overlapping -> no need for filter
-    elif blocking_algorithm in {'kasn'} :
-        dp1_signatures, _ = compute_signatures(data1, blocking_config['signature'])
+    elif blocking_algorithm in {'kasn'}:
+        dp1_signatures, state = compute_signatures(data1, blocking_config['signature'])
         dp2_signatures, _ = compute_signatures(data2, blocking_config['signature'])
-        dp1_blocks, dp2_blocks = generate_block(dp1_signatures, dp2_signatures)
+        dp1_signatures, dp2_signatures = generate_block(dp1_signatures, dp2_signatures, state.k, state.overlap,
+                                                        state.ref_val_list)
+        assess_blocks(dp1_signatures, dp2_signatures, data1, data2)
+
+        dp1_blocks, dp2_blocks = generate_reverse_blocks(dp1_signatures, dp2_signatures)
 
     # exception
     else:
