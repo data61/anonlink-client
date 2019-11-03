@@ -24,15 +24,41 @@
         "map_to_block_algorithm": {
             "type": "signature-based-blocks",
         },
-        "signatures": [
-            {"type": "feature-value"},
-            {"type": "soundex"},
-            {"type": "metaphone"},
-            {"type": "n-gram", "config": {"n": 2},
+        "signatureSpecs": [
+          [
+            {"type": "characters_at", "args": {"pos": [0, 3, "7:9", "12:"]}, "feature_idx": 3},
+            {"type": "soundex", "feature_idx": 2},
+            {"type": "value", "feature_idx": 5}
+          ],
+          [
+            {"type": "metaphone", "feature_idx": 1},
+            {"type": "metaphone", "feature_idx": 2}
+          ],
+          [
+            {"type": "characters_at", "config": {"pos": [0, 1]}, "feature_idx": 1},
+            {"type": "characters_at", "args": {"pos": [0, 1]}, "feature_idx": 2},
+            {"type": "feature-value", "feature_idx": 5}
+          ]
         ],
     }
 }
 ```
+#### Example for the signatureSpecs:
+```
+example data: 1, 'Paul', 'Simonson', 'Victoria Avenue', 12, 2405, ...
+produces something like this:
+'Vta nue', 'S52', '2405'
+'SM0XMT', 'XMTSMT'
+'Pa', 'Si', '2405'
+```
+#### Note
+It doesn't really matter how we join the different parts of a signature. As long as we always do the same thing. E.g.:
+
+```" ".join(signature_parts)```
+
+We can do something similar to our current privacy protection techniques. In order to hide the PII from the linkage unit,
+we cannot send the signatures as-is. Instead we run them trough a keyed hash function, (BLAKE hash, or HMAC) where only 
+the data provider know the secret (same thing as inserting tokens into CLK). 
 
 ### Schema for KASN (kasn_sim and kasn_size)
 
