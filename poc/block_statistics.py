@@ -111,3 +111,39 @@ class _SignatureBasedBlockStats(BlockStats):
             common_sigs = set(a.keys()).intersection(set(b.keys()))
             num_blocks += len(common_sigs)
         return num_blocks
+
+
+def assess_blocks(dp1_signature, dp2_signature, dp1_data, dp2_data, ent_col=0):
+    """Assess pair completeness and reduction ratio of blocking result."""
+    cand_pairs = {}
+    num_block_true_matches = 0
+    num_block_false_matches = 0
+
+    for key in dp1_signature:
+        dp1_recs = dp1_signature[key]
+        dp2_recs = dp2_signature[key]
+        for d1 in dp1_recs:
+            d1_entity = dp1_data[d1][ent_col]
+            d1_cache = cand_pairs.get(d1_entity, set())
+            for d2 in dp2_recs:
+                d2_entity = dp2_data[d2][ent_col]
+                if d2_entity not in d1_cache:
+                    d1_cache.add(d2_entity)
+                    if d2_entity == d1_entity:
+                        num_block_true_matches += 1
+                    else:
+                        num_block_false_matches += 1
+            cand_pairs[d1] = d1_cache
+
+    num_cand_rec_pairs = num_block_true_matches + num_block_false_matches
+    total_rec = len(dp1_data) * len(dp2_data)
+
+    entity1 = [r[ent_col] for r in dp1_data]
+    entity2 = [r[ent_col] for r in dp2_data]
+    num_all_true_matches = len(np.intersect1d(entity1, entity2))
+
+    rr = 1.0 - float(num_cand_rec_pairs) / total_rec
+    pc = float(num_block_true_matches) / num_all_true_matches
+    print('rr = {}'.format(round(rr, 4)))
+    print('pc = {}'.format(round(pc, 4)))
+
