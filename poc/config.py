@@ -24,7 +24,6 @@ blocking_config = {
             "signatureSpecs": [
                 [
                     {"type": "characters_at", "config": {"pos": [0, 3, "7:9", "12:"]}, "feature_idx": 3},
-                    # {"type": "soundex", "feature_idx": 2},
                     {"type": "feature-value", "feature_idx": 5}
                 ],
                 [
@@ -40,17 +39,20 @@ blocking_config = {
                 ],
                 [
                     {"type": "metaphone", "feature_idx": 1},
-                    # {"type": "metaphone", "feature_idx": 2}
+                ],
+                [
+                    {"type": "metaphone", "feature_idx": 2},
                 ],
                 [
                     {"type": "metaphone", "feature_idx": 3},
                     {"type": "metaphone", "feature_idx": 4}
                 ],
-
+                [
+                    {"type": "feature-value", "feature_idx": 10},
+                ],
                 [
                     {"type": "characters_at", "config": {"pos": ["0:3"]}, "feature_idx": 1},
                     {"type": "characters_at", "config": {"pos": ["0:3"]}, "feature_idx": 2},
-
                 ],
                 # [
                 #     {"type": "characters_at", "config": {"pos": ["2:5"]}, "feature_idx": 1},
@@ -67,26 +69,26 @@ blocking_config = {
 
             ],
         }
-        # 'type': 'kasn',
-        # 'version': 1,
-        # 'config': {
-        #     'k': 10,
-        #     'sim_measure': {'algorithm': 'Edit',
-        #                     'ngram_len': '3',
-        #                     'ngram_padding': True,
-        #                     'padding_start_char': '\x01',
-        #                     'padding_end_char': '\x01'},
-        #     'min_sim_threshold': 0.8,
-        #     'overlap': 0,
-        #     'sim_or_size': 'SIZE',
-        #     'default_features': [1, 2, 4, 5],
-        #     'sorted_first_val': '\x01',
-        #     'ref_data_config': {'path': 'data/2Parties/PII_reference_200000.csv',
-        #                         'header_line': True,
-        #                         'default_features': [1, 2, 4, 5],
-        #                         'num_vals': 500,
-        #                         'random_seed': 0}
-        # }
+#         'type': 'kasn',
+#         'version': 1,
+#         'config': {
+#             'k': 100,
+#             'sim_measure': {'algorithm': 'Dice',
+#                             'ngram_len': '2',
+#                             'ngram_padding': True,
+#                             'padding_start_char': chr(1),
+#                             'padding_end_char': chr(2)},
+#             'min_sim_threshold': 0.8,
+#             'overlap': 0,
+#             'sim_or_size': 'SIZE',
+#             'default_features': [1, 2],
+#             'sorted_first_val': '\x01',
+#             'ref_data_config': {'path': 'data/OZ-clean-with-gname.csv',
+#                                 'header_line': True,
+#                                 'default_features': [1, 2],
+#                                 'num_vals': 47,
+#                                 'random_seed': 0}
+#         }
     },
 
     'candidate-blocking-filter': {
