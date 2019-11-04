@@ -1,12 +1,12 @@
 from clkhash.schema import from_json_dict
-from poc.filter import filter_signatures
 from poc.block_filter_generator import candidate_block_filter_from_signatures
 from poc.block_filter_generator import generate_block, generate_reverse_blocks
 from poc.reverse_index import create_block_list_lookup
 from poc.server import compute_blocking_filter, solve
-from poc.signature_generator import compute_signatures
+from poc.candidate_block_generator import compute_candidate_blocks
 from poc.clk_util import generate_clks
 from poc.data_util import load_truth, download_data, download_reference_data
+from poc.config import blocking_config
 import json
 import os
 import pandas as pd
@@ -28,78 +28,16 @@ def compute_candidate_block_filter(data, blocking_config):
     """
     signature_config = blocking_config['signature']
 
-    candidate_signatures, signature_state = compute_signatures(data, signature_config)
+    candidate_signatures, signature_state = compute_candidate_blocks(data, signature_config)
 
     return tuple(
         [*candidate_block_filter_from_signatures(candidate_signatures, signature_state, blocking_config),
          candidate_signatures])
 
 
-def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
-    blocking_config = {
-        'signature': {
-            "type": "p-sig",
-            "version": 1,
-            "output": {
-                "type": "reverse_index",
-            },
-            "config": {
-                # "blocking_features": ["given_name", "surname", "address_1", "address_2"],
-                "blocking_features": [1, 2, 4, 5],
-                "filter": {
-                    "type": "ratio",
-                    "max_occur_ratio": 0.02,
-                    "min_occur_ratio": 0.001,
-                },
-                "blocking-filter": {
-                    "type": "bloom filter",
-                    "number_hash_functions": 4,
-                    "bf_len": 4096,
-                },
-                "map_to_block_algorithm": {
-                    "type": "signature-based-blocks",
-                },
-                "signatures": [
-                    {"type": "feature-value", "columns": [2]},
-                    # {"type": "soundex", "columns": [1, 2]},
-                    {"type": "metaphone", "columns": [4, 5]},
-                    {"type": "n-gram", "columns": [1, 2, 4, 5], "config": {"n": 3}},
-                    # {"type": "feature-value", "columns": ["given_name", "surname", "address_1", "address_2"]},
-                    # {"type": "soundex", "columns": ["given_name", "surname"]},
-                    # {"type": "metaphone", "columns": ["address_1", "address_2"]},
-                    # {"type": "n-gram", "columns": ["surname", "address_1"],  "config": {"n": 2}},
-                ],
-            }
-            # 'type': 'kasn',
-            # 'version': 1,
-            # 'config': {
-            #     'k': 10,
-            #     'sim_measure': {'algorithm': 'Edit',
-            #                     'ngram_len': '3',
-            #                     'ngram_padding': True,
-            #                     'padding_start_char': '\x01',
-            #                     'padding_end_char': '\x01'},
-            #     'min_sim_threshold': 0.8,
-            #     'overlap': 0,
-            #     'sim_or_size': 'SIZE',
-            #     'default_features': [1, 2, 4, 5],
-            #     'sorted_first_val': '\x01',
-            #     'ref_data_config': {'path': 'data/2Parties/PII_reference_200000.csv',
-            #                         'header_line': True,
-            #                         'default_features': [1, 2, 4, 5],
-            #                         'num_vals': 500,
-            #                         'random_seed': 0}
-            # }
-        },
-
-        'candidate-blocking-filter': {
-            'type': 'dummy'
-        },
-        'reverse-index': {
-            'type': 'signature-based-blocks'
-        }
-    }
-
+def run_blocking(nb_parties, sizes, data_folder='./data'):
+    """Run example blocking."""
+    # load datasets
     path_file_1 = os.path.join(data_folder, "{}Parties".format(nb_parties),
                                "PII_{}_{}.csv".format(chr(0 + 97), sizes))
     df1 = pd.read_csv(path_file_1, skipinitialspace=True)
@@ -147,8 +85,8 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
 
     # blocking without overlapping -> no need for filter
     elif blocking_algorithm in {'kasn'}:
-        dp1_signatures, state = compute_signatures(data1, blocking_config['signature'])
-        dp2_signatures, _ = compute_signatures(data2, blocking_config['signature'])
+        dp1_signatures, state = compute_candidate_blocks(data1, blocking_config['signature'])
+        dp2_signatures, _ = compute_candidate_blocks(data2, blocking_config['signature'])
         dp1_signatures, dp2_signatures = generate_block(dp1_signatures, dp2_signatures, state.k, state.overlap,
                                                         state.ref_val_list)
         assess_blocks(dp1_signatures, dp2_signatures, data1, data2)
@@ -159,6 +97,7 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
     else:
         raise NotImplementedError('Blocking algorithm "{}" is not supported yet'.format(blocking_algorithm))
 
+    # encoding
     schema_json_fp = os.path.join(data_folder, 'schema.json')
     with open(schema_json_fp, "r") as read_file:
         schema_json = json.load(read_file)
@@ -166,6 +105,7 @@ def run_gender_blocking(nb_parties, sizes, data_folder='./data'):
     encodings_dp1 = generate_clks(df1, schema=schema, secret_keys=("tick", "tock"))
     encodings_dp2 = generate_clks(df2, schema=schema, secret_keys=("tick", "tock"))
 
+    # pass to anonlink solver
     solution = solve((encodings_dp1, encodings_dp2), (dp1_blocks, dp2_blocks), threshold=0.85)
     print('Found {} matches'.format(len(solution)))
     found_matches = set((a, b) for ((_, a), (_, b)) in solution)
@@ -193,4 +133,4 @@ def _count_blocks(dp1_blocks):
 if __name__ == '__main__':
     download_data(2, 10000)
     download_reference_data(2, 200000)
-    run_gender_blocking(2, 10000)
+    run_blocking(2, 10000)

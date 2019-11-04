@@ -6,7 +6,7 @@ from blocklib import PPRLIndexKAnonymousSortedNeighbour
 from poc.validation import validate_signature_config
 
 
-def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
+def compute_candidate_blocks(data: Sequence[Tuple[str, ...]], signature_config):
     """
     :param data: list of tuples E.g. ('0', 'Kenneth Bain', '1964/06/17', 'M')
     :param signature_config:
@@ -17,7 +17,7 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
 
             {
                 'type': 'feature-value',
-                'feature-index': 3,
+                'feature_idx': 3,
                 'regex-pattern': ""
             }
         Schema for the signature config is found in
@@ -28,8 +28,16 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
         Internal state object from the signature generation (or None).
 
     """
+    # validate config of blocking
     validate_signature_config(signature_config)
+
+    # extract algorithm and its config
     algorithm = signature_config.get('type', 'not specified')
+    config = signature_config.get('config', 'not specified')
+    if config == 'not specified':
+        raise ValueError('Please provide config for P-Sig from blocklib')
+
+    # build corresponding PPLRIndex instance
     state = None
     if algorithm == 'not specified':
         raise ValueError("Compute signature type is not specified.")
@@ -48,19 +56,17 @@ def compute_signatures(data: Sequence[Tuple[str, ...]], signature_config):
 
     # P-Sig from blocklib
     elif algorithm == 'p-sig':
-        config = signature_config.get('config', 'not specified')
-        if config == 'not specified':
-            raise ValueError('Please provide config for P-Sig from blocklib')
+
         state = PPRLIndexPSignature(config)
         dic_signatures_record = state.build_inverted_index(data)
+        state.summarize_invert_index(dic_signatures_record)
 
     # K Anonymous Sorted Nearest Neighbor
     elif algorithm == 'kasn':
-        config = signature_config.get('config', 'not specfied')
-        if config == 'not specified':
-            raise ValueError('Please provide config for P-Sig from blocklib')
+
         state = PPRLIndexKAnonymousSortedNeighbour(config)
         dic_signatures_record = state.build_inverted_index(data)
+
         state.summarize_invert_index(dic_signatures_record)
 
     else:
