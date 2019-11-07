@@ -44,6 +44,27 @@ def _signature_based_reverse_index(block_filter, cbf_map, sig_rec_map, config):
     raise NotImplementedError("implement me, please")
 
 
+def filter_sig_rec_map(block_filter, cbf_map, sig_rec_map):
+    """Create final sig_rec_map given block filter."""
+    sig_pos = defaultdict(list)
+    for pos, sig_list in cbf_map.items():
+        for sig in sig_list:
+            sig_pos[sig].append(pos)
+    for sig, positions in sig_pos.items():
+        if not all(block_filter[i] for i in positions):
+            del sig_rec_map[sig]
+    return sig_rec_map
+
+
+def create_rec_block_map(sig_rec_map):
+    """Create rec to block map."""
+    block_map = defaultdict(list)
+    for sig, rec_ids in sig_rec_map.items():
+        for rec_id in rec_ids:
+            block_map[rec_id].append(sig)
+    return block_map
+
+
 def create_block_list_lookup(block_filter, cbf_map, sig_rec_map, config):
     """
 

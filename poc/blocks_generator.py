@@ -51,7 +51,7 @@ def generate_candidate_blocks(blocking_config, data):
     elif blocking_algorithm in {'kasn'}:
         dp1_signatures, state = compute_candidate_blocks(data, blocking_config['signature'])
         extra = dict(state=state)
-        block_obj = CandidateBlockingResult(dp1_signatures)
+        block_obj = CandidateBlockingResult(dp1_signatures, extra)
 
     # exception
     else:

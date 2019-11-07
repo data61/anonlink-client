@@ -1,7 +1,7 @@
 from clkhash.schema import from_json_dict
 from poc.block_filter_generator import candidate_block_filter_from_signatures
 from poc.block_filter_generator import generate_block, generate_reverse_blocks
-from poc.reverse_index import create_block_list_lookup
+from poc.reverse_index import create_block_list_lookup, filter_sig_rec_map, create_rec_block_map
 from poc.server import compute_blocking_filter, solve
 from poc.candidate_block_generator import compute_candidate_blocks
 from poc.clk_util import generate_clks
@@ -52,6 +52,10 @@ def run_blocking(nb_parties, sizes, data_folder='./data'):
     data2 = df2.to_dict(orient='split')['data']
     print("Example PII", data1[0])
 
+    # create subdata that only includes index and entity_id
+    subdata1 = [[x[0]] for x in data1]
+    subdata2 = [[x[0]] for x in data2]
+
     # blocking with overlapping -> needs filter
     blocking_algorithm = blocking_config['signature']['type']
     if blocking_algorithm in {'p-sig'}:
@@ -67,10 +71,18 @@ def run_blocking(nb_parties, sizes, data_folder='./data'):
         block_filter = compute_blocking_filter((dp1_candidate_block_filter, dp2_candidate_block_filter))
         print("Block filter:", block_filter)
 
-        dp1_blocks = create_block_list_lookup(block_filter, cbf_map_1, sig_records_map_1,
-                                              blocking_config['reverse-index'])
-        dp2_blocks = create_block_list_lookup(block_filter, cbf_map_2, sig_records_map_2,
-                                              blocking_config['reverse-index'])
+        dp1_signatures = filter_sig_rec_map(block_filter, cbf_map_1, sig_records_map_1)
+        dp2_signatures = filter_sig_rec_map(block_filter, cbf_map_2, sig_records_map_2)
+
+        dp1_blocks = create_rec_block_map(dp1_signatures)
+        dp2_blocks = create_rec_block_map(dp2_signatures)
+
+        assess_blocks([dp1_signatures, dp2_signatures], [subdata1, subdata2])
+
+        # dp1_blocks = create_block_list_lookup(block_filter, cbf_map_1, sig_records_map_1,
+        #                                       blocking_config['reverse-index'])
+        # dp2_blocks = create_block_list_lookup(block_filter, cbf_map_2, sig_records_map_2,
+        #                                       blocking_config['reverse-index'])
 
         stats = BlockStats.get_stats(block_filter, (cbf_map_1, cbf_map_2), (sig_records_map_1, sig_records_map_2),
                                      blocking_config['reverse-index'])
@@ -89,9 +101,10 @@ def run_blocking(nb_parties, sizes, data_folder='./data'):
         dp2_signatures, _ = compute_candidate_blocks(data2, blocking_config['signature'])
         dp1_signatures, dp2_signatures = generate_block(dp1_signatures, dp2_signatures, state.k, state.overlap,
                                                         state.ref_val_list)
-        assess_blocks(dp1_signatures, dp2_signatures, data1, data2)
+        assess_blocks([dp1_signatures, dp2_signatures], [subdata1, subdata2])
 
-        dp1_blocks, dp2_blocks = generate_reverse_blocks(dp1_signatures, dp2_signatures)
+        dp1_blocks = create_rec_block_map(dp1_signatures)
+        dp2_blocks = create_rec_block_map(dp2_signatures)
 
     # exception
     else:
