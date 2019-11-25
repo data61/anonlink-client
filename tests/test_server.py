@@ -1,5 +1,5 @@
 import numpy as np
-from poc.server import compute_blocking_filter
+from anonlinkclient.server import compute_blocking_filter
 
 def test_compute_filters():
     filter1 = np.ones(10)

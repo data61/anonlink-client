@@ -1,6 +1,6 @@
 .idea
 venv
 */__pycache__/*
-poc/data/
+anonlinkclient/data/
 data/*
 .ipynb_checkpoints/*

@@ -1,13 +1,6 @@
 from typing import Sequence, List, Dict
-import numpy as np
 from bitarray import bitarray
 import anonlink
-
-
-def compute_blocking_filter(candidate_blocking_filters: Sequence[np.ndarray], threshold: int = 2):
-    cbf = np.sum(candidate_blocking_filters, axis=0)
-    blocking_filter = cbf >= threshold
-    return blocking_filter
 
 
 def solve(encodings: Sequence[List[bitarray]], rec_to_blocks: Sequence[Dict[int, list]], threshold: float = 0.8):

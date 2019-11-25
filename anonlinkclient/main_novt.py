@@ -1,17 +1,17 @@
 from clkhash.schema import from_json_dict
-from poc.block_filter_generator import candidate_block_filter_from_signatures
-from poc.block_filter_generator import generate_block, generate_reverse_blocks
-from poc.reverse_index import create_block_list_lookup
-from poc.server import compute_blocking_filter, solve
-from poc.candidate_block_generator import compute_candidate_blocks
-from poc.clk_util import generate_clks
-from poc.data_util import load_truth, download_data, download_reference_data
-from poc.config import blocking_config
+from anonlinkclient.block_filter_generator import candidate_block_filter_from_signatures
+from anonlinkclient.block_filter_generator import generate_block, generate_reverse_blocks
+from anonlinkclient.reverse_index import create_block_list_lookup
+from anonlinkclient.server import compute_blocking_filter, solve
+from anonlinkclient.candidate_block_generator import compute_candidate_blocks
+from anonlinkclient.clk_util import generate_clks
+from anonlinkclient.data_util import load_truth, download_data, download_reference_data
+from anonlinkclient.config import blocking_config
 import json
 from blocklib import generate_blocks as blocklib_genearte_blocks
 import os
 import pandas as pd
-from poc.block_statistics import BlockStats, assess_blocks
+from anonlinkclient.block_statistics import BlockStats, assess_blocks
 import numpy as np
 
 
