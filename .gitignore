@@ -1,6 +1,9 @@
 .idea
 venv
 */__pycache__/*
-anonlinkclient/data/
+client/data/
 data/*
 .ipynb_checkpoints/*
+.eggs/*
+client.egg-info/*
+dist/*

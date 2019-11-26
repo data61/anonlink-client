@@ -1,12 +1,12 @@
 from clkhash.schema import from_json_dict
-from anonlinkclient.clk_util import generate_clks
-from anonlinkclient.data_util import load_truth, download_data, download_reference_data
-from anonlinkclient.config import blocking_config
+from client.clk_util import generate_clks
+from client.data_util import load_truth, download_data, download_reference_data
+from client.config import blocking_config
 from blocklib import generate_candidate_blocks, generate_blocks_2party, generate_reverse_blocks, assess_blocks_2party
 import json
 import os
 import pandas as pd
-from anonlinkclient.server import solve
+from client.server import solve
 
 
 def run_blocking(nb_parties, sizes, data_folder='./data'):
