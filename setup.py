@@ -1,7 +1,4 @@
 from setuptools import setup, find_packages
-import sys
-if sys.version_info[0] < 3:
-  import codecs
 
 
 requirements = [
@@ -19,15 +16,13 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 setup(
     name="anonlink-client",
-    version='0.15.0',
+    version='0.1.0',
     description='Client side tool for clkhash and blocklib',
     long_description=readme,
     long_description_content_type='text/markdown',
     url='https://github.com/data61/anonlink-client',
     license='Apache',
     install_requires=requirements,
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'pytest-cov', 'requests-mock', 'codecov', 'nbval', 'hypothesis'],
     packages=find_packages(exclude=['tests']),
     package_data={'anonlink-client': ['data/*.csv', 'data/*.json', 'schemas/*.json']},
     project_urls={
@@ -37,7 +32,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'anonclient = client.cli:cli'
+
         ],
     },
     classifiers=[
