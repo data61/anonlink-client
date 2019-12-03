@@ -433,7 +433,8 @@ class TestHasherSchema(CLITestHelper):
 
 
 @unittest.skipUnless("TEST_ENTITY_SERVICE" in os.environ,
-                     "Set envvar TEST_ENTITY_SERVICE to run. Disabled for jenkins")
+                     "Set envvar TEST_ENTITY_SERVICE to https://testing.es.data61.xyz or a valid URL of an "
+                     "entity service deployment")
 class TestCliInteractionWithService(CLITestHelper):
 
     server_options = ['--server', '--retry-multiplier', '--retry-exponential-max', '--retry-max-time']
