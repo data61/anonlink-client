@@ -2,7 +2,6 @@ import time
 
 import requests
 import clkhash
-from clkhash.backports import TimeoutError
 import logging
 from retrying import retry
 

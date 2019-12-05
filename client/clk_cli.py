@@ -1,6 +1,3 @@
-#!/usr/bin/env python3.6
-from __future__ import print_function
-
 import json
 import os
 import shutil
@@ -11,7 +8,6 @@ import clkhash
 import client
 from clkhash import benchmark as bench, clk, randomnames, validate_data, describe as descr
 from clkhash.schema import SchemaError, validate_schema_dict, convert_to_latest_version
-from clkhash.backports import raise_from
 from .rest_client import ClientWaitingConfiguration, ServiceError, format_run_status, RestClient
 
 from typing import List, Callable
@@ -422,13 +418,7 @@ def describe(clk_json):
 def convert_schema(schema_json, output):
     """convert the given schema file to the latest version.
     """
-    try:
-        schema_dict = json.load(schema_json)
-    except ValueError as e:  # In Python 3 we can be more specific
-        # with json.decoder.JSONDecodeError,
-        # but that doesn't exist in Python 2.
-        msg = 'The provided schema is not a valid JSON file.'
-        raise_from(SchemaError(msg), e)
+    schema_dict = json.load(schema_json)
     validate_schema_dict(schema_dict)
     new_schema_dict = convert_to_latest_version(schema_dict, validate_result=True)
     json.dump(new_schema_dict, output)

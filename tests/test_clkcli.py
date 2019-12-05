@@ -178,8 +178,6 @@ class TestSchemaValidationCommand(unittest.TestCase):
         assert 'schema is not valid.' in result.output
 
 
-@unittest.skipUnless("INCLUDE_CLI" in os.environ,
-                     "Set envvar INCLUDE_CLI to run. Disabled for jenkins")
 class TestSchemaConversionCommand(unittest.TestCase):
 
     LATEST_VERSION = max(schema.MASTER_SCHEMA_FILE_NAMES.keys())

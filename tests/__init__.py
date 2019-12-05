@@ -24,9 +24,6 @@ RANDOMNAMES_SCHEMA_PATH = os.path.join(
     'randomnames-schema-v2.json'
 )
 
-SAMPLE_DATA_PATH_1 = os.path.join(TESTDATA, 'dirty_1000_50_1.csv')
-SAMPLE_DATA_PATH_2 = os.path.join(TESTDATA, 'dirty_1000_50_2.csv')
-
 
 class temporary_file(object):
     """
