@@ -1,7 +1,6 @@
 .idea
 venv
 */__pycache__/*
-client/data/
 data/*
 .ipynb_checkpoints/*
 .eggs/*
