@@ -97,8 +97,6 @@ class CLITestHelper(unittest.TestCase):
         return json.loads(output_str)
 
 
-@unittest.skipUnless("INCLUDE_CLI" in os.environ,
-                     "Set envvar INCLUDE_CLI to run. Disabled for jenkins")
 class BasicCLITests(unittest.TestCase):
 
     def test_list_commands(self):
@@ -132,8 +130,6 @@ class BasicCLITests(unittest.TestCase):
         assert 'hashes in' in result.output
 
 
-@unittest.skipUnless("INCLUDE_CLI" in os.environ,
-                     "Set envvar INCLUDE_CLI to run. Disabled for jenkins")
 class TestSchemaValidationCommand(unittest.TestCase):
 
     @staticmethod
@@ -233,8 +229,6 @@ class TestSchemaConversionCommand(unittest.TestCase):
         assert 'schema is not valid.' in result.exception.msg
 
 
-@unittest.skipUnless("INCLUDE_CLI" in os.environ,
-                     "Set envvar INCLUDE_CLI to run. Disabled for jenkins")
 class TestHashCommand(unittest.TestCase):
 
     def setUp(self):
@@ -334,8 +328,6 @@ class TestHashCommand(unittest.TestCase):
         assert result.exit_code != 0
 
 
-@unittest.skipUnless("INCLUDE_CLI" in os.environ,
-                     "Set envvar INCLUDE_CLI to run. Disabled for jenkins")
 class TestHasherDefaultSchema(unittest.TestCase):
 
     samples = 100
@@ -405,8 +397,6 @@ class TestHasherDefaultSchema(unittest.TestCase):
                 self.assertIn('clks', json.load(output))
 
 
-@unittest.skipUnless("INCLUDE_CLI" in os.environ,
-                     "Set envvar INCLUDE_CLI to run. Disabled for jenkins")
 class TestHasherSchema(CLITestHelper):
     def test_hashing_json_schema(self):
         runner = CliRunner()
