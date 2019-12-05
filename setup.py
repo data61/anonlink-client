@@ -24,7 +24,7 @@ setup(
     license='Apache',
     install_requires=requirements,
     packages=find_packages(exclude=['tests']),
-    package_data={'anonlink-client': ['data/*.csv', 'data/*.json', 'schemas/*.json']},
+    package_data={'client': ['data/*.csv', 'data/*.json', 'schemas/*.json']},
     project_urls={
         'Documentation': 'https://github.com/data61/anonlink-client',
         'Source': 'https://github.com/data61/anonlink-client',
@@ -32,7 +32,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-
+            'anonlink = client.clk_cli:cli'
         ],
     },
     classifiers=[
