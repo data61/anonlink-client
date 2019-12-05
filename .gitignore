@@ -8,3 +8,5 @@ data/*
 anonlink_client.egg-info/*
 dist/*
 build/*
+client.egg-info/*
+
