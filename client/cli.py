@@ -345,6 +345,9 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
         log("Uploading CLK data from {}".format(clk_json.name))
         log("Project ID: {}".format(project))
         log("Uploading CLK data to the server")
+        # combine clk and blocks if blocks is provided
+        if blocks:
+            out = combine_clks_blocks(clk_json, blocks)
     rest_client = create_rest_client(server, retry_multiplier, retry_max_exp, retry_stop, verbose)
     response = rest_client.project_upload_clks(project, apikey, clk_json)
 
@@ -352,18 +355,6 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
         log(response)
 
     json.dump(response, output)
-
-
-@cli.command('test')
-@click.argument('clk_json', type=click.File('rb'))
-@click.option('--blocks', type=click.File('rb'))
-@click.option('-o', '--output', type=click.File('w'))
-def test(clk_json, blocks, output):
-    if blocks:
-        out = combine_clks_blocks(clk_json, blocks)
-        json.dump(out, output, indent=4)
-    else:
-        print('No blocks!')
 
 
 @cli.command('results', short_help="fetch results from entity service")
