@@ -2,6 +2,7 @@ import io
 import json
 import logging
 import time
+from collections import defaultdict
 from clkhash import clk
 from clkhash.schema import Schema
 from clkhash.backports import unicode_reader, raise_from
@@ -61,6 +62,9 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
     # read from CSV file
     reader = unicode_reader(input_f)
     pii_data = []  # type: Tuple[str]
+
+    if header:
+        next(reader)
     for line in reader:
         pii_data.append(tuple(element.strip() for element in line))
 
@@ -95,3 +99,23 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
     result['config'] = blocking_config
 
     return result
+
+
+def combine_clks_blocks(clk_f: TextIO, block_f: TextIO):
+    """Combine CLKs and blocks to produce a dictionary of CLK to list of block IDs."""
+    try:
+        blocks = json.load(block_f)['blocks']
+        clks = json.load(clk_f)['clks']
+    except ValueError:
+        msg = 'Invalid CLKs or Blocks'
+        raise_from(ValueError(msg), e)
+
+    output = defaultdict(list)
+
+    for block_key, rec_ids in blocks.items():
+        for rid in rec_ids:
+            try:
+                output[clks[rid]].append(block_key)
+            except IndexError:
+                import IPython; IPython.embed()
+    return output

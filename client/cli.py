@@ -11,7 +11,7 @@ from clkhash.schema import SchemaError, validate_schema_dict, convert_to_latest_
 from .rest_client import ClientWaitingConfiguration, ServiceError, format_run_status, RestClient
 
 from typing import List, Callable
-from .utils import generate_candidate_blocks_from_csv
+from .utils import generate_candidate_blocks_from_csv, combine_clks_blocks
 
 
 DEFAULT_SERVICE_URL = 'https://testing.es.data61.xyz'
@@ -330,9 +330,10 @@ def create(name, project, apikey, output, threshold, server, retry_multiplier, r
 @click.option('--project', help='Project identifier')
 @click.option('--apikey', help='Authentication API key for the server.')
 @click.option('-o', '--output', type=click.File('w'), default='-')
+@click.option('--blocks', help='Generated blocks JSON file', type=click.File('rb'))
 @add_options(rest_client_option)
 @verbose_option
-def upload(clk_json, project, apikey, output, server, retry_multiplier, retry_max_exp, retry_stop, verbose):
+def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, retry_max_exp, retry_stop, verbose):
     """Upload CLK data to entity matching server.
 
     Given a json file containing hashed clk data as CLK_JSON, upload to
@@ -351,6 +352,18 @@ def upload(clk_json, project, apikey, output, server, retry_multiplier, retry_ma
         log(response)
 
     json.dump(response, output)
+
+
+@cli.command('test')
+@click.argument('clk_json', type=click.File('rb'))
+@click.option('--blocks', type=click.File('rb'))
+@click.option('-o', '--output', type=click.File('w'))
+def test(clk_json, blocks, output):
+    if blocks:
+        out = combine_clks_blocks(clk_json, blocks)
+        json.dump(out, output, indent=4)
+    else:
+        print('No blocks!')
 
 
 @cli.command('results', short_help="fetch results from entity service")
