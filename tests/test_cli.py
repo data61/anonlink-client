@@ -242,7 +242,7 @@ class TestHashCommand(unittest.TestCase):
     def test_hash_help(self):
         runner = CliRunner()
         result = runner.invoke(client.cli.cli, ['hash', '--help'])
-        assert 'secret' in result.output
+        assert 'secret' in result.output.lower()
         assert 'schema' in result.output
 
     def test_hash_requires_secret(self):

@@ -341,15 +341,20 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
 
     Use "-" to read from stdin.
     """
+    msg = 'CLK and Blocks' if blocks else 'CLK'
     if verbose:
         log("Uploading CLK data from {}".format(clk_json.name))
         log("Project ID: {}".format(project))
-        log("Uploading CLK data to the server")
-        # combine clk and blocks if blocks is provided
-        if blocks:
-            out = combine_clks_blocks(clk_json, blocks)
+        log("Uploading {} data to the server".format(msg))
+
     rest_client = create_rest_client(server, retry_multiplier, retry_max_exp, retry_stop, verbose)
-    response = rest_client.project_upload_clks(project, apikey, clk_json)
+
+    # combine clk and blocks if blocks is provided
+    if blocks:
+        out = combine_clks_blocks(clk_json, blocks)
+        response = rest_client.project_upload_clks(project, apikey, out)
+    else:
+        response = rest_client.project_upload_clks(project, apikey, clk_json)
 
     if verbose:
         log(response)

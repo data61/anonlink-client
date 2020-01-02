@@ -17,7 +17,7 @@
       "ignored": true
     },
     {
-      "identifier": "firstname",
+      "identifier": "givenname",
       "format": {
         "type": "string",
         "encoding": "utf-8",
@@ -35,7 +35,7 @@
       }
     },
     {
-      "identifier": "lastname",
+      "identifier": "surname",
       "format": {
         "type": "string",
         "encoding": "utf-8",

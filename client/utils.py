@@ -59,15 +59,6 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
 
     log.info("Hashing data")
 
-    # read from CSV file
-    reader = unicode_reader(input_f)
-    pii_data = []  # type: Tuple[str]
-
-    if header:
-        next(reader)
-    for line in reader:
-        pii_data.append(tuple(element.strip() for element in line))
-
     # read blocking config as a dictionary
     start_time = time.time()
     try:
@@ -75,6 +66,18 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
     except ValueError as e:
         msg = 'The schema is not a valid JSON file'
         raise_from(ValueError(msg), e)
+
+    # read from clks
+    if blocking_config['config'].get('input-clks', False):
+        pii_data = json.load(input_f)['clks']
+    else:  # read from CSV file
+        reader = unicode_reader(input_f)
+        pii_data = []  # type: Tuple[str]
+
+        if header:
+            next(reader)
+        for line in reader:
+            pii_data.append(tuple(element.strip() for element in line))
 
     # generate candidate blocks
     blocking_obj = generate_candidate_blocks(pii_data, blocking_config)
@@ -85,7 +88,12 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
     blocks = blocking_obj.blocks
     for key in blocks:
         blocks[key] = [int(x) for x in blocks[key]]
-    result = {'blocks': blocks}  # type: Dict[str, Dict[Any, Any]]
+
+    # convert block_key: row_index to a list of dict
+    flat_blocks = []  # type: List[Dict[Any, List[int]]]
+    for block_key, row_indices in blocks.items():
+        flat_blocks.append(dict(block_key=block_key, indices=row_indices))
+    result = {'blocks': flat_blocks}  # type: Dict[str, Dict[Any, Any]]
 
     # step2 - get all member variables in blocking state
     block_state_vars = {}  # type: Dict[str, Any]
@@ -97,7 +105,6 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
 
     # step3 - get config meta data
     result['config'] = blocking_config
-
     return result
 
 
@@ -110,12 +117,11 @@ def combine_clks_blocks(clk_f: TextIO, block_f: TextIO):
         msg = 'Invalid CLKs or Blocks'
         raise_from(ValueError(msg), e)
 
-    output = defaultdict(list)
+    output = [[clk] for clk in clks]
 
-    for block_key, rec_ids in blocks.items():
+    for blk in blocks:
+        block_key = blk['block_key']
+        rec_ids = blk['indices']
         for rid in rec_ids:
-            try:
-                output[clks[rid]].append(block_key)
-            except IndexError:
-                import IPython; IPython.embed()
+            output[rid].append(block_key)
     return output

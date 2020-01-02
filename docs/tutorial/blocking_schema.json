@@ -3,11 +3,11 @@
     "version": 1,
     "config": {
         "blocking-features": [1, 2],
-        "Lambda": 20,
+        "Lambda": 25,
         "bf-len": 2048,
         "num-hash-funcs": 10,
         "K": 30,
-        "input-clks": false,
+        "input-clks": true,
         "random_state": 0
     }
 }
