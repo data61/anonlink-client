@@ -22,6 +22,14 @@ steps:
     versionSpec: '$(python.version)'
   displayName: 'Use Python $(python.version)'
 
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish code coverage in Azure'
+  condition: succeededOrFailed()
+  inputs:
+    codeCoverageTool: Cobertura
+    summaryFileLocation: 'coverageReport.xml'
+    failIfCoverageEmpty: true
+
 - script: |
     python -m pip install --upgrade pip
     pip install -r requirements.txt
