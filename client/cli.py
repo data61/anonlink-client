@@ -11,6 +11,8 @@ from clkhash.schema import SchemaError, validate_schema_dict, convert_to_latest_
 from .rest_client import ClientWaitingConfiguration, ServiceError, format_run_status, RestClient
 
 from typing import List, Callable
+from .utils import generate_candidate_blocks_from_csv, combine_clks_blocks
+
 
 DEFAULT_SERVICE_URL = 'https://testing.es.data61.xyz'
 
@@ -43,9 +45,9 @@ def set_verbosity(ctx, param, value):
 
 # This option will be used as an annotation of a command. If used, the command will have this option, which will
 # automatically set the verbosity of the script. Note that the verbosity is global (set in the context), so the commands
-#     clkutil -v status [...]
+#     anonlink -v status [...]
 # is equivalent to
-#     clkutil status -v [...]
+#     anonlink status -v [...]
 verbose_option = click.option('-v', '--verbose', VERBOSE_LABEL, default=False, is_flag=True,
                               help="Script is more talkative", callback=set_verbosity)
 
@@ -122,7 +124,7 @@ def cli(verbose):
 
     Example:
 
-        clkutil hash private_data.csv secret schema.json output-clks.json
+        anonlink hash private_data.csv secret schema.json output-clks.json
 
 
     All rights reserved Confidential Computing 2016.
@@ -142,16 +144,16 @@ def hash(pii_csv, secret, schema, clk_json, no_header, check_header, validate, v
     """Process data to create CLKs
 
     Given a file containing CSV data as PII_CSV, and a JSON
-    document defining the expected schema, verify the schema, then
-    hash the data to create CLKs writing them as JSON to CLK_JSON. Note the CSV
+    document defining the blocking configuration, then generate
+    candidate blocks writing to JSON output. Note the CSV
     file should contain a header row - however this row is not used
     by this tool.
 
-    It is important that the secret is only known by the two data providers. One word must be provided. For example:
+    For example:
 
-    $clkutil hash pii.csv horse-staple pii-schema.json clk.json
+    $anonlink hash pii.csv pii-schema.json blocks.json
 
-    Use "-" for CLK_JSON to write JSON to stdout.
+    Use "-" for BLOCKS_JSON to write JSON to stdout.
     """
     try:
         schema_object = clkhash.schema.from_json_file(schema_file=schema)
@@ -180,6 +182,36 @@ def hash(pii_csv, secret, schema, clk_json, no_header, check_header, validate, v
             log("CLK data written to {}".format(clk_json.name))
 
 
+@cli.command('block', short_help="generate candidate blocks from local PII data")
+@click.argument('pii_csv', type=click.File('r'))
+@click.argument('schema', type=click.File('r', lazy=True))
+@click.argument('block_json', type=click.File('w'))
+@click.option('--no-header', default=False, is_flag=True, help="Don't skip the first row")
+@verbose_option
+def block(pii_csv, schema, block_json, no_header, verbose):
+    """Process data to create candiate blocks
+
+    Given a file containing CSV data as PII_CSV, and a JSON
+    document defining the expected schema, verify the schema, then
+    hash the data to create CLKs writing them as JSON to BLOCK_JSON. Note the CSV
+    file should contain a header row - however this row is not used
+    by this tool.
+
+    It is important that the secret is only known by the two data providers. One word must be provided. For example:
+
+    $anonlink block pii.csv horse-staple pii-schema.json candidate_block.json
+
+    Use "-" for BLOCK_JSON to write JSON to stdout.
+    """
+    header = True
+    if no_header:
+        header = False
+
+    # generate candidate blocks and save to json file
+    result = generate_candidate_blocks_from_csv(pii_csv, schema, header)
+    json.dump(result, block_json, indent=4)
+
+
 @cli.command('status', short_help='get status of entity service')
 @click.option('-o', '--output', type=click.File('w'), default='-')
 @add_options(rest_client_option)
@@ -202,17 +234,17 @@ fetch the resulting linkage table from the service.
 
 To upload using the cli tool for entity A:
 
-    clkutil hash a_people.csv key1 key2 schema.json A_HASHED_FILE.json
-    clkutil upload --project="{project_id}" --apikey="{update_tokens[0]}"  A_HASHED_FILE.json
+    anonlink hash a_people.csv key1 key2 schema.json A_HASHED_FILE.json
+    anonlink upload --project="{project_id}" --apikey="{update_tokens[0]}"  A_HASHED_FILE.json
 
 To upload using the cli tool for entity B:
 
-    clkutil hash b_people.csv key1 key2 schema.json B_HASHED_FILE.json
-    clkutil upload --project="{project_id}" --apikey="{update_tokens[1]}" B_HASHED_FILE.json
+    anonlink hash b_people.csv key1 key2 schema.json B_HASHED_FILE.json
+    anonlink upload --project="{project_id}" --apikey="{update_tokens[1]}" B_HASHED_FILE.json
 
 After both users have uploaded their data one can watch for and retrieve the results:
 
-    clkutil results -w --project="{project_id}" --run="{run_id}" --apikey="{result_token}" --output results.txt
+    anonlink results -w --project="{project_id}" --run="{run_id}" --apikey="{result_token}" --output results.txt
 
 """
 
@@ -298,9 +330,10 @@ def create(name, project, apikey, output, threshold, server, retry_multiplier, r
 @click.option('--project', help='Project identifier')
 @click.option('--apikey', help='Authentication API key for the server.')
 @click.option('-o', '--output', type=click.File('w'), default='-')
+@click.option('--blocks', help='Generated blocks JSON file', type=click.File('rb'))
 @add_options(rest_client_option)
 @verbose_option
-def upload(clk_json, project, apikey, output, server, retry_multiplier, retry_max_exp, retry_stop, verbose):
+def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, retry_max_exp, retry_stop, verbose):
     """Upload CLK data to entity matching server.
 
     Given a json file containing hashed clk data as CLK_JSON, upload to
@@ -308,12 +341,20 @@ def upload(clk_json, project, apikey, output, server, retry_multiplier, retry_ma
 
     Use "-" to read from stdin.
     """
+    msg = 'CLK and Blocks' if blocks else 'CLK'
     if verbose:
         log("Uploading CLK data from {}".format(clk_json.name))
         log("Project ID: {}".format(project))
-        log("Uploading CLK data to the server")
+        log("Uploading {} data to the server".format(msg))
+
     rest_client = create_rest_client(server, retry_multiplier, retry_max_exp, retry_stop, verbose)
-    response = rest_client.project_upload_clks(project, apikey, clk_json)
+
+    # combine clk and blocks if blocks is provided
+    if blocks:
+        out = combine_clks_blocks(clk_json, blocks)
+        response = rest_client.project_upload_clks(project, apikey, out)
+    else:
+        response = rest_client.project_upload_clks(project, apikey, clk_json)
 
     if verbose:
         log(response)

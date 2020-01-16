@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "clkConfig": {
+    "l": 1024,
+    "k": 20,
+    "hash": {
+      "type": "doubleHash"
+    },
+    "kdf": {
+      "type": "HKDF",
+      "hash": "SHA256",
+        "info": "c2NoZW1hX2V4YW1wbGU=",
+        "salt": "SCbL2zHNnmsckfzchsNkZY9XoHk96P/G5nUBrM7ybymlEFsMV6PAeDZCNp3rfNUPCtLDMOGQHG4pCQpfhiHCyA==",
+        "keySize": 64
+    }
+  },
+  "features": [
+    {
+      "identifier": "recid",
+      "ignored": true
+    },
+    {
+      "identifier": "givenname",
+      "format": { "type": "string", "encoding": "utf-8"},
+      "hashing": { "ngram": 2, "weight": 1.5 }
+    },
+    {
+      "identifier": "surname",
+      "format": { "type": "string", "encoding": "utf-8"},
+      "hashing": { "ngram": 2, "weight": 1.5 }
+    },
+    {
+      "identifier": "suburb",
+      "format": { "type": "string"},
+      "hashing": { "ngram": 2, "weight": 1.5 }
+    },
+    {
+      "identifier": "pc",
+      "format": { "type": "string", "encoding": "utf-8"},
+      "hashing": { "ngram": 1, "positional": true, "weight": 0.5 }
+    }
+  ]
+}

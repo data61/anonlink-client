@@ -8,4 +8,10 @@ anonlink_client.egg-info/*
 dist/*
 build/*
 client.egg-info/*
-
+docs/tutorial/*.json
+docs/tutorial/*.csv
+*/.DS_Store
+*/*/.DS_Store
+*/*/.ipynb_checkpoints/*
+*.json
+.DS_Store

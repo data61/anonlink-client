@@ -32,7 +32,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'anonlink = client.clk_cli:cli'
+            'anonlink = client.cli:cli'
         ],
     },
     classifiers=[
