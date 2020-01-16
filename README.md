@@ -1,29 +1,28 @@
 
-# Blocking POC 
+# Anonlink Client
 
-A simple end to end demonstrator of blocking for record linkage.
+Client-face API to interact with anonlink system including command line tools and Rest API communication.
+Anonlink system needs the following three components to work together:
 
-Output should be candidate blocks.
+* <a href='https://github.com/data61/clkhash'>clkhash</a>
+* <a href='https://github.com/data61/blocklib'>blocklib</a>
+* <a href='https://github.com/data61/anonlink-entity-service'>anonlink-entity-service</a>
 
+This package provides an easy to use API to interact with the above packages to complete a record linkage job.
+
+The way to interact with anonlink system is via Command Line Tool `anonlink`. You can hash data containing PII (Personal Identifying Information) locally using `anonlink hash`, generate candidate blocks locally to scale up record linkage using `anonlink block`, create a record linkage job in entity service with `anonlink create-project` etc.
+
+### Installation
+Currently manual install:
+
+```python3
+pip install git+https://https://github.com/data61/clkhash
 ```
-{
-  'records': [clks],
-  'blocks': {
-      'block id 1': [record ids]
-  }
-}
-```
 
-Two methods have been implemented that map to a list of records.
+### Documentation
+https://clkhash.readthedocs.io 
 
-- index based blocking: creates a block for every high bit in the
-  blocking filter.
-- signature based blocking: creates a block for every individual
-  signature.
-  
-## Software Components
 
-- anonlink-client
-- blocklib
-- anonlink
-- clkhash
+### CLI Tool
+After installation, you should have a `anonlink` program in your path. Alternatively, you can use `client.cli`. As 
+mentioned earlier, it can achieve many
