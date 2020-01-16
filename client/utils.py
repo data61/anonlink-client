@@ -113,7 +113,7 @@ def combine_clks_blocks(clk_f: TextIO, block_f: TextIO):
     try:
         blocks = json.load(block_f)['blocks']
         clks = json.load(clk_f)['clks']
-    except ValueError:
+    except ValueError as e:
         msg = 'Invalid CLKs or Blocks'
         raise_from(ValueError(msg), e)
 
