@@ -15,3 +15,5 @@ docs/tutorial/*.csv
 */*/.ipynb_checkpoints/*
 *.json
 .DS_Store
+docs/tutorial/data/*
+docs/tutorial/__pycache__/*
