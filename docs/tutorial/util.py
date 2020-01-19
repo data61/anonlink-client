@@ -1,3 +1,5 @@
+"""This module provides some helper functions for tutorial Notebooks."""
+
 import anonlink
 from collections import defaultdict
 
