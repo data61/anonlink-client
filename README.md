@@ -1,12 +1,12 @@
 
 # Anonlink Client
 
-Client-face API to interact with anonlink system including command line tools and Rest API communication.
+Client-facing API to interact with anonlink system including command line tools and Rest API communication.
 Anonlink system needs the following three components to work together:
 
-* <a href='https://github.com/data61/clkhash'>clkhash</a>
-* <a href='https://github.com/data61/blocklib'>blocklib</a>
-* <a href='https://github.com/data61/anonlink-entity-service'>anonlink-entity-service</a>
+* [clkhash](https://github.com/data61/clkhash)
+* [blocklib](https://github.com/data61/blocklib)
+* [anonlink-entity-service](https://github.com/data61/anonlink-entity-service)
 
 This package provides an easy to use API to interact with the above packages to complete a record linkage job.
 
@@ -23,16 +23,16 @@ pip install git+https://https://github.com/data61/clkhash
 
 ### Documentation
 https://clkhash.readthedocs.io/en/stable/cli.html
-
+Note that the documentation are for clkhash now, we will add a readthedocs page for anonlink-client very soon.
 
 ### CLI Tool
-After installation, you should have a `anonlink` program in your path. Alternatively, you can use `client.cli`. For
+After installation, you should have a `anonlink` program in your path. For
 example, to hash PII data  `alice.csv` locally with schema `schema.json` and secret `horse`, run:
 ```bash
 $ anonlink hash 'alice.csv' 'horse' 'schema.json' 'clk.json'
 ```
 
 It will generate the CLK output and store in `clk.json`. To find out how to define the schema
-for your PII data, please refer <a href='https://clkhash.readthedocs.io/en/stable/schema.html'>this page</a> for 
+for your PII data, please refer [this page](https://clkhash.readthedocs.io/en/stable/schema.html) for 
 details.
 
