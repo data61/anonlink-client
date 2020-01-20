@@ -347,8 +347,8 @@ class TestBlockCommand(unittest.TestCase):
         runner = CliRunner()
         with temporary_file() as output_filename:
             with open(output_filename, 'wt') as output:
-                schema_path = os.path.join(os.path.dirname(__file__), 'testdata', 'lambda_fold_schema.json')
-                data_path = os.path.join(os.path.dirname(__file__), 'testdata', 'small.csv')
+                schema_path = os.path.join(TESTDATA, 'lambda_fold_schema.json')
+                data_path = os.path.join(TESTDATA, 'small.csv')
                 cli_result = runner.invoke(
                     client.cli.cli,
                     ['block', data_path, schema_path, output.name])
