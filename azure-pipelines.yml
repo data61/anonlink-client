@@ -44,7 +44,7 @@ stages:
             pip install -U -r requirements.txt
           displayName: 'Install requirements'
         - script: |
-            pytest --cov=anonlink --junitxml=testResults.xml --cov-report=xml:coverageReport.xml
+            pytest
           displayName: 'Tests'
         - bash: |
             pip install -U pip codecov
