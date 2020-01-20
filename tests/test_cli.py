@@ -352,7 +352,7 @@ class TestBlockCommand(unittest.TestCase):
                 cli_result = runner.invoke(
                     client.cli.cli,
                     ['block', data_path, schema_path, output.name])
-            self.assertEqual(cli_result.exit_code, 0, msg=cli_result)
+            self.assertEqual(cli_result.exit_code, 0, msg='result={}; exception={}'.format(cli_result, cli_result.exception))
 
             with open(output_filename, 'rt') as output:
                 outjson = json.load(output)
