@@ -18,7 +18,7 @@ The way to interact with anonlink system is via Command Line Tool `anonlink`. Yo
 Currently manual install:
 
 ```python3
-pip install git+https://https://github.com/data61/clkhash
+pip install git+https://https://github.com/data61/anonlink-client
 ```
 
 ### Documentation
@@ -29,7 +29,7 @@ Note that the documentation are for clkhash now, we will add a readthedocs page 
 After installation, you should have a `anonlink` program in your path. For
 example, to hash PII data  `alice.csv` locally with schema `schema.json` and secret `horse`, run:
 ```bash
-$ anonlink hash 'alice.csv' 'horse' 'schema.json' 'clk.json'
+$ anonlink hash 'alice.csv' 'horse' 'schema.json' 'encoded-entities.json'
 ```
 
 It will generate the CLK output and store in `clk.json`. To find out how to define the schema
