@@ -29,13 +29,5 @@ steps:
 
 - script: |
     pip install pytest pytest-azurepipelines
-    pytest
+    pytest  --cov=client --junitxml=testResults.xml --cov-report=xml:coverageReport.xml
   displayName: 'pytest'
-
-- task: PublishCodeCoverageResults@1
-  displayName: 'Publish code coverage in Azure'
-  condition: succeededOrFailed()
-  inputs:
-    codeCoverageTool: Cobertura
-    summaryFileLocation: 'coverageReport.xml'
-    failIfCoverageEmpty: true
