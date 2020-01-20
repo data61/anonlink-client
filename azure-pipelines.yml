@@ -24,33 +24,33 @@ stages:
   dependsOn: []
   jobs:
     - job:
-        displayName: ' '
-        strategy:
-          matrix:
-            python36:
-              PYTHON_VERSION: '3.6'
-            python37:
-              PYTHON_VERSION: '3.7'
-            python38:
-              PYTHON_VERSION: '3.8'
-        pool:
-          vmImage: 'ubuntu-18.04'
-        steps:
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: $(PYTHON_VERSION)
-          - script: |
-              pip install -U pip
-              pip install -U -r requirements.txt
-            displayName: 'Install requirements'
-          - script: |
-              pytest --cov=anonlink --junitxml=testResults.xml --cov-report=xml:coverageReport.xml
-            displayName: 'Tests'
-          - bash: |
-              pip install -U pip codecov
-              report_name="ubuntu18-04_$(PYTHON_VERSION)"
-              python -m codecov --token $(CODECOV_TOKEN) \
-                --file coverageReport.xml \
-                -n ${report_name}
-            displayName: 'Send coverage to codecov'
-            condition: succeededOrFailed()
+      displayName: ' '
+      strategy:
+        matrix:
+          python36:
+            PYTHON_VERSION: '3.6'
+          python37:
+            PYTHON_VERSION: '3.7'
+          python38:
+            PYTHON_VERSION: '3.8'
+      pool:
+        vmImage: 'ubuntu-18.04'
+      steps:
+        - task: UsePythonVersion@0
+          inputs:
+            versionSpec: $(PYTHON_VERSION)
+        - script: |
+            pip install -U pip
+            pip install -U -r requirements.txt
+          displayName: 'Install requirements'
+        - script: |
+            pytest --cov=anonlink --junitxml=testResults.xml --cov-report=xml:coverageReport.xml
+          displayName: 'Tests'
+        - bash: |
+            pip install -U pip codecov
+            report_name="ubuntu18-04_$(PYTHON_VERSION)"
+            python -m codecov --token $(CODECOV_TOKEN) \
+              --file coverageReport.xml \
+              -n ${report_name}
+          displayName: 'Send coverage to codecov'
+          condition: succeededOrFailed()
