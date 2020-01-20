@@ -347,11 +347,12 @@ class TestBlockCommand(unittest.TestCase):
         runner = CliRunner()
         with temporary_file() as output_filename:
             with open(output_filename, 'wt') as output:
+                schema_path = os.path.join(TESTDATA, 'lambda_fold_schema.json')
+                data_path = os.path.join(TESTDATA, 'small.csv')
                 cli_result = runner.invoke(
                     client.cli.cli,
-                    ['block', 'testdata/small.csv',
-                     'testdata/lambda_fold_schema.json', output.name])
-            self.assertEqual(cli_result.exit_code, 0, msg=cli_result.output)
+                    ['block', data_path, schema_path, output.name])
+            self.assertEqual(cli_result.exit_code, 0, msg='result={}; exception={}'.format(cli_result, cli_result.exception))
 
             with open(output_filename, 'rt') as output:
                 outjson = json.load(output)
