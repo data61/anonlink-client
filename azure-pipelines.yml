@@ -45,7 +45,7 @@ stages:
           displayName: 'Install requirements'
         - script: |
             pip install pytest-azurepipelines
-            pytest --cov=client --junitxml=testResults.xml
+            pytest --cov=client --junitxml=testResults.xml  --cov-report=xml:coverage.xml
           displayName: 'Tests'
         - bash: |
             pip install -U pip codecov
