@@ -44,13 +44,14 @@ stages:
             pip install -U -r requirements.txt
           displayName: 'Install requirements'
         - script: |
-            pytest --cov=client --junitxml=testResults.xml --cov-report=xml:coverageReport.xml
+             pip install pytest pytest-azurepipelines
+            pytest --cov=client --junitxml=testResults.xml
           displayName: 'Tests'
         - bash: |
             pip install -U pip codecov
             report_name="ubuntu18-04_$(PYTHON_VERSION)"
             python -m codecov --token $(CODECOV_TOKEN) \
-              --file coverageReport.xml \
+              --file coverage.xml \
               -n ${report_name}
           displayName: 'Send coverage to codecov'
           condition: succeededOrFailed()
