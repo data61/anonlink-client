@@ -1,4 +1,6 @@
-
+.. image:: https://codecov.io/gh/data61/blocklib/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/data61/blocklib
+    
 # Anonlink Client
 
 Client-facing API to interact with anonlink system including command line tools and Rest API communication.
