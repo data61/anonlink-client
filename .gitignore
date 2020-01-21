@@ -17,3 +17,7 @@ docs/tutorial/*.csv
 .DS_Store
 docs/tutorial/data/*
 docs/tutorial/__pycache__/*
+.coverage
+testResults.xml
+coverage.xml
+tests/test-output.xml
