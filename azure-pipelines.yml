@@ -44,7 +44,7 @@ stages:
             pip install -U -r requirements.txt
           displayName: 'Install requirements'
         - script: |
-             pip install pytest pytest-azurepipelines
+            pip install pytest-azurepipelines
             pytest --cov=client --junitxml=testResults.xml
           displayName: 'Tests'
         - bash: |
