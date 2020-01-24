@@ -5,7 +5,7 @@ import unittest
 from bitarray import bitarray
 from clkhash.serialization import serialize_bitarray
 
-from client.utils import deserialize_filters, generate_candidate_blocks_from_csv
+from anonlinkclient.utils import deserialize_filters, generate_candidate_blocks_from_csv
 
 
 class TestUtils(unittest.TestCase):

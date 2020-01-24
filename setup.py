@@ -15,7 +15,7 @@ with open('README.rst', 'r', encoding='utf-8') as f:
         readme = f.read()
 
 setup(
-    name="anonlink-client",
+    name="anonlink-anonlinkclient",
     version='0.1.0',
     description='Client side tool for clkhash and blocklib',
     long_description=readme,
@@ -24,7 +24,7 @@ setup(
     license='Apache',
     install_requires=requirements,
     packages=find_packages(exclude=['tests']),
-    package_data={'client': ['data/*.csv', 'data/*.json', 'schemas/*.json']},
+    package_data={'anonlinkclient': ['data/*.csv', 'data/*.json', 'schemas/*.json']},
     project_urls={
         'Documentation': 'https://github.com/data61/anonlink-client',
         'Source': 'https://github.com/data61/anonlink-client',
@@ -32,7 +32,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'anonlink = client.cli:cli'
+            'anonlink = anonlinkclient.cli:cli'
         ],
     },
     classifiers=[
