@@ -21,3 +21,4 @@ docs/tutorial/__pycache__/*
 testResults.xml
 coverage.xml
 tests/test-output.xml
+__pycache__/*

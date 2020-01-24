@@ -15,8 +15,8 @@ with open('README.rst', 'r', encoding='utf-8') as f:
         readme = f.read()
 
 setup(
-    name="anonlink-anonlinkclient",
-    version='0.1.0',
+    name="anonlink-client",
+    version='0.0.1',
     description='Client side tool for clkhash and blocklib',
     long_description=readme,
     long_description_content_type='text/markdown',

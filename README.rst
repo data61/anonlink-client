@@ -24,7 +24,7 @@ Installation
 Currently manual install:
 
 ```python3
-pip install git+https://https://github.com/data61/anonlink-client
+pip install anonlink-client
 ```
 
 Documentation
