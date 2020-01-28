@@ -129,6 +129,22 @@ class BasicCLITests(unittest.TestCase):
         result = runner.invoke(anonlinkclient.cli.cli, ['benchmark'])
         assert 'hashes in' in result.output
 
+    def test_describe(self):
+        runner = CliRunner()
+
+        with runner.isolated_filesystem():
+            with open('in.csv', 'w') as f:
+                f.write('Alice,1967/09/27')
+
+            runner.invoke(
+                anonlinkclient.cli.cli,
+                ['hash', 'in.csv', 'a', SIMPLE_SCHEMA_PATH,
+                 'out.json', '--no-header'])
+
+            result = runner.invoke(anonlinkclient.cli.cli,
+                                   ['describe', 'out.json'])
+            assert result.exit_code == 0
+
 
 class TestSchemaValidationCommand(unittest.TestCase):
 
@@ -326,6 +342,34 @@ class TestHashCommand(unittest.TestCase):
                                                      'a', 'b', '-'])
 
         assert result.exit_code != 0
+
+    def test_hash_schemaerror(self):
+        runner = self.runner
+
+        schema_file = os.path.join(TESTDATA, 'bad-schema-v1.json')
+        a_pii = os.path.join(TESTDATA, 'dirty_1000_50_1.csv')
+
+        # with self.assertRaises(SchemaError):
+        with runner.isolated_filesystem():
+            result = runner.invoke(anonlinkclient.cli.cli,
+                                   ['hash', a_pii, 'horse', schema_file, 'out.json'
+                                    ])
+        assert result.exit_code != 0
+        assert 'schema is not valid' in result.output
+
+    def test_hash_invalid_data(self):
+        runner = self.runner
+        with runner.isolated_filesystem():
+            with open('in.csv', 'w') as f:
+                f.write('Alice,')
+
+            result = runner.invoke(
+                anonlinkclient.cli.cli,
+                ['hash', 'in.csv', 'a', SIMPLE_SCHEMA_PATH,
+                 'out.json', '--no-header'])
+
+            assert 'Invalid entry' in result.output
+
 
 
 class TestBlockCommand(unittest.TestCase):
@@ -723,6 +767,27 @@ class TestCliInteractionWithService(CLITestHelper):
                 self.clk_file.name
             ] + extra_arguments
         )
+
+    def test_upload_with_verbose(self):
+        project = self._create_project()
+        # Upload
+        runner = CliRunner()
+        cli_result = runner.invoke(anonlinkclient.cli.cli,
+                                   [
+                                        'upload',
+                                        '--verbose',
+                                        '--server', self.url,
+                                        '--project', project['project_id'],
+                                        '--apikey', project['update_tokens'][0],
+                                        self.clk_file.name
+
+                                    ]
+        )
+        assert cli_result.exit_code == 0
+        assert 'Uploading CLK data from {}'.format(self.clk_file.name) in cli_result.output
+        assert 'Project ID: {}'.format(project['project_id']) in cli_result.output
+        assert 'Uploading CLK data to the server' in cli_result.output
+
 
     def test_single_upload(self):
         self._test_single_upload([])

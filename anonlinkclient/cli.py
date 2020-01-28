@@ -357,7 +357,8 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
         response = rest_client.project_upload_clks(project, apikey, clk_json)
 
     if verbose:
-        log(response)
+        msg = '\n'.join(['{}: {}'.format(key, value) for key, value in response.items()])
+        log(msg)
 
     json.dump(response, output)
 
