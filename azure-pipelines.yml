@@ -65,3 +65,29 @@ stages:
               -n ${report_name}
           displayName: 'Send coverage to codecov'
           condition: succeededOrFailed()
+
+- stage: package
+  displayName: Package Artifacts
+  dependsOn: ['test_and_build']
+  jobs:
+    - job:
+      displayName: 'Package Artifacts'
+      pool:
+        vmImage: 'ubuntu-16.04'
+      steps:
+        - task: DownloadPipelineArtifact@2
+          input:
+            path: $(Pipeline.Workspace)
+        - script: |
+            cd $(Pipeline.Workspace)
+            mkdir artifacts
+            mv vs2017-win2016-3.7-x64/*.exe artifacts
+            mv vs2017-win2016-3.7-x86/*.exe artifacts
+            mv ubuntu-18.04-3.7-x64/*.whl artifacts
+            mv sdist/* artifacts
+            ls artifacts
+          displayName: 'List Artifacts'
+        - task: PublishPipelineArtifact@1
+          inputs:
+            artifact: 'release'
+            targetPath: '$(Pipeline.Workspace)/artifacts'
