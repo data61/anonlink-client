@@ -1,9 +1,6 @@
+[![codecov](https://codecov.io/gh/data61/anonlink-client/branch/master/graph/badge.svg)](https://codecov.io/gh/data61/anonlink-client)
 
-.. image:: https://codecov.io/gh/data61/anonlink-client/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/data61/anonlink-client
-
-Anonlink Client
-================
+# Anonlink Client
 
 
 Client-facing API to interact with anonlink system including command line tools and Rest API communication.
@@ -19,21 +16,21 @@ The way to interact with anonlink system is via Command Line Tool `anonlink`. Yo
  Identifying Information) locally using `anonlink hash`, generate candidate blocks locally to scale up record linkage 
  using `anonlink block`, create a record linkage job in entity service with `anonlink create-project` etc.
 
-Installation
-============
+### Installation
+
 Currently manual install:
 
 ```python3
 pip install anonlink-client
 ```
 
-Documentation
-=============
+### Documentation
+
 https://clkhash.readthedocs.io/en/stable/cli.html
 Note that the documentation are for clkhash now, we will add a readthedocs page for anonlink-client very soon.
 
-CLI Tool
-========
+### CLI Tool
+
 After installation, you should have a `anonlink` program in your path. For
 example, to hash PII data  `alice.csv` locally with schema `schema.json` and secret `horse`, run:
 ```bash
