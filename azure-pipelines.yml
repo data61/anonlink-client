@@ -67,38 +67,28 @@ stages:
           condition: succeededOrFailed()
 
 - stage: package
-  displayName: Publish packages to test feed
+  displayName: Package Artifacts
   dependsOn: ['test_and_build']
   jobs:
-    - job:
-      displayName: 'Package Artifacts'
-      pool:
-        vmImage: 'ubuntu-16.04'
-      variables:
-        # the name of an Azure artifacts feed to publish artifacts to
-        artifactFeed: anonlink-client
-      steps:
-        - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7', architecture: x64}}
-        - script: 'pip install twine'
-        - task: DownloadPipelineArtifact@2
-          inputs:
-            artifactName: 'drop'
-            patterns: '**/*.whl'
-            path: $(Pipeline.Workspace)
-        - task: TwineAuthenticate@1
-          inputs:
-            artifactFeed: $(artifactFeed)
-        - script: 'twine upload -r $(artifactFeed) --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/*whl --skip-existing'
-#        - script: |
-#            cd $(Pipeline.Workspace)
-#            mkdir artifacts
-#            mv vs2017-win2016-3.7-x64/*.exe artifacts
-#            mv vs2017-win2016-3.7-x86/*.exe artifacts
-#            mv ubuntu-18.04-3.7-x64/*.whl artifacts
-#            mv sdist/* artifacts
-#            ls artifacts
-#          displayName: 'List Artifacts'
-#        - task: PublishPipelineArtifact@1
-#          inputs:
-#            artifact: 'release'
-#            targetPath: '$(Pipeline.Workspace)/artifacts'
+  - job:
+    displayName: 'Package Artifacts'
+    pool:
+      vmImage: 'ubuntu-16.04'
+    steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        path: $(Pipeline.Workspace)
+
+    - script: |
+        cd $(Pipeline.Workspace)
+        mkdir artifacts
+        mv vs2017-win2016-3.7-x64/*.exe artifacts
+        mv vs2017-win2016-3.7-x86/*.exe artifacts
+        mv ubuntu-18.04-3.7-x64/*.whl artifacts
+        mv sdist/* artifacts
+        ls artifacts
+      displayName: 'List Artifacts'
+    - task: PublishPipelineArtifact@1
+      inputs:
+        artifact: 'release'
+        targetPath: '$(Pipeline.Workspace)/artifacts'
