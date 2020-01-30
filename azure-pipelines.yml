@@ -68,7 +68,7 @@ stages:
 
 - stage: package
   displayName: Package Artifacts
-  dependsOn: ['test_and_build']
+#  dependsOn: ['test_and_build']
   jobs:
   - job:
     displayName: 'Package Artifacts'
