@@ -9,15 +9,15 @@ trigger:
     - '*'
 
 stages:
-- stage: static_checks
-  displayName: Static Checks
-  dependsOn: []
-  jobs:
-    - job:
-      displayName: "Check Git Tags"
-      steps:
-      - script: echo "##vso[build.addbuildtag]Automated"
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+#- stage: static_checks
+#  displayName: Static Checks
+#  dependsOn: []
+#  jobs:
+#    - job:
+#      displayName: "Check Git Tags"
+#      steps:
+#      - script: echo "##vso[build.addbuildtag]Automated"
+#        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
 
 #- stage: test_and_build
 #  displayName: 'Test and build'
@@ -102,62 +102,62 @@ stages:
       steps:
         - task: UsePythonVersion@0
           inputs:
-            versionSpec: '3.6'
+            versionSpec: '2.7'
             addToPath: true
             architecture: 'x64'
         - bash: |
-            python3 -m pip install --upgrade pip
-            pip3 install cibuildwheel==1.1.0
-            cibuildwheel --output-dir wheelhouse .
-        - task: PublishBuildArtifacts@1
-          inputs: {pathtoPublish: 'wheelhouse'}
-
-    - job: macos
-      pool: {vmImage: 'macOS-10.13'}
-      steps:
-        - task: UsePythonVersion@0
-        - bash: |
             python -m pip install --upgrade pip
             pip install cibuildwheel==1.1.0
             cibuildwheel --output-dir wheelhouse .
         - task: PublishBuildArtifacts@1
           inputs: {pathtoPublish: 'wheelhouse'}
 
-    - job: windows
-      pool: {vmImage: 'vs2017-win2016'}
-      steps:
-        - task: UsePythonVersion@0
-        - script: choco install vcpython27 -f -y
-          displayName: Install Visual C++ for Python 2.7
-        - bash: |
-            python -m pip install --upgrade pip
-            pip install cibuildwheel==1.1.0
-            cibuildwheel --output-dir wheelhouse .
-        - task: PublishBuildArtifacts@1
-          inputs: {pathtoPublish: 'wheelhouse'}
-
-
-- stage: publish
-  displayName: Publish to test feed
-  dependsOn: ['package']
-  jobs:
-  - job:
-    pool:
-      vmImage: 'ubuntu-latest'
-    variables:
-      # the name of an Azure artifacts feed to publish artifacts to
-      artifactFeed: anonlinkclient
-    steps:
-      - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x64}}
-      - script: 'pip install twine'
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          artifactName: 'drop'
-          patterns: '**/*.whl'
-          path: $(Pipeline.Workspace)/dist
-      - script: 'python setup.py sdist -d $(Pipeline.Workspace)/dist'
-
-      - task: TwineAuthenticate@1
-        inputs:
-          artifactFeed: $(artifactFeed)
-      - script: 'twine upload -r $(artifactFeed) --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/* --skip-existing'
+#    - job: macos
+#      pool: {vmImage: 'macOS-10.13'}
+#      steps:
+#        - task: UsePythonVersion@0
+#        - bash: |
+#            python -m pip install --upgrade pip
+#            pip install cibuildwheel==1.1.0
+#            cibuildwheel --output-dir wheelhouse .
+#        - task: PublishBuildArtifacts@1
+#          inputs: {pathtoPublish: 'wheelhouse'}
+#
+#    - job: windows
+#      pool: {vmImage: 'vs2017-win2016'}
+#      steps:
+#        - task: UsePythonVersion@0
+#        - script: choco install vcpython27 -f -y
+#          displayName: Install Visual C++ for Python 2.7
+#        - bash: |
+#            python -m pip install --upgrade pip
+#            pip install cibuildwheel==1.1.0
+#            cibuildwheel --output-dir wheelhouse .
+#        - task: PublishBuildArtifacts@1
+#          inputs: {pathtoPublish: 'wheelhouse'}
+#
+#
+#- stage: publish
+#  displayName: Publish to test feed
+#  dependsOn: ['package']
+#  jobs:
+#  - job:
+#    pool:
+#      vmImage: 'ubuntu-latest'
+#    variables:
+#      # the name of an Azure artifacts feed to publish artifacts to
+#      artifactFeed: anonlinkclient
+#    steps:
+#      - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x64}}
+#      - script: 'pip install twine'
+#      - task: DownloadPipelineArtifact@2
+#        inputs:
+#          artifactName: 'drop'
+#          patterns: '**/*.whl'
+#          path: $(Pipeline.Workspace)/dist
+#      - script: 'python setup.py sdist -d $(Pipeline.Workspace)/dist'
+#
+#      - task: TwineAuthenticate@1
+#        inputs:
+#          artifactFeed: $(artifactFeed)
+#      - script: 'twine upload -r $(artifactFeed) --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/* --skip-existing'
