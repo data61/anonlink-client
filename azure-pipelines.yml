@@ -66,29 +66,94 @@ stages:
 #          displayName: 'Send coverage to codecov'
 #          condition: succeededOrFailed()
 
-- stage: package
-  displayName: Package Artifacts
-#  dependsOn: ['test_and_build']
-  jobs:
-  - job:
-    displayName: 'Package Artifacts'
-    pool:
-      vmImage: 'ubuntu-16.04'
-    steps:
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        path: $(Pipeline.Workspace)
+#- stage: package
+#  displayName: Package Artifacts
+##  dependsOn: ['test_and_build']
+#  jobs:
+#  - job:
+#    displayName: 'Package Artifacts'
+#    pool:
+#      vmImage: 'ubuntu-16.04'
+#    steps:
+#    - task: DownloadPipelineArtifact@2
+#      inputs:
+#        path: $(Pipeline.Workspace)
+#
+#    - script: |
+#        cd $(Pipeline.Workspace)
+#        mkdir artifacts
+#        mv vs2017-win2016-3.7-x64/*.exe artifacts
+#        mv vs2017-win2016-3.7-x86/*.exe artifacts
+#        mv ubuntu-18.04-3.7-x64/*.whl artifacts
+#        mv sdist/* artifacts
+#        ls artifacts
+#      displayName: 'List Artifacts'
+#    - task: PublishPipelineArtifact@1
+#      inputs:
+#        artifact: 'release'
+#        targetPath: '$(Pipeline.Workspace)/artifacts'
 
-    - script: |
-        cd $(Pipeline.Workspace)
-        mkdir artifacts
-        mv vs2017-win2016-3.7-x64/*.exe artifacts
-        mv vs2017-win2016-3.7-x86/*.exe artifacts
-        mv ubuntu-18.04-3.7-x64/*.whl artifacts
-        mv sdist/* artifacts
-        ls artifacts
-      displayName: 'List Artifacts'
-    - task: PublishPipelineArtifact@1
-      inputs:
-        artifact: 'release'
-        targetPath: '$(Pipeline.Workspace)/artifacts'
+  - stage: package
+    displayName: Build Wheel Packages
+    dependsOn: []
+    jobs:
+    - job: linux
+      pool: {vmImage: 'Ubuntu-16.04'}
+      steps:
+        - task: UsePythonVersion@0
+        - bash: |
+            python -m pip install --upgrade pip
+            pip install cibuildwheel==1.1.0
+            cibuildwheel --output-dir wheelhouse .
+        - task: PublishBuildArtifacts@1
+          inputs: {pathtoPublish: 'wheelhouse'}
+    - job: macos
+      pool: {vmImage: 'macOS-10.13'}
+      steps:
+        - task: UsePythonVersion@0
+        - bash: |
+            python -m pip install --upgrade pip
+            pip install cibuildwheel==1.1.0
+            cibuildwheel --output-dir wheelhouse .
+        - task: PublishBuildArtifacts@1
+          inputs: {pathtoPublish: 'wheelhouse'}
+    - job: windows
+      pool: {vmImage: 'vs2017-win2016'}
+      steps:
+        - {task: UsePythonVersion@0, inputs: {versionSpec: '3.6', architecture: x86}}
+        - {task: UsePythonVersion@0, inputs: {versionSpec: '3.6', architecture: x64}}
+        - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7', architecture: x86}}
+        - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7', architecture: x64}}
+        - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x86}}
+        - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x64}}
+        - bash: |
+            python -m pip install --upgrade pip
+            pip install cibuildwheel==1.1.0
+            cibuildwheel --output-dir wheelhouse .
+        - task: PublishBuildArtifacts@1
+          inputs: {pathtoPublish: 'wheelhouse'}
+
+  - stage: publish
+    displayName: Publish to test feed
+    dependsOn: ['package']
+    jobs:
+    - job:
+      pool:
+        vmImage: 'ubuntu-latest'
+      variables:
+        # the name of an Azure artifacts feed to publish artifacts to
+        artifactFeed: anonlinkclient
+      steps:
+        - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x64}}
+        - script: 'pip install twine'
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            artifactName: 'drop'
+            patterns: '**/*.whl'
+            path: $(Pipeline.Workspace)/dist
+        - script: 'python setup.py sdist -d $(Pipeline.Workspace)/dist'
+
+        - task: TwineAuthenticate@1
+          inputs:
+            artifactFeed: $(artifactFeed)
+        - script: 'twine upload -r $(artifactFeed) --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/* --skip-existing'
