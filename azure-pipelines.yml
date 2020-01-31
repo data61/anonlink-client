@@ -101,7 +101,7 @@ stages:
       pool: {vmImage: 'Ubuntu-16.04'}
       steps:
         - task: UsePythonVersion@0
-          input:
+          inputs:
             versionSpec: '3.6'
             addToPath: true
             architecture: 'x64'
