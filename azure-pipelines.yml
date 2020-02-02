@@ -116,7 +116,7 @@ stages:
 
         # artifact creation
         - script:
-            pip3 install wheel
+            pip install wheel
             python setup.py sdist bdist_wheel
           displayName: 'Artifact creation'
 
