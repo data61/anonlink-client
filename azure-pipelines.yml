@@ -198,7 +198,7 @@ stages:
       vmImage: 'ubuntu-latest'
     variables:
       # the name of an Azure artifacts feed to publish artifacts to
-      artifactFeed: anonlinkclient
+      artifactFeed: 'Anonlink/anonlinkclient'
     steps:
       - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x64}}
       - script: 'pip install twine'
