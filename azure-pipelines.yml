@@ -196,9 +196,6 @@ stages:
   - job:
     pool:
       vmImage: 'ubuntu-latest'
-    variables:
-      # the name of an Azure artifacts feed to publish artifacts to
-      artifactFeed: 'Anonlink/anonlinkclient'
     steps:
       - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x64}}
       - script: 'pip install twine'
@@ -211,5 +208,5 @@ stages:
 
       - task: TwineAuthenticate@1
         inputs:
-          artifactFeed: $(artifactFeed)
+          artifactFeed: 'anonlink, anonlink_client'
       - script: 'twine upload -r $(artifactFeed) --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/* --skip-existing'
