@@ -99,18 +99,38 @@ stages:
   jobs:
     - job: linux
       pool: {vmImage: 'Ubuntu-16.04'}
+      strategy:
+        matrix:
+          Python36:
+            python.version: '3.6'
+          Python37:
+            python.version: '3.7'
+          Python38:
+            python.version: '3.8'
+
       steps:
         - task: UsePythonVersion@0
           inputs:
-            versionSpec: '2.7'
-            addToPath: true
-            architecture: 'x64'
-        - bash: |
-            python -m pip install --upgrade pip
-            pip install cibuildwheel==1.1.0
-            cibuildwheel --output-dir wheelhouse .
+            versionSpec: '$(python.version)'
+          displayName: 'Use Python $(python.version)'
+
+        # artifact creation
+        - script:
+            python setup.py sdist
+          displayName: 'Artifact creation'
+
+        # copy artifact
+        - task: CopyFiles@2
+          inputs:
+            targetFolder: $(Build.ArtifactStagingDirectory)
+
+        # publish artifact
         - task: PublishBuildArtifacts@1
-          inputs: {pathtoPublish: 'wheelhouse'}
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+            ArtifactName: 'dist'
+            publishLocation: 'Container'
+
 
 #    - job: macos
 #      pool: {vmImage: 'macOS-10.13'}
