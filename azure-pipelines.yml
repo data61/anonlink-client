@@ -92,49 +92,49 @@ stages:
 #      inputs:
 #        artifact: 'release'
 #        targetPath: '$(Pipeline.Workspace)/artifacts'
-
-- stage: package
-  displayName: Build Wheel Packages
-  dependsOn: []
-  jobs:
-    - job: linux
-      pool: {vmImage: 'Ubuntu-16.04'}
-      strategy:
-        matrix:
-          Python36:
-            python.version: '3.6'
-          Python37:
-            python.version: '3.7'
-          Python38:
-            python.version: '3.8'
-
-      steps:
-        - task: UsePythonVersion@0
-          inputs:
-            versionSpec: '$(python.version)'
-          displayName: 'Use Python $(python.version)'
-
-        - script:
-            pip install wheel
-          displayName: 'Install wheel'
-
-        # artifact creation
-        - script:
-            python setup.py sdist bdist_wheel
-          displayName: 'Artifact creation'
-
-        # copy artifact
-        - task: CopyFiles@2
-          inputs:
-            targetFolder: $(Build.ArtifactStagingDirectory)
-
-        # publish artifact
-        - task: PublishBuildArtifacts@1
-          inputs:
-            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-            ArtifactName: 'dist'
-            publishLocation: 'Container'
-
+#
+#- stage: package
+#  displayName: Build Wheel Packages
+#  dependsOn: []
+#  jobs:
+#    - job: linux
+#      pool: {vmImage: 'Ubuntu-16.04'}
+#      strategy:
+#        matrix:
+#          Python36:
+#            python.version: '3.6'
+#          Python37:
+#            python.version: '3.7'
+#          Python38:
+#            python.version: '3.8'
+#
+#      steps:
+#        - task: UsePythonVersion@0
+#          inputs:
+#            versionSpec: '$(python.version)'
+#          displayName: 'Use Python $(python.version)'
+#
+#        - script:
+#            pip install wheel
+#          displayName: 'Install wheel'
+#
+#        # artifact creation
+#        - script:
+#            python setup.py sdist bdist_wheel
+#          displayName: 'Artifact creation'
+#
+#        # copy artifact
+#        - task: CopyFiles@2
+#          inputs:
+#            targetFolder: $(Build.ArtifactStagingDirectory)
+#
+#        # publish artifact
+#        - task: PublishBuildArtifacts@1
+#          inputs:
+#            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+#            ArtifactName: 'dist'
+#            publishLocation: 'Container'
+#
 
 #    - job: macos
 #      pool: {vmImage: 'macOS-10.13'}
@@ -161,27 +161,27 @@ stages:
 #          inputs: {pathtoPublish: 'wheelhouse'}
 #
 #
-#- stage: publish
-#  displayName: Publish to test feed
-#  dependsOn: ['package']
-#  jobs:
-#  - job:
-#    pool:
-#      vmImage: 'ubuntu-latest'
-#    variables:
-#      # the name of an Azure artifacts feed to publish artifacts to
-#      artifactFeed: anonlinkclient
-#    steps:
-#      - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x64}}
-#      - script: 'pip install twine'
-#      - task: DownloadPipelineArtifact@2
-#        inputs:
-#          artifactName: 'drop'
-#          patterns: '**/*.whl'
-#          path: $(Pipeline.Workspace)/dist
-#      - script: 'python setup.py sdist -d $(Pipeline.Workspace)/dist'
-#
-#      - task: TwineAuthenticate@1
-#        inputs:
-#          artifactFeed: $(artifactFeed)
-#      - script: 'twine upload -r $(artifactFeed) --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/* --skip-existing'
+- stage: publish
+  displayName: Publish to test feed
+  dependsOn: ['package']
+  jobs:
+  - job:
+    pool:
+      vmImage: 'ubuntu-latest'
+    variables:
+      # the name of an Azure artifacts feed to publish artifacts to
+      artifactFeed: anonlinkclient
+    steps:
+      - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x64}}
+      - script: 'pip install twine'
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          artifactName: 'drop'
+          patterns: '**/*.whl'
+          path: $(Pipeline.Workspace)/dist
+      - script: 'python setup.py sdist -d $(Pipeline.Workspace)/dist'
+
+      - task: TwineAuthenticate@1
+        inputs:
+          artifactFeed: $(artifactFeed)
+      - script: 'twine upload -r $(artifactFeed) --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/* --skip-existing'
