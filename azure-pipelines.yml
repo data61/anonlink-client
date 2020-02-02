@@ -161,27 +161,53 @@ stages:
 #          inputs: {pathtoPublish: 'wheelhouse'}
 #
 #
-- stage: publish
-  displayName: Publish to test feed
-  dependsOn: ['package']
+- stage: package
+  displayName: Package Artifacts
+#  dependsOn: ['build_and_test']
   jobs:
   - job:
+    displayName: 'Package Artifacts'
     pool:
-      vmImage: 'ubuntu-latest'
-    variables:
-      # the name of an Azure artifacts feed to publish artifacts to
-      artifactFeed: anonlinkclient
+      vmImage: 'ubuntu-16.04'
     steps:
-      - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x64}}
-      - script: 'pip install twine'
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          artifactName: 'drop'
-          patterns: '**/*.whl'
-          path: $(Pipeline.Workspace)/dist
-      - script: 'python setup.py sdist -d $(Pipeline.Workspace)/dist'
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7', architecture: x64}}
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        path: $(Pipeline.Workspace)
 
-      - task: TwineAuthenticate@1
-        inputs:
-          artifactFeed: $(artifactFeed)
-      - script: 'twine upload -r $(artifactFeed) --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/* --skip-existing'
+    - script: |
+        cd $(Pipeline.Workspace)
+        mkdir artifacts
+        mv vs2017-win2016-3.7-x64/*.exe artifacts
+        mv vs2017-win2016-3.7-x86/*.exe artifacts
+        mv ubuntu-18.04-3.7-x64/*.whl artifacts
+        mv sdist/* artifacts
+        ls artifacts
+      displayName: 'List Artifacts'
+    - task: PublishPipelineArtifact@1
+      inputs:
+        artifact: 'release'
+        targetPath: '$(Pipeline.Workspace)/artifacts'
+#- stage: publish
+#  displayName: Publish to test feed
+#  jobs:
+#  - job:
+#    pool:
+#      vmImage: 'ubuntu-latest'
+#    variables:
+#      # the name of an Azure artifacts feed to publish artifacts to
+#      artifactFeed: anonlinkclient
+#    steps:
+#      - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x64}}
+#      - script: 'pip install twine'
+#      - task: DownloadPipelineArtifact@2
+#        inputs:
+#          artifactName: 'drop'
+#          patterns: '**/*.whl'
+#          path: $(Pipeline.Workspace)
+#      - script: 'python setup.py sdist -d $(Pipeline.Workspace)/dist'
+#
+#      - task: TwineAuthenticate@1
+#        inputs:
+#          artifactFeed: $(artifactFeed)
+#      - script: 'twine upload -r $(artifactFeed) --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/* --skip-existing'
