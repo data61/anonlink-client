@@ -209,4 +209,4 @@ stages:
       - task: TwineAuthenticate@1
         inputs:
           artifactFeed: 'anonlink, anonlink_client'
-      - script: 'twine upload -r anonlink_client --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/dist/* --skip-existing'
+      - script: 'twine upload -r anonlink_client --config-file .pypirc $(Pipeline.Workspace)/dist/* --skip-existing'
