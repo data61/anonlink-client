@@ -116,7 +116,7 @@ stages:
 
         # artifact creation
         - script:
-            python setup.py sdist
+            python setup.py sdist bdist_wheel
           displayName: 'Artifact creation'
 
         # copy artifact
