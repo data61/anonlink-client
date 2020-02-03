@@ -9,15 +9,15 @@ trigger:
     - '*'
 
 stages:
-#- stage: static_checks
-#  displayName: Static Checks
-#  dependsOn: []
-#  jobs:
-#    - job:
-#      displayName: "Check Git Tags"
-#      steps:
-#      - script: echo "##vso[build.addbuildtag]Automated"
-#        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+- stage: static_checks
+  displayName: Static Checks
+  dependsOn: []
+  jobs:
+    - job:
+      displayName: "Check Git Tags"
+      steps:
+      - script: echo "##vso[build.addbuildtag]Automated"
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
 
 #- stage: test_and_build
 #  displayName: 'Test and build'
@@ -66,147 +66,44 @@ stages:
 #          displayName: 'Send coverage to codecov'
 #          condition: succeededOrFailed()
 
-#- stage: package
-#  displayName: Package Artifacts
-##  dependsOn: ['test_and_build']
-#  jobs:
-#  - job:
-#    displayName: 'Package Artifacts'
-#    pool:
-#      vmImage: 'ubuntu-16.04'
-#    steps:
-#    - task: DownloadPipelineArtifact@2
-#      inputs:
-#        path: $(Pipeline.Workspace)
-#
-#    - script: |
-#        cd $(Pipeline.Workspace)
-#        mkdir artifacts
-#        mv vs2017-win2016-3.7-x64/*.exe artifacts
-#        mv vs2017-win2016-3.7-x86/*.exe artifacts
-#        mv ubuntu-18.04-3.7-x64/*.whl artifacts
-#        mv sdist/* artifacts
-#        ls artifacts
-#      displayName: 'List Artifacts'
-#    - task: PublishPipelineArtifact@1
-#      inputs:
-#        artifact: 'release'
-#        targetPath: '$(Pipeline.Workspace)/artifacts'
-#
-#- stage: package
-#  displayName: Build Wheel Packages
-#  dependsOn: []
-#  jobs:
-#    - job: linux
-#      pool: {vmImage: 'Ubuntu-16.04'}
-#      strategy:
-#        matrix:
-#          Python36:
-#            python.version: '3.6'
-#          Python37:
-#            python.version: '3.7'
-#          Python38:
-#            python.version: '3.8'
-#
-#      steps:
-#        - task: UsePythonVersion@0
-#          inputs:
-#            versionSpec: '$(python.version)'
-#          displayName: 'Use Python $(python.version)'
-#
-#        - script:
-#            pip install wheel
-#          displayName: 'Install wheel'
-#
-#        # artifact creation
-#        - script:
-#            python setup.py sdist bdist_wheel
-#          displayName: 'Artifact creation'
-#
-#        # copy artifact
-#        - task: CopyFiles@2
-#          inputs:
-#            targetFolder: $(Build.ArtifactStagingDirectory)
-#
-#        # publish artifact
-#        - task: PublishBuildArtifacts@1
-#          inputs:
-#            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-#            ArtifactName: 'dist'
-#            publishLocation: 'Container'
-#
-
-#    - job: macos
-#      pool: {vmImage: 'macOS-10.13'}
-#      steps:
-#        - task: UsePythonVersion@0
-#        - bash: |
-#            python -m pip install --upgrade pip
-#            pip install cibuildwheel==1.1.0
-#            cibuildwheel --output-dir wheelhouse .
-#        - task: PublishBuildArtifacts@1
-#          inputs: {pathtoPublish: 'wheelhouse'}
-#
-#    - job: windows
-#      pool: {vmImage: 'vs2017-win2016'}
-#      steps:
-#        - task: UsePythonVersion@0
-#        - script: choco install vcpython27 -f -y
-#          displayName: Install Visual C++ for Python 2.7
-#        - bash: |
-#            python -m pip install --upgrade pip
-#            pip install cibuildwheel==1.1.0
-#            cibuildwheel --output-dir wheelhouse .
-#        - task: PublishBuildArtifacts@1
-#          inputs: {pathtoPublish: 'wheelhouse'}
-#
-#
-#- stage: package
-#  displayName: Package Artifacts
-#  dependsOn: []
-#  jobs:
-#  - job:
-#    displayName: 'Package Artifacts'
-#    pool:
-#      vmImage: 'ubuntu-16.04'
-#    steps:
-#    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7', architecture: x64}}
-#    - task: DownloadPipelineArtifact@2
-#      inputs:
-#        path: $(Pipeline.Workspace)
-#
-#    - script: |
-#        cd $(Pipeline.Workspace)
-#        mkdir artifacts
-#        mv vs2017-win2016-3.7-x64/*.exe artifacts
-#        mv vs2017-win2016-3.7-x86/*.exe artifacts
-#        mv ubuntu-18.04-3.7-x64/*.whl artifacts
-#        mv sdist/* artifacts
-#        ls artifacts
-#      displayName: 'List Artifacts'
-#    - task: PublishPipelineArtifact@1
-#      inputs:
-#        artifact: 'release'
-#        targetPath: '$(Pipeline.Workspace)/artifacts'
-
-- stage: publish
+- stage: package
+  displayName: Build Wheel Packages
   dependsOn: []
-  displayName: Publish to test feed
   jobs:
-  - job:
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-      - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x64}}
-      - script: 'pip install twine'
-      - task: DownloadPipelineArtifact@2
-        inputs:
-#          artifactName: 'drop'
-#          patterns: '**/*.whl'
-          path: $(Pipeline.Workspace)
-      - script: 'python setup.py sdist -d $(Pipeline.Workspace)/dist'
+    - job: linux
+      pool: {vmImage: 'Ubuntu-16.04'}
+      strategy:
+        matrix:
+          Python36:
+            python.version: '3.6'
+          Python37:
+            python.version: '3.7'
+          Python38:
+            python.version: '3.8'
 
-      - task: TwineAuthenticate@1
-        inputs:
-          artifactFeed: 'anonlink, anonlink_client'
-      - script: 'twine upload -r anonlink_client --config-file .pypirc $(Pipeline.Workspace)/dist/* --skip-existing'
+      steps:
+        - task: UsePythonVersion@0
+          inputs:
+            versionSpec: '$(python.version)'
+          displayName: 'Use Python $(python.version)'
+
+        - script:
+            pip install wheel
+          displayName: 'Install wheel'
+
+        # artifact creation
+        - script:
+            python setup.py sdist bdist_wheel
+          displayName: 'Artifact creation'
+
+        # copy artifact
+        - task: CopyFiles@2
+          inputs:
+            targetFolder: $(Build.ArtifactStagingDirectory)
+
+        # publish artifact
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+            ArtifactName: 'dist'
+            publishLocation: 'Container'
