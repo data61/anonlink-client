@@ -19,56 +19,56 @@ stages:
       - script: echo "##vso[build.addbuildtag]Automated"
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
 
-#- stage: test_and_build
-#  displayName: 'Test and build'
-#  dependsOn: []
-#  jobs:
-#    - job:
-#      displayName: ' '
-#      strategy:
-#        matrix:
-#          python36:
-#            PYTHON_VERSION: '3.6'
-#          python37:
-#            PYTHON_VERSION: '3.7'
-#          python38:
-#            PYTHON_VERSION: '3.8'
-#      pool:
-#        vmImage: 'ubuntu-18.04'
-#      steps:
-#        - task: UsePythonVersion@0
-#          inputs:
-#            versionSpec: $(PYTHON_VERSION)
-#        - script: |
-#            pip install -U pip
-#            pip install -U -r requirements.txt
-#          displayName: 'Install requirements'
-#        - script: |
-#            pytest --cov=anonlinkclient --junitxml=testResults.xml  --cov-report=xml:coverage.xml
-#          displayName: 'Tests'
-#          timeoutInMinutes: 10  # it should pass in 2.5 minutes, so 10 should be more than enough even if server is busy
-#          env:
-#            TEST_ENTITY_SERVICE: 'https://testing.es.data61.xyz'
-#
-#        # Test tutorial Jupyter notebooks in docs
-#        - script: |
-#            pip install -e .
-#            python -m pip install -U -r docs/doc-requirements.txt
-#            pytest --nbval docs
-#          displayName: 'Test all notebooks'
-#
-#        - bash: |
-#            pip install -U pip codecov
-#            report_name="ubuntu18-04_$(PYTHON_VERSION)"
-#            python -m codecov --token $(CODECOV_TOKEN) \
-#              --file coverage.xml \
-#              -n ${report_name}
-#          displayName: 'Send coverage to codecov'
-#          condition: succeededOrFailed()
+- stage: test_and_build
+  displayName: 'Test and build'
+  dependsOn: []
+  jobs:
+    - job:
+      displayName: ' '
+      strategy:
+        matrix:
+          python36:
+            PYTHON_VERSION: '3.6'
+          python37:
+            PYTHON_VERSION: '3.7'
+          python38:
+            PYTHON_VERSION: '3.8'
+      pool:
+        vmImage: 'ubuntu-18.04'
+      steps:
+        - task: UsePythonVersion@0
+          inputs:
+            versionSpec: $(PYTHON_VERSION)
+        - script: |
+            pip install -U pip
+            pip install -U -r requirements.txt
+          displayName: 'Install requirements'
+        - script: |
+            pytest --cov=anonlinkclient --junitxml=testResults.xml  --cov-report=xml:coverage.xml
+          displayName: 'Tests'
+          timeoutInMinutes: 10  # it should pass in 2.5 minutes, so 10 should be more than enough even if server is busy
+          env:
+            TEST_ENTITY_SERVICE: 'https://testing.es.data61.xyz'
+
+        # Test tutorial Jupyter notebooks in docs
+        - script: |
+            pip install -e .
+            python -m pip install -U -r docs/doc-requirements.txt
+            pytest --nbval docs
+          displayName: 'Test all notebooks'
+
+        - bash: |
+            pip install -U pip codecov
+            report_name="ubuntu18-04_$(PYTHON_VERSION)"
+            python -m codecov --token $(CODECOV_TOKEN) \
+              --file coverage.xml \
+              -n ${report_name}
+          displayName: 'Send coverage to codecov'
+          condition: succeededOrFailed()
 
 - stage: package
   displayName: Build Wheel Packages
-  dependsOn: []
+  dependsOn: [test_and_build]
   jobs:
     - job: linux
       pool: {vmImage: 'Ubuntu-16.04'}
