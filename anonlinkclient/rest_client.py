@@ -33,7 +33,7 @@ class ServiceError(Exception):
 
 
 class RateLimitedClient(ServiceError):
-    """Exception indicating anonlinkclient is asking for updates too frequently.
+    """Exception indicating client is asking for updates too frequently.
     """
 
 
