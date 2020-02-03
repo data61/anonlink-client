@@ -5,7 +5,7 @@ from multiprocessing import freeze_support
 
 import click
 import clkhash
-import client
+import anonlinkclient
 from clkhash import benchmark as bench, clk, randomnames, validate_data, describe as descr
 from clkhash.schema import SchemaError, validate_schema_dict, convert_to_latest_version
 from .rest_client import ClientWaitingConfiguration, ServiceError, format_run_status, RestClient
@@ -110,7 +110,7 @@ def create_rest_client(server, retry_multiplier, retry_max_exp, retry_stop, verb
 
 
 @click.group("anonlink")
-@click.version_option(client.__version__)
+@click.version_option(anonlinkclient.__version__)
 @verbose_option
 def cli(verbose):
     """
@@ -357,7 +357,8 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
         response = rest_client.project_upload_clks(project, apikey, clk_json)
 
     if verbose:
-        log(response)
+        msg = '\n'.join(['{}: {}'.format(key, value) for key, value in response.items()])
+        log(msg)
 
     json.dump(response, output)
 

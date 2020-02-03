@@ -30,13 +30,6 @@ def deserialize_filters(filters):
     return res
 
 
-def generate_clks(dataframe: DataFrame, schema: Schema, secret_keys: Tuple[str, str]):
-    csv = io.StringIO()
-    dataframe.to_csv(csv, index=False)
-    csv.seek(0)
-    return deserialize_filters(clk.generate_clk_from_csv(csv, secret_keys, schema))
-
-
 def generate_candidate_blocks_from_csv(input_f: TextIO,
                                        schema_f: str,
                                        header: bool = True):

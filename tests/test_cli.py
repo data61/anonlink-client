@@ -13,11 +13,11 @@ import unittest
 import pytest
 from click.testing import CliRunner
 from future.builtins import range
-
-import client.cli
+import anonlinkclient
+import anonlinkclient.cli as cli
 from clkhash import randomnames, schema
 
-from client.rest_client import ServiceError, RestClient
+from anonlinkclient.rest_client import ServiceError, RestClient
 
 from tests import *
 
@@ -77,7 +77,7 @@ class CLITestHelper(unittest.TestCase):
 
         with temporary_file() as output_filename:
             command.extend(['-o', output_filename])
-            cli_result = runner.invoke(client.cli.cli, command)
+            cli_result = runner.invoke(cli.cli, command)
             assert cli_result.exit_code == 0,\
                 "Output:\n{}\nException:\n{}".format(cli_result.output, cli_result.exception)
             with open(output_filename, 'rt') as output:
@@ -101,7 +101,7 @@ class BasicCLITests(unittest.TestCase):
 
     def test_list_commands(self):
         runner = CliRunner()
-        result = runner.invoke(client.cli.cli, [])
+        result = runner.invoke(cli.cli, [])
         expected_options = ['--version', '--verbose', '--help']
         expected_commands = ['benchmark', 'create', 'create-project', 'delete', 'delete-project', 'describe',
                              'generate', 'generate-default-schema', 'hash', 'results', 'status', 'upload',
@@ -114,20 +114,36 @@ class BasicCLITests(unittest.TestCase):
 
     def test_version(self):
         runner = CliRunner()
-        result = runner.invoke(client.cli.cli, ['--version'])
+        result = runner.invoke(cli.cli, ['--version'])
         assert result.exit_code == 0
-        assert client.__version__ in result.output
+        assert anonlinkclient.__version__ in result.output
 
     def test_help(self):
         runner = CliRunner()
-        result = runner.invoke(client.cli.cli, '--help')
-        result_without_command = runner.invoke(client.cli.cli, [])
+        result = runner.invoke(cli.cli, '--help')
+        result_without_command = runner.invoke(cli.cli, [])
         assert result.output == result_without_command.output
 
     def test_bench(self):
         runner = CliRunner()
-        result = runner.invoke(client.cli.cli, ['benchmark'])
+        result = runner.invoke(cli.cli, ['benchmark'])
         assert 'hashes in' in result.output
+
+    def test_describe(self):
+        runner = CliRunner()
+
+        with runner.isolated_filesystem():
+            with open('in.csv', 'w') as f:
+                f.write('Alice,1967/09/27')
+
+            runner.invoke(
+                cli.cli,
+                ['hash', 'in.csv', 'a', SIMPLE_SCHEMA_PATH,
+                 'out.json', '--no-header'])
+
+            result = runner.invoke(cli.cli,
+                                   ['describe', 'out.json'])
+            assert result.exit_code == 0
 
 
 class TestSchemaValidationCommand(unittest.TestCase):
@@ -135,7 +151,7 @@ class TestSchemaValidationCommand(unittest.TestCase):
     @staticmethod
     def validate_schema(schema_path):
         runner = CliRunner()
-        result = runner.invoke(client.cli.cli, [
+        result = runner.invoke(cli.cli, [
             'validate-schema', schema_path
         ])
         return result
@@ -181,7 +197,7 @@ class TestSchemaConversionCommand(unittest.TestCase):
     @staticmethod
     def convert_schema(schema_path):
         runner = CliRunner()
-        result = runner.invoke(client.cli.cli, [
+        result = runner.invoke(cli.cli, [
             'convert-schema', schema_path, 'out.json'
         ])
         return result
@@ -236,12 +252,12 @@ class TestHashCommand(unittest.TestCase):
 
     def test_hash_auto_help(self):
         runner = CliRunner()
-        result = runner.invoke(client.cli.cli, ['hash'])
+        result = runner.invoke(cli.cli, ['hash'])
         assert 'Missing argument' in result.output
 
     def test_hash_help(self):
         runner = CliRunner()
-        result = runner.invoke(client.cli.cli, ['hash', '--help'])
+        result = runner.invoke(cli.cli, ['hash', '--help'])
         assert 'secret' in result.output.lower()
         assert 'schema' in result.output
 
@@ -252,7 +268,7 @@ class TestHashCommand(unittest.TestCase):
             with open('in.csv', 'w') as f:
                 f.write('Alice, 1967')
 
-            result = runner.invoke(client.cli.cli,
+            result = runner.invoke(cli.cli,
                                    ['hash', 'in.csv'])
             assert result.exit_code != 0
             self.assertIn('Missing argument "SECRET"', result.output)
@@ -265,7 +281,7 @@ class TestHashCommand(unittest.TestCase):
                 f.write('Alice,1967/09/27')
 
             result = runner.invoke(
-                client.cli.cli,
+                cli.cli,
                 ['hash', 'in.csv', 'a', SIMPLE_SCHEMA_PATH,
                  'out.json', '--no-header'])
 
@@ -285,11 +301,11 @@ class TestHashCommand(unittest.TestCase):
 
         with runner.isolated_filesystem():
             result = runner.invoke(
-                client.cli.cli,
+                cli.cli,
                 ['hash', a_pii, 'a', schema_file, 'out.json'])
 
             result_2 = runner.invoke(
-                client.cli.cli,
+                cli.cli,
                 ['hash', a_pii, 'a', schema_file, 'out-2.json'])
 
             with open('out.json') as f:
@@ -318,30 +334,58 @@ class TestHashCommand(unittest.TestCase):
 
         with runner.isolated_filesystem():
 
-            result = runner.invoke(client.cli.cli, ['hash',
+            result = runner.invoke(cli.cli, ['hash',
                                                      '--quiet',
                                                      '--schema',
-                                                    schema_file,
-                                                    a_pii,
+                                                            schema_file,
+                                                            a_pii,
                                                      'a', 'b', '-'])
 
         assert result.exit_code != 0
+
+    def test_hash_schemaerror(self):
+        runner = self.runner
+
+        schema_file = os.path.join(TESTDATA, 'bad-schema-v1.json')
+        a_pii = os.path.join(TESTDATA, 'dirty_1000_50_1.csv')
+
+        # with self.assertRaises(SchemaError):
+        with runner.isolated_filesystem():
+            result = runner.invoke(cli.cli,
+                                   ['hash', a_pii, 'horse', schema_file, 'out.json'
+                                    ])
+        assert result.exit_code != 0
+        assert 'schema is not valid' in result.output
+
+    def test_hash_invalid_data(self):
+        runner = self.runner
+        with runner.isolated_filesystem():
+            with open('in.csv', 'w') as f:
+                f.write('Alice,')
+
+            result = runner.invoke(
+                cli.cli,
+                ['hash', 'in.csv', 'a', SIMPLE_SCHEMA_PATH,
+                 'out.json', '--no-header'])
+
+            assert 'Invalid entry' in result.output
+
 
 
 class TestBlockCommand(unittest.TestCase):
 
     def test_cli_includes_help(self):
         runner = CliRunner()
-        result = runner.invoke(client.cli.cli, ['--help'])
+        result = runner.invoke(cli.cli, ['--help'])
         self.assertEqual(result.exit_code, 0, result.output)
 
         assert 'block' in result.output.lower()
 
     def test_version(self):
         runner = CliRunner()
-        result = runner.invoke(client.cli.cli, ['--version'])
+        result = runner.invoke(cli.cli, ['--version'])
         assert result.exit_code == 0
-        self.assertIn(client.__version__, result.output)
+        self.assertIn(anonlinkclient.__version__, result.output)
 
     def test_lambda_fold(self):
         runner = CliRunner()
@@ -350,7 +394,7 @@ class TestBlockCommand(unittest.TestCase):
                 schema_path = os.path.join(TESTDATA, 'lambda_fold_schema.json')
                 data_path = os.path.join(TESTDATA, 'small.csv')
                 cli_result = runner.invoke(
-                    client.cli.cli,
+                    cli.cli,
                     ['block', data_path, schema_path, output.name])
             self.assertEqual(cli_result.exit_code, 0, msg='result={}; exception={}'.format(cli_result, cli_result.exception))
 
@@ -377,7 +421,7 @@ class TestHasherDefaultSchema(unittest.TestCase):
 
     def test_cli_includes_help(self):
         runner = CliRunner()
-        result = runner.invoke(client.cli.cli, ['--help'])
+        result = runner.invoke(cli.cli, ['--help'])
         self.assertEqual(result.exit_code, 0, result.output)
 
         assert 'Usage' in result.output
@@ -385,16 +429,16 @@ class TestHasherDefaultSchema(unittest.TestCase):
 
     def test_version(self):
         runner = CliRunner()
-        result = runner.invoke(client.cli.cli, ['--version'])
+        result = runner.invoke(cli.cli, ['--version'])
         assert result.exit_code == 0
-        self.assertIn(client.__version__, result.output)
+        self.assertIn(anonlinkclient.__version__, result.output)
 
     def test_generate_command(self):
         runner = CliRunner()
         with temporary_file() as output_filename:
             with open(output_filename) as output:
                 cli_result = runner.invoke(
-                    client.cli.cli,
+                    cli.cli,
                     ['generate', '50', output.name])
             self.assertEqual(cli_result.exit_code, 0, msg=cli_result.output)
             with open(output_filename, 'rt') as output:
@@ -405,13 +449,13 @@ class TestHasherDefaultSchema(unittest.TestCase):
         runner = CliRunner()
         with runner.isolated_filesystem():
             generate_schema_result = runner.invoke(
-                client.cli.cli,
+                cli.cli,
                 ['generate-default-schema', 'pii-schema.json'])
             self.assertEqual(generate_schema_result.exit_code, 0,
                              msg=generate_schema_result.output)
 
             hash_result = runner.invoke(
-                client.cli.cli,
+                cli.cli,
                 ['hash', self.pii_file.name, 'secret',
                  'pii-schema.json', 'pii-hashes.json'])
             self.assertEqual(hash_result.exit_code, 0, msg=hash_result.output)
@@ -421,7 +465,7 @@ class TestHasherDefaultSchema(unittest.TestCase):
         with temporary_file() as output_filename:
             with open(output_filename, 'wt') as output:
                 cli_result = runner.invoke(
-                    client.cli.cli,
+                    cli.cli,
                     ['hash', self.pii_file.name, 'secret',
                      RANDOMNAMES_SCHEMA_PATH, output.name])
             self.assertEqual(cli_result.exit_code, 0, msg=cli_result.output)
@@ -444,7 +488,7 @@ class TestHasherSchema(CLITestHelper):
         with temporary_file() as output_filename:
             with open(output_filename) as output:
                 cli_result = runner.invoke(
-                    client.cli.cli,
+                    cli.cli,
                     ['hash', pii_file.name, 'secret', RANDOMNAMES_SCHEMA_PATH, output.name])
 
             self.assertEqual(cli_result.exit_code, 0, msg=cli_result.output)
@@ -474,7 +518,7 @@ class TestCliInteractionWithService(CLITestHelper):
         # hash some PII for uploading
         # TODO don't need to rehash data for every test
         runner = CliRunner()
-        cli_result = runner.invoke(client.cli.cli,
+        cli_result = runner.invoke(cli.cli,
                                    ['hash',
                                    self.pii_file.name,
                                    'secret',
@@ -482,7 +526,7 @@ class TestCliInteractionWithService(CLITestHelper):
                                     self.clk_file.name])
         assert cli_result.exit_code == 0
 
-        cli_result = runner.invoke(client.cli.cli,
+        cli_result = runner.invoke(cli.cli,
                                    ['hash',
                                    self.pii_file_2.name,
                                    'secret',
@@ -547,7 +591,7 @@ class TestCliInteractionWithService(CLITestHelper):
 
     def _test_helps(self, command, list_expected_commands, include_server_options=False):
         runner = CliRunner()
-        result = runner.invoke(client.cli.cli, [command, '--help'])
+        result = runner.invoke(cli.cli, [command, '--help'])
 
         if include_server_options:
             list_to_test = self.server_options + list_expected_commands
@@ -639,7 +683,7 @@ class TestCliInteractionWithService(CLITestHelper):
             ] + extra_arguments
         runner = CliRunner()
 
-        cli_result = runner.invoke(client.cli.cli, command)
+        cli_result = runner.invoke(cli.cli, command)
         assert cli_result.exit_code == 0, cli_result.output
 
         # TODO get runs and check it is gone?
@@ -670,7 +714,7 @@ class TestCliInteractionWithService(CLITestHelper):
             '--project', project['project_id'],
             '--apikey', project['result_token']
         ] + extra_arguments
-        cli_result = runner.invoke(client.cli.cli, command)
+        cli_result = runner.invoke(cli.cli, command)
         assert cli_result.exit_code == 0, cli_result.output
 
         with pytest.raises(ServiceError):
@@ -724,6 +768,27 @@ class TestCliInteractionWithService(CLITestHelper):
             ] + extra_arguments
         )
 
+    def test_upload_with_verbose(self):
+        project = self._create_project()
+        # Upload
+        runner = CliRunner()
+        cli_result = runner.invoke(cli.cli,
+                                   [
+                                        'upload',
+                                        '--verbose',
+                                        '--server', self.url,
+                                        '--project', project['project_id'],
+                                        '--apikey', project['update_tokens'][0],
+                                        self.clk_file.name
+
+                                    ]
+        )
+        assert cli_result.exit_code == 0
+        assert 'Uploading CLK data from {}'.format(self.clk_file.name) in cli_result.output
+        assert 'Project ID: {}'.format(project['project_id']) in cli_result.output
+        assert 'Uploading CLK data to the server' in cli_result.output
+
+
     def test_single_upload(self):
         self._test_single_upload([])
 
@@ -773,7 +838,7 @@ class TestCliInteractionWithService(CLITestHelper):
 
         self.assertIn('receipt_token', bob_upload)
 
-        # Use the rest client to wait until the run is complete
+        # Use the rest anonlinkclient to wait until the run is complete
         self.rest_client.wait_for_run(project['project_id'],
                                       run['run_id'],
                                       project['result_token'],
