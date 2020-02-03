@@ -65,3 +65,45 @@ stages:
               -n ${report_name}
           displayName: 'Send coverage to codecov'
           condition: succeededOrFailed()
+
+- stage: package
+  displayName: Build Wheel Packages
+  dependsOn: [test_and_build]
+  jobs:
+    - job: linux
+      pool: {vmImage: 'Ubuntu-16.04'}
+      strategy:
+        matrix:
+          Python36:
+            python.version: '3.6'
+          Python37:
+            python.version: '3.7'
+          Python38:
+            python.version: '3.8'
+
+      steps:
+        - task: UsePythonVersion@0
+          inputs:
+            versionSpec: '$(python.version)'
+          displayName: 'Use Python $(python.version)'
+
+        - script:
+            pip install wheel
+          displayName: 'Install wheel'
+
+        # artifact creation
+        - script:
+            python setup.py sdist bdist_wheel
+          displayName: 'Artifact creation'
+
+        # copy artifact
+        - task: CopyFiles@2
+          inputs:
+            targetFolder: $(Build.ArtifactStagingDirectory)
+
+        # publish artifact
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+            ArtifactName: 'dist'
+            publishLocation: 'Container'

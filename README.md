@@ -1,5 +1,7 @@
 [![codecov](https://codecov.io/gh/data61/anonlink-client/branch/master/graph/badge.svg)](https://codecov.io/gh/data61/anonlink-client)
-
+![Build Status](https://dev.azure.com/data61/Anonlink/_apis/build/status/data61.anonlink-client?branchName=master)
+[![Requirements Status](https://requires.io/github/data61/anonlink-client/requirements.svg?branch=master)](https://requires.io/github/data61/anonlink-client/requirements/?branch=master)
+[![Downloads](https://pepy.tech/badge/anonlink-client)](https://pepy.tech/project/anonlink-client)
 # Anonlink Client
 
 
