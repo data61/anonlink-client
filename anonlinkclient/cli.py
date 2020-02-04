@@ -11,7 +11,7 @@ from clkhash.schema import SchemaError, validate_schema_dict, convert_to_latest_
 from .rest_client import ClientWaitingConfiguration, ServiceError, format_run_status, RestClient
 
 from typing import List, Callable
-from .utils import generate_candidate_blocks_from_csv, combine_clks_blocks
+from .utils import generate_clk_from_csv, generate_candidate_blocks_from_csv, combine_clks_blocks
 
 
 DEFAULT_SERVICE_URL = 'https://testing.es.data61.xyz'
@@ -167,7 +167,7 @@ def hash(pii_csv, secret, schema, clk_json, no_header, check_header, validate, v
         header = False
 
     try:
-        clk_data = clk.generate_clk_from_csv(
+        clk_data = generate_clk_from_csv(
             pii_csv, secret, schema_object,
             validate=validate,
             header=header,
