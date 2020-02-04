@@ -1,12 +1,8 @@
 import json
 import logging
 import time
-from tqdm import tqdm
-from clkhash.clk import generate_clks
-from clkhash.schema import Schema
-from clkhash.stats import OnlineMeanVariance
+from clkhash.clk import generate_clk_from_csv
 from clkhash.backports import unicode_reader, raise_from
-from clkhash.validate_data import  validate_header, validate_row_lengths
 from typing import Tuple, TextIO, Any
 from bitarray import bitarray
 from blocklib import generate_candidate_blocks
@@ -28,83 +24,6 @@ def deserialize_filters(filters):
         ba = deserialize_bitarray(f)
         res.append(ba)
     return res
-
-
-def generate_clk_from_csv(input_f,  # type: TextIO
-                          secret,  # type: AnyStr
-                          schema,  # type: Schema
-                          validate=True,  # type: bool
-                          header=True,  # type: Union[bool, AnyStr]
-                          progress_bar=True  # type: bool
-                          ):
-    # type: (...) -> List[str]
-    """ Generate Bloom filters from CSV file, then serialise them.
-
-        This function also computes and outputs the Hamming weight
-        (a.k.a popcount -- the number of bits set to high) of the
-        generated Bloom filters.
-
-        :param input_f: A file-like object of csv data to hash.
-        :param secret: A secret.
-        :param schema: Schema specifying the record formats and
-            hashing settings.
-        :param validate: Set to `False` to disable validation of
-            data against the schema. Note that this will silence
-            warnings whose aim is to keep the hashes consistent between
-            data sources; this may affect linkage accuracy.
-        :param header: Set to `False` if the CSV file does not have
-            a header. Set to `'ignore'` if the CSV file does have a
-            header but it should not be checked against the schema.
-        :param bool progress_bar: Set to `False` to disable the progress
-            bar.
-        :return: A list of serialized Bloom filters and a list of
-            corresponding popcounts.
-    """
-    if header not in {False, True, 'ignore'}:
-        raise ValueError("header must be False, True or 'ignore' but is {!s}."
-                         .format(header))
-
-    log.info("Hashing data")
-
-    # Read from CSV file
-    reader = unicode_reader(input_f)
-
-    if header:
-        column_names = next(reader)
-        if header != 'ignore':
-            validate_header(schema.fields, column_names)
-
-    start_time = time.time()
-
-    # Read the lines in CSV file and add it to PII
-    pii_data = []
-    for line in reader:
-        pii_data.append(tuple(element.strip() for element in line))
-
-    validate_row_lengths(schema.fields, pii_data)
-
-    if progress_bar:
-        stats = OnlineMeanVariance()
-        with tqdm(desc="generating CLKs", total=len(pii_data), unit='clk', unit_scale=True,
-                  postfix={'mean': stats.mean(), 'std': stats.std()}) as pbar:
-            def callback(tics, clk_stats):
-                stats.update(clk_stats)
-                pbar.set_postfix(mean=stats.mean(), std=stats.std(), refresh=False)
-                pbar.update(tics)
-
-            results = generate_clks(pii_data,
-                                    schema,
-                                    secret,
-                                    validate=validate,
-                                    callback=callback)
-    else:
-        results = generate_clks(pii_data,
-                                schema,
-                                secret,
-                                validate=validate)
-
-    log.info("Hashing took {:.2f} seconds".format(time.time() - start_time))
-    return results
 
 
 def generate_candidate_blocks_from_csv(input_f: TextIO,
