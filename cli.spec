@@ -7,8 +7,6 @@ a = Analysis(['anonlinkclient/cli.py'],
              binaries=[],
              datas=[
                  ('anonlinkclient/data/randomnames-schema.json', 'anonlinkclient/data'),
-                 ('anonlinkclient/data/*.csv', 'anonlinkclient/data'),
-                 ('anonlinkclient/schemas/*.json', 'anonlinkclient/schemas')
              ],
              hiddenimports=[],
              hookspath=[],
