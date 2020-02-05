@@ -5,3 +5,5 @@ Tutorials
    :maxdepth: 1
 
    anonlink-novt.ipynb
+   tutorial_cli.ipynb
+   tutorial_api.ipynb
