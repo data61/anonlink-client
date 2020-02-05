@@ -3,7 +3,7 @@ import logging
 import time
 from clkhash.clk import generate_clk_from_csv
 from clkhash.backports import unicode_reader, raise_from
-from typing import Tuple, TextIO, Any
+from typing import Tuple, TextIO, Any, List, Dict
 from bitarray import bitarray
 from blocklib import generate_candidate_blocks
 import base64
@@ -27,7 +27,7 @@ def deserialize_filters(filters):
 
 
 def generate_candidate_blocks_from_csv(input_f: TextIO,
-                                       schema_f: str,
+                                       schema_f: TextIO,
                                        header: bool = True):
     """ Generate candidate blocks from CSV file
 
@@ -56,13 +56,12 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
         msg = 'The schema is not a valid JSON file'
         raise_from(ValueError(msg), e)
 
+    pii_data = []  # type: List[Any]
     # read from clks
     if blocking_config['config'].get('input-clks', False):
         pii_data = json.load(input_f)['clks']
     else:  # read from CSV file
         reader = unicode_reader(input_f)
-        pii_data = []  # type: Tuple[str]
-
         if header:
             next(reader)
         for line in reader:
@@ -82,7 +81,8 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
     flat_blocks = []  # type: List[Dict[Any, List[int]]]
     for block_key, row_indices in blocks.items():
         flat_blocks.append(dict(block_key=block_key, indices=row_indices))
-    result = {'blocks': flat_blocks}  # type: Dict[str, Dict[Any, Any]]
+    result = {} # type: Dict[str, Any]
+    result['blocks'] = flat_blocks
 
     # step2 - get all member variables in blocking state
     block_state_vars = {}  # type: Dict[str, Any]
