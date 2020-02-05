@@ -944,7 +944,7 @@ class TestCliInteractionWithService(CLITestHelper):
         self.assertIn('receipt_token', charlie_upload)
 
         # Give the server a small amount of time to process
-        time.sleep(20.0)
+        time.sleep(30.0)
 
         results = get_coord_results()
         res = json.loads(results)
