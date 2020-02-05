@@ -33,11 +33,14 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.imgmath',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
     'IPython.sphinxext.ipython_console_highlighting',
     'nbsphinx',
     'sphinxcontrib.redoc',
+    'sphinxcontrib.programoutput',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

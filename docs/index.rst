@@ -27,7 +27,12 @@ Table of Contents
    :maxdepth: 2
 
    tutorial/index
-
+   cli
+   schema
+   blocking-schema
+   development
+   devops
+   rest_client
 
 External Links
 --------------

@@ -4,19 +4,18 @@ Devops
 Azure Pipeline
 --------------
 
-``clkhash`` is automatically built and tested using Azure Pipeline
+``anonlnik-client`` is automatically built and tested using Azure Pipeline
  for Windows environment, in the project `Anonlink <https://dev.azure.com/data61/Anonlink>`
 
 Two pipelines are available:
-  - `Build pipeline <https://dev.azure.com/data61/Anonlink/_build?definitionId=2>`,
-  - `Release pipeline <https://dev.azure.com/data61/Anonlink/_release?definitionId=1>`.
+  - `Build pipeline <https://dev.azure.com/data61/Anonlink/_build?definitionId=6>`,
+  - `Release pipeline <https://dev.azure.com/data61/Anonlink/_release?definitionId=5>`.
 
 
 Build Pipeline
 ~~~~~~~~~~~~~~
 
-The build pipeline is described by the script `azurePipeline.yml`
-which is using template resources from the folder `.azurePipeline`.
+The build pipeline is described by the script `azurePipeline.yml`.
 
 There are 3 top level stages in the build pipeline:
 
@@ -29,7 +28,7 @@ There are 3 top level stages in the build pipeline:
 The *Build & Test* job does:
 
   - install the requirements,
-  - package ``clkhash``,
+  - package ``anonlink-client``,
   - run tests as described in the following table,
   - publish the test results,
   - publish the code coverage (on Azure and codecov),
@@ -39,8 +38,6 @@ The build pipeline requires one environment variable provided by Azure environme
 
  - `CODECOV_TOKEN` which is used to publish the coverage to codecov.
 
-Most of the complexity is abstracted into the template in `.azurePipeline/wholeBuild.yml`.
-
 Description of what is tested:
 
 ==================   ====================  ===============  ===========  ===================  =========
@@ -48,16 +45,6 @@ Python Version       Operating System      Standard pytest  INLCUDE_CLI  TEST_EN
 ==================   ====================  ===============  ===========  ===================  =========
 pypy2                ubuntu-18.04          Yes              No           No                   No
 pypy3                ubuntu-18.04          Yes              No           No                   No
-------------------   --------------------  ---------------  -----------  -------------------  ---------
-2.7                  ubuntu-18.04          Yes              Yes          Yes                  No
-2.7                  macos-10.13           Yes              No           No                   No
-2.7                  vs2017-win2016 (x64)  Yes              No           No                   No
-2.7                  vs2017-win2016 (x86)  Yes              No           No                   No
-------------------   --------------------  ---------------  -----------  -------------------  ---------
-3.5                  ubuntu-18.04          Yes              No           No                   No
-3.5                  macos-10.13           Yes              No           No                   No
-3.5                  vs2017-win2016 (x64)  Yes              No           No                   No
-3.5                  vs2017-win2016 (x86)  Yes              No           No                   No
 ------------------   --------------------  ---------------  -----------  -------------------  ---------
 3.6                  ubuntu-18.04          Yes              No           No                   No
 3.6                  macos-10.13           Yes              No           No                   No
@@ -74,7 +61,7 @@ pypy3                ubuntu-18.04          Yes              No           No     
 ==================   ====================  ===============  ===========  ===================  =========
 
 The tests using the environment variable `TEST_ENTITY_SERVICE` will use the URL provided by the Azure pipeline
-variable `ENTITY_SERVICE_URL` (which is by default set to `https://testing.es.data61.xyz`),
+variable `ENTITY_SERVICE_URL` (which is by default set to `https://anonlink.easd.data61.xyz`),
 which enables to run manually the pipeline with a different deployed service.
 However, we note that the pipeline will send github updates to the corresponding commit for the chosen deployment, not
 the default one if the variable has been overwritten.
@@ -99,6 +86,6 @@ The release pipeline consists of two steps:
   - uses ``twine`` to publish the artifacts.
 
 The release pipeline requires two environment variables provided by Azure environment:
- - `PYPI_LOGIN`: login to push an artifact to ``clkhash`` ``Pypi`` repository,
- - `PYPI_PASSWORD`: password to push an artifact to ``clkhash`` ``Pypi`` repository for the user `PYPI_LOGIN`.
+ - `PYPI_LOGIN`: login to push an artifact to ``anonlink-client`` ``Pypi`` repository,
+ - `PYPI_PASSWORD`: password to push an artifact to ``anonlink-client`` ``Pypi`` repository for the user `PYPI_LOGIN`.
 
