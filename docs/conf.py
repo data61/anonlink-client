@@ -71,3 +71,11 @@ html_theme = 'alabaster'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+import anonlinkclient
+
+# The short X.Y version.
+version = anonlinkclient.__version__.split('-')[0]
+
+# The full version, including alpha/beta/rc tags.
+release = anonlinkclient.__version__

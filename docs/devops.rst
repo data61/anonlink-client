@@ -4,7 +4,7 @@ Devops
 Azure Pipeline
 --------------
 
-``anonlnik-client`` is automatically built and tested using Azure Pipeline
+``anonlink-client`` is automatically built and tested using Azure Pipeline
  for Windows environment, in the project `Anonlink <https://dev.azure.com/data61/Anonlink>`
 
 Two pipelines are available:

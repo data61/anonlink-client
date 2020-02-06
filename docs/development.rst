@@ -17,8 +17,7 @@ Now run the unit tests and print out code coverage with `py.test`::
     $ python -m pytest --cov=anonlinkclient
 
 
-Note several tests will be skipped by default. To enable the command
-line tests set the  `INCLUDE_CLI` environment variable. To enable
+Note several tests will be skipped by default. To enable
 the tests which interact with an entity service set the
 `TEST_ENTITY_SERVICE` environment variable to the target service's
 address::
@@ -45,4 +44,4 @@ The ``anonlink`` command line tool can be frozen into an exe using
     pyinstaller cli.spec
 
 
-Look for `clkutil.exe` in the `dist` directory.
+Look for `anonlink.exe` in the `dist` directory.
