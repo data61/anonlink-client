@@ -5,11 +5,11 @@ Azure Pipeline
 --------------
 
 ``anonlink-client`` is automatically built and tested using Azure Pipeline
- for Windows environment, in the project `Anonlink <https://dev.azure.com/data61/Anonlink>`
+ for Windows environment, in the project `Anonlink <https://dev.azure.com/data61/Anonlink>`_
 
 Two pipelines are available:
-  - `Build pipeline <https://dev.azure.com/data61/Anonlink/_build?definitionId=6>`,
-  - `Release pipeline <https://dev.azure.com/data61/Anonlink/_release?definitionId=5>`.
+  - `Build pipeline <https://dev.azure.com/data61/Anonlink/_build?definitionId=6>`_,
+  - `Release pipeline <https://dev.azure.com/data61/Anonlink/_release?definitionId=5>`_.
 
 
 Build Pipeline

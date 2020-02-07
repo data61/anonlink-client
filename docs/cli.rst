@@ -72,7 +72,7 @@ Assume a csv (``fake-pii.csv``) contains rows like the following::
 
 It can be hashed using ``anonlink`` with::
 
-    $ anonlink anonlink --schema blocking-schema.json fake-pii.csv horse candidate_blocks.json
+    $ anonlink block --schema blocking-schema.json fake-pii.csv horse candidate_blocks.json
 
 Describing
 ----------
