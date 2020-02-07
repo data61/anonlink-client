@@ -65,8 +65,9 @@ class TestUtils(unittest.TestCase):
 
         # test normal case
         cmb = combine_clks_blocks(open(fname_clks, 'r'), open(fname_blks, 'r'))
+        clknblocks = json.load(cmb)['clknblocks']
         with open(fname_clks, 'r') as f:
             clks = json.load(f)['clks']
-        assert len(cmb) == len(clks)
+        assert [row[0] for row in clknblocks] == clks
 
 
