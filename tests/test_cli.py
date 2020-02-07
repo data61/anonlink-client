@@ -21,7 +21,7 @@ from anonlinkclient.rest_client import ServiceError, RestClient
 
 from tests import *
 
-ES_TIMEOUT = os.environ.get("ES_TIMEOUT", 20)
+ES_TIMEOUT = os.environ.get("ES_TIMEOUT", 30)
 
 
 class CLITestHelper(unittest.TestCase):
