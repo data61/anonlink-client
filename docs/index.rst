@@ -33,6 +33,7 @@ Table of Contents
    development
    devops
    rest_client
+   references
 
 External Links
 --------------

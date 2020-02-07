@@ -35,10 +35,10 @@ Example Schema
 
 ::
 
-{
-    "type": "lambda-fold",
-    "version": 1,
-    "config": {
+    {
+      "type": "lambda-fold",
+      "version": 1,
+      "config": {
         "blocking-features": [1, 2],
         "Lambda": 30,
         "bf-len": 2048,
@@ -46,5 +46,34 @@ Example Schema
         "K": 20,
         "input-clks": true,
         "random_state": 0
+      }
     }
-}
+
+Schema Components
+-----------------
+.. _blocking-schema/type:
+
+type
+~~~~
+String value which describes the blocking method.
+
+================= ================================
+name              detailed description
+================= ================================
+psig              Probability Signature blocking method from `Scalable Entity Resolution Using Probabilistic Signatures on Parallel Databases <https://arxiv.org/abs/1712.09691>`_
+lambda-fold       LSH based Lambda Fold Redundant blocking method from `Scalable Entity Resolution Using Probabilistic Signatures on Parallel Databases <https://arxiv.org/abs/1712.09691>`_
+================= ================================
+
+.. _blocking-schema/version:
+
+version
+~~~~~~~
+
+Integer value that indicates the version of blocking schema
+
+.. _blocking-schema/config:
+
+config
+~~~~~~
+
+A dictionary of configuration to use different blocking methods
