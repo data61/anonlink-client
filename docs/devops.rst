@@ -4,12 +4,11 @@ Devops
 Azure Pipeline
 --------------
 
-``anonlink-client`` is automatically built and tested using Azure Pipeline
- for Windows environment, in the project `Anonlink <https://dev.azure.com/data61/Anonlink>`_
+``anonlink-client`` is automatically built and tested using Azure Pipeline for Windows environment, in the project `Anonlink <https://dev.azure.com/data61/Anonlink>`_
 
 Two pipelines are available:
-  - `Build pipeline <https://dev.azure.com/data61/Anonlink/_build?definitionId=6>`_,
-  - `Release pipeline <https://dev.azure.com/data61/Anonlink/_release?definitionId=5>`_.
+- `Build pipeline <https://dev.azure.com/data61/Anonlink/_build?definitionId=6>`_,
+- `Release pipeline <https://dev.azure.com/data61/Anonlink/_release?definitionId=5>`_.
 
 
 Build Pipeline
@@ -25,18 +24,19 @@ There are 3 top level stages in the build pipeline:
   version of python and system architecture.
 - *Packaging* - Pulls together the created files into a single release artifact.
 
+
 The *Build & Test* job does:
 
-  - install the requirements,
-  - package ``anonlink-client``,
-  - run tests as described in the following table,
-  - publish the test results,
-  - publish the code coverage (on Azure and codecov),
-  - publish the artifacts from the build using ``Python 3.7`` (i.e. the wheel, the sdist `tar.gz` and an exe for x86 and x64).
+- install the requirements,
+- package ``anonlink-client``,
+- run tests as described in the following table,
+- publish the test results,
+- publish the code coverage (on Azure and codecov),
+- publish the artifacts from the build using ``Python 3.7`` (i.e. the wheel, the sdist `tar.gz` and an exe for x86 and x64).
 
 The build pipeline requires one environment variable provided by Azure environment:
 
- - `CODECOV_TOKEN` which is used to publish the coverage to codecov.
+- `CODECOV_TOKEN` which is used to publish the coverage to codecov.
 
 Description of what is tested:
 
@@ -82,10 +82,10 @@ a successful build on master where the build is tagged `Automated`
 (i.e. if the commit is tagged, cf previous paragraph). 
 
 The release pipeline consists of two steps: 
-  - asking for a manual confirmation that the artifacts from the triggering build should be released,
-  - uses ``twine`` to publish the artifacts.
+- asking for a manual confirmation that the artifacts from the triggering build should be released,
+- uses ``twine`` to publish the artifacts.
 
 The release pipeline requires two environment variables provided by Azure environment:
- - `PYPI_LOGIN`: login to push an artifact to ``anonlink-client`` ``Pypi`` repository,
- - `PYPI_PASSWORD`: password to push an artifact to ``anonlink-client`` ``Pypi`` repository for the user `PYPI_LOGIN`.
+- `PYPI_LOGIN`: login to push an artifact to ``anonlink-client`` ``Pypi`` repository,
+- `PYPI_PASSWORD`: password to push an artifact to ``anonlink-client`` ``Pypi`` repository for the user `PYPI_LOGIN`.
 
