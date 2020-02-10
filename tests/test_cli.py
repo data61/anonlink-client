@@ -21,7 +21,7 @@ from anonlinkclient.rest_client import ServiceError, RestClient
 
 from tests import *
 
-ES_TIMEOUT = os.environ.get("ES_TIMEOUT", 30)
+ES_TIMEOUT = os.environ.get("ES_TIMEOUT", 60)
 
 
 class CLITestHelper(unittest.TestCase):
@@ -875,8 +875,7 @@ class TestCliInteractionWithService(CLITestHelper):
                 '--server', self.url,
                 '--project', project['project_id'],
                 '--run', run['run_id'],
-                '--apikey', bob_upload['receipt_token'],
-                '--watch'
+                '--apikey', bob_upload['receipt_token']
             ]
         )
 
@@ -943,9 +942,11 @@ class TestCliInteractionWithService(CLITestHelper):
 
         self.assertIn('receipt_token', charlie_upload)
 
-        # Give the server a small amount of time to process
-        time.sleep(40.0)
-
+        # Use the rest anonlinkclient to wait until the run is complete
+        self.rest_client.wait_for_run(project['project_id'],
+                                      run['run_id'],
+                                      project['result_token'],
+                                      timeout=ES_TIMEOUT)
         results = get_coord_results()
         res = json.loads(results)
         self.assertIn('groups', res)
