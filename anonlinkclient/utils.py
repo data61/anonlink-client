@@ -1,3 +1,4 @@
+import io
 import json
 import logging
 import time
@@ -98,7 +99,13 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
 
 
 def combine_clks_blocks(clk_f: TextIO, block_f: TextIO):
-    """Combine CLKs and blocks to produce a dictionary of CLK to list of block IDs."""
+    """Combine CLKs and blocks to produce a json stream of clknblocks.
+       That's a list of lists, containing a CLK and its corresponding block IDs.
+
+       Example output:
+           {'clknblocks': [['UG9vcA==', '001', '211'],
+                           [...]]}
+    """
     try:
         blocks = json.load(block_f)['blocks']
         clks = json.load(clk_f)['clks']
@@ -106,11 +113,14 @@ def combine_clks_blocks(clk_f: TextIO, block_f: TextIO):
         msg = 'Invalid CLKs or Blocks'
         raise_from(ValueError(msg), e)
 
-    output = [[clk] for clk in clks]
+    clknblocks = [[clk] for clk in clks]
 
     for blk in blocks:
         block_key = blk['block_key']
         rec_ids = blk['indices']
         for rid in rec_ids:
-            output[rid].append(block_key)
-    return output
+            clknblocks[rid].append(block_key)
+    out_stream = io.StringIO()
+    json.dump({'clknblocks': clknblocks}, out_stream)
+    out_stream.seek(0)
+    return out_stream
