@@ -8,23 +8,23 @@ features to use in generating blocks and hyperparameters etc.
 
 Currently we support two blocking methods:
 
-* Probability signature
+* "`p-sig`": Probability signature
 
-* LSH based :math:`\lambda`-fold
+* "`lambda-fold`": LSH based :math:`\lambda`-fold
 
-which are proposed by the following publication:
+which are proposed by the following publications:
 
 * `Scalable Entity Resolution Using Probabilistic Signatures on Parallel Databases <https://arxiv.org/abs/1712.09691>`_
 * `An LSH-Based Blocking Approach with a Homomorphic Matching Technique for Privacy-Preserving Record Linkage <https://www.computer.org/csdl/journal/tk/2015/04/06880802/13rRUxASubY>`_
 
-The format of the linkage schema is defined in a separate
+The format of the blocking schema is defined in a separate
 `JSON Schema <https://json-schema.org/specification.html>`_ specification document -
 `blocking-schema.json <https://github.com/data61/anonlink-client/blob/master/docs/schemas/blocking-schema.json>`_.
 
 Basic Structure
 ---------------
 
-A linkage schema consists of three parts:
+A blocking schema consists of three parts:
 
 * :ref:`type <blocking-schema/type>`, the blocking method to be used
 * :ref:`version <blocking-schema/version>`, the version number of the hashing schema.
@@ -61,8 +61,8 @@ String value which describes the blocking method.
 ================= ================================
 name              detailed description
 ================= ================================
-p-sig             Probability Signature blocking method from `Scalable Entity Resolution Using Probabilistic Signatures on Parallel Databases <https://arxiv.org/abs/1712.09691>`_
-lambda-fold       LSH based Lambda Fold Redundant blocking method from `Scalable Entity Resolution Using Probabilistic Signatures on Parallel Databases <https://arxiv.org/abs/1712.09691>`_
+"`p-sig`"             Probability Signature blocking method from `Scalable Entity Resolution Using Probabilistic Signatures on Parallel Databases <https://arxiv.org/abs/1712.09691>`_
+"`lambda-fold`"       LSH based Lambda Fold Redundant blocking method from `Scalable Entity Resolution Using Probabilistic Signatures on Parallel Databases <https://arxiv.org/abs/1712.09691>`_
 ================= ================================
 
 .. _blocking-schema/version:
@@ -70,14 +70,14 @@ lambda-fold       LSH based Lambda Fold Redundant blocking method from `Scalable
 version
 ~~~~~~~
 
-Integer value that indicates the version of blocking schema
+Integer value that indicates the version of blocking schema. Currently the only supported version is `1`.
 
 .. _blocking-schema/config:
 
 config
 ~~~~~~
 
-A dictionary of configuration to use different blocking methods
+Configuration specific to each blocking method.
 Next we will detail the specific configuration for supported blocking methods.
 
 Specific configuration of supported blocking methods can be found here:
@@ -87,10 +87,10 @@ Specific configuration of supported blocking methods can be found here:
 
 .. _blocking-schema/p-sig:
 
-config of p-sig
+Probabilistic Signature Configuration
 ~~~~~~~~~~~~~~~
 ===================== ============= ==========================
-configuration         type          description
+attribute             type          description
 ===================== ============= ==========================
 blocking-features     list[integer] specify which features u
 filter                dictionary    filtering threshold
@@ -98,27 +98,31 @@ blocking-filter       dictionary    type of filter to generate blocks
 signatureSpecs        list of lists signature strategies where each list is a combination of signature strategies
 ===================== ============= ==========================
 
-**Filter Configuration**
+Filter Configuration
+''''''''''''''''''''
 
 ============= ============ ==================
-configuration type         description
+attribute     type         description
 ============= ============ ==================
 type          string       either "ratio" or "count" that represents proportional or absolute filtering
 max           numeric      for ratio, it should be within 0 and 1; for count, it should not exceed the number of records
 ============= ============ ==================
 
 
-**Blocking-filter Configuration**
+Blocking-filter Configuration
+'''''''''''''''''''''''''''''
 
 ===================== ============ ==================
-configuration         type         description
+attribute             type         description
 ===================== ============ ==================
 type                  string       currently we only support "bloom filter"
 number-hash-functions integer      this specifies how many bits will be flipped for each signature
 bf-len                integer      defines the length of blocking filter, for bloom filter usually this is 1024 or 2048
 ===================== ============ ==================
 
-*signatureSpecs configurations*
+SignatureSpecs Configurations
+'''''''''''''''''''''''''''''
+
 
 It is better to illustrate this one with an example:
 
@@ -153,7 +157,7 @@ metaphone       phonetic encoding of feature
 
 Finally a full example of p-sig blocking schema:
 
-..
+::
 
    {
     "type": "p-sig",
@@ -180,17 +184,17 @@ Finally a full example of p-sig blocking schema:
                 {"type": "metaphone", "feature-idx": 2},
             ]
         ]
+      }
     }
-   }
 
 .. _blocking-schema/lambda-fold:
 
-config of lambda-fold
+LSH based :math:`\lambda`-fold Configuration
 ~~~~~~~~~~~~~~~~~~~~~
 ===================== ============= ==========================
-configuration         type          description
+attribute             type          description
 ===================== ============= ==========================
-blocking-features     list[integer] specify which features u
+blocking-features     list[integer] specify which features to used in blocks generation
 Lambda                integer       denotes the degree of redundancy - :math:`H^i`, :math:`i=1,2,...`, :math:`\Lambda` where each :math:`H^i` represents one independent blocking group
 bf-len                integer       length of bloom filter
 num-hash-funcs        integer       number of hash functions used to map record to Bloom filter
@@ -202,7 +206,7 @@ input-clks            boolean       input data is CLKS if true else input data i
 
 Here is a full example of lambda-fold blocking schema:
 
-..
+::
 
    {
      "type": "lambda-fold",
@@ -215,5 +219,5 @@ Here is a full example of lambda-fold blocking schema:
         "K": 40,
         "random_state": 0,
         "input-clks": False
-    }
+     }
    }
