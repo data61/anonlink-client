@@ -184,7 +184,10 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {'clkhash': ('https://clkhash.readthedocs.io/en/stable/', None),
+                       "anonlink-entity-service": ('https://anonlink-entity-service.readthedocs.io/en/stable/', None),
+                       "anonlink": ('https://github.com/data61/anonlink', None)
+                       }
 
 # By default, nbconvert (which is used to execute the notebooks during the Sphinx build process) will give a cell 30 seconds to execute before it times out.
 nbsphinx_timeout = 120

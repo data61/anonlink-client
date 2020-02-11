@@ -17,6 +17,7 @@ which are proposed by the following publications:
 * `Scalable Entity Resolution Using Probabilistic Signatures on Parallel Databases <https://arxiv.org/abs/1712.09691>`_
 * `An LSH-Based Blocking Approach with a Homomorphic Matching Technique for Privacy-Preserving Record Linkage <https://www.computer.org/csdl/journal/tk/2015/04/06880802/13rRUxASubY>`_
 
+
 The format of the blocking schema is defined in a separate
 `JSON Schema <https://json-schema.org/specification.html>`_ specification document -
 `blocking-schema.json <https://github.com/data61/anonlink-client/blob/master/docs/schemas/blocking-schema.json>`_.
@@ -200,7 +201,7 @@ bf-len                integer       length of bloom filter
 num-hash-funcs        integer       number of hash functions used to map record to Bloom filter
 K                     integer       number of bits we will select from Bloom filter for each reocrd
 random_state          integer       control random seed
-input-clks            boolean       input data is CLKS if true else input data is not CLKS
+input-clks            boolean       if true, the input data is CLK i.e. the output of `anonlink hash`; else the input data is raw data
 ===================== ============= ==========================
 
 

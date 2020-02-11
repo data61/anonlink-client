@@ -43,9 +43,6 @@ Description of what is tested:
 ==================   ====================  ===============  ===========  ===================  =========
 Python Version       Operating System      Standard pytest  INLCUDE_CLI  TEST_ENTITY_SERVICE  Notebooks
 ==================   ====================  ===============  ===========  ===================  =========
-pypy2                ubuntu-18.04          Yes              No           No                   No
-pypy3                ubuntu-18.04          Yes              No           No                   No
-------------------   --------------------  ---------------  -----------  -------------------  ---------
 3.6                  ubuntu-18.04          Yes              No           No                   No
 3.6                  macos-10.13           Yes              No           No                   No
 3.6                  vs2017-win2016 (x64)  Yes              No           No                   No

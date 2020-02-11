@@ -12,7 +12,7 @@ installation)::
     $ pip install -r requirements.txt
 
 
-Now run the unit tests and print out code coverage with `py.test`::
+Now run the unit tests and print out code coverage with `pytest`::
 
     $ python -m pytest --cov=anonlinkclient
 

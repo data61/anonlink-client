@@ -77,7 +77,8 @@ It can be hashed using ``anonlink`` with::
 Describing
 ----------
 
-Users can inspect the distribution of the number of bits set in ``CLKs`` by using the ``describe`` command.
+Users can inspect the distribution of the number of bits set in ``CLKs`` by using the ``describe`` command. Note that
+this `describe` only works on the CLKs produced by `anonlink hash`.
 
 .. command-output:: anonlink describe --help
 
@@ -138,7 +139,8 @@ Example
 Schema Handling
 ---------------
 
-A schema file can be tested for validity against the schema specification with the ``validate-schema`` command.
+A schema file can be tested for validity against the schema specification with the ``validate-schema`` command. Note
+that currently ``validate-schema`` only works for linkage schema.
 
 .. command-output:: anonlink validate-schema --help
 
@@ -256,7 +258,7 @@ Benchmark
 A quick hashing benchmark can be carried out to determine the rate at which the current machine
 can generate 10000 clks from a simple schema (data as generated :ref:`above <data-generation>`)::
 
-    python -m anonlinkclient.cli benchmark
+    anonlink benchmark
     generating CLKs: 100%                 10.0K/10.0K [00:01<00:00, 7.72Kclk/s, mean=521, std=34.7]
      10000 hashes in 1.350489 seconds. 7.40 KH/s
 
