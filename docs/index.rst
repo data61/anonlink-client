@@ -18,7 +18,7 @@ Anonlink-client is Apache 2.0 licensed, supports Python version 3.6+ and run on 
 
 Install with pip::
 
-    pip install clkhash
+    pip install anonlink-client
 
 Table of Contents
 -----------------
@@ -27,7 +27,13 @@ Table of Contents
    :maxdepth: 2
 
    tutorial/index
-
+   cli
+   schema
+   blocking-schema
+   development
+   devops
+   rest_client
+   references
 
 External Links
 --------------

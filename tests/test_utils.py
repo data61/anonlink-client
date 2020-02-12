@@ -34,6 +34,11 @@ class TestUtils(unittest.TestCase):
         with self.assertRaises(ValueError):
             generate_candidate_blocks_from_csv(input_f, schema_f, header)
 
+        # test invalid schema file
+        with self.assertRaises(ValueError):
+            generate_candidate_blocks_from_csv(input_f, input_f, True)
+
+
     def test_combine_clks_blocks(self):
         """Test combine clks and blocks."""
         _, fname_clks = tempfile.mkstemp(suffix='.json', text=True)
@@ -69,5 +74,4 @@ class TestUtils(unittest.TestCase):
         with open(fname_clks, 'r') as f:
             clks = json.load(f)['clks']
         assert [row[0] for row in clknblocks] == clks
-
 
