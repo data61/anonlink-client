@@ -14,7 +14,7 @@ from typing import List, Callable
 from .utils import generate_clk_from_csv, generate_candidate_blocks_from_csv, combine_clks_blocks
 
 
-DEFAULT_SERVICE_URL = 'https://testing.es.data61.xyz'
+DEFAULT_SERVICE_URL = 'https://anonlink.easd.data61.xyz'
 
 # Labels for some options. If changed here, the name of the corresponding attributes MUST be changed in the methods
 # using them.

@@ -1,4 +1,7 @@
 sphinx
 sphinxcontrib-redoc
+sphinxcontrib-programoutput
 nbsphinx
 ipython
+recordlinkage
+anonlink-client
