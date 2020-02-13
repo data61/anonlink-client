@@ -16,7 +16,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 setup(
     name="anonlink-client",
-    version='0.1.0',
+    version='0.1.1',
     description='Client side tool for clkhash and blocklib',
     long_description=readme,
     long_description_content_type='text/markdown',
