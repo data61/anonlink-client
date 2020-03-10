@@ -3,11 +3,12 @@ from setuptools import setup, find_packages
 
 requirements = [
         "anonlink >= 0.12.5",
-        "clkhash >= 0.14.0",
-        "jsonschema >= 3.0.2",
-        "numpy >= 1.17.0",
-        "pandas >= 0.25.2",
-        "pytest >= 5.2.1",
+        "click >= 7.1.1",
+        "clkhash >= 0.15.0",
+        "jsonschema >= 3.2.0",
+        "numpy >= 1.18.1",
+        "pandas >= 1.0.1",
+        "pytest >= 5.3.5",
         "requests >= 2.22.0",
     ]
 
