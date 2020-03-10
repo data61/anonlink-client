@@ -271,7 +271,8 @@ class TestHashCommand(unittest.TestCase):
             result = runner.invoke(cli.cli,
                                    ['hash', 'in.csv'])
             assert result.exit_code != 0
-            self.assertIn('Missing argument "SECRET"', result.output)
+            self.assertIn('Usage: anonlink hash', result.output)
+            self.assertIn('Missing argument', result.output)
 
     def test_hash_with_provided_schema(self):
         runner = self.runner
