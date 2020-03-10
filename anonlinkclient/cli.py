@@ -256,12 +256,13 @@ After both users have uploaded their data one can watch for and retrieve the res
               help='Protocol/view type for the project.')
 @click.option('--schema', type=click.File('r'), help="Schema to publicly share with participating parties.")
 @click.option('--name', type=str, help="Name to give this project")
+@click.option('--blocked', type=bool, default=False, help="This project uses blocking")
 @click.option('--parties', default=2, type=int,
               help="Number of parties in the project")
 @click.option('-o', '--output', type=click.File('w'), default='-')
 @add_options(rest_client_option)
 @verbose_option
-def create_project(type, schema, name, parties, output, server, retry_multiplier, retry_max_exp,
+def create_project(type, schema, name, blocked, parties, output, server, retry_multiplier, retry_max_exp,
                    retry_stop, verbose):
     """Create a new project on an entity matching server.
 
@@ -285,7 +286,7 @@ def create_project(type, schema, name, parties, output, server, retry_multiplier
     try:
         rest_client = create_rest_client(server, retry_multiplier, retry_max_exp, retry_stop, verbose)
         project_creation_reply = rest_client.project_create(
-            schema_json, type, name, parties=parties)
+            schema_json, type, name, parties=parties, uses_blocking=blocked)
     except ServiceError as e:
         log("Unexpected response - {}".format(e.status_code))
         log(e.text)

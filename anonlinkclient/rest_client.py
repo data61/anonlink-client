@@ -107,7 +107,7 @@ class RestClient:
         response = self.__request_wrapper('get', self.server + "/api/v1/status")
         return _handle_json_response(response, "Error with service status")
 
-    def project_create(self, schema, result_type, name, notes=None, parties=2):
+    def project_create(self, schema, result_type, name, notes=None, parties=2, uses_blocking=False):
         if notes is None:
             notes = 'Project created by clkhash version {}'.format(clkhash.__version__)
 
@@ -119,6 +119,7 @@ class RestClient:
                 'result_type': result_type,
                 'number_parties': parties,
                 'name': name,
+                'uses_blocking': uses_blocking,
                 'notes': notes
             }
         )
