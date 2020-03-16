@@ -1,12 +1,13 @@
+
 {
     "type": "lambda-fold",
     "version": 1,
     "config": {
-        "blocking-features": [1, 2],
-        "Lambda": 30,
-        "bf-len": 2048,
-        "num-hash-funcs": 5,
-        "K": 20,
+        "blocking-features": [6],
+        "Lambda": 3,
+        "bf-len": 64,
+        "num-hash-funcs": 3,
+        "K": 5,
         "input-clks": true,
         "random_state": 0
     }

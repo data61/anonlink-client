@@ -256,7 +256,7 @@ After both users have uploaded their data one can watch for and retrieve the res
               help='Protocol/view type for the project.')
 @click.option('--schema', type=click.File('r'), help="Schema to publicly share with participating parties.")
 @click.option('--name', type=str, help="Name to give this project")
-@click.option('--blocked', type=bool, default=False, help="This project uses blocking")
+@click.option('--blocked', is_flag=True, default=False, help="This project uses blocking")
 @click.option('--parties', default=2, type=int,
               help="Number of parties in the project")
 @click.option('-o', '--output', type=click.File('w'), default='-')
