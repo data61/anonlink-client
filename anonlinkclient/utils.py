@@ -57,16 +57,28 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
         msg = 'The schema is not a valid JSON file'
         raise_from(ValueError(msg), e)
 
+    blocking_method = blocking_config['type']
+
     pii_data = []  # type: List[Any]
     # read from clks
-    if blocking_config['config'].get('input-clks', False):
-        pii_data = json.load(input_f)['clks']
-    else:  # read from CSV file
-        reader = unicode_reader(input_f)
-        if header:
-            next(reader)
-        for line in reader:
-            pii_data.append(tuple(element.strip() for element in line))
+    if blocking_method == 'lambda-fold' and blocking_config['config']['input-clks']:
+        try:
+            pii_data = json.load(input_f)['clks']
+        except ValueError:  # since JSONDecodeError is inherited from ValueError
+            raise TypeError('Upload should be CLKs not CSVs')
+
+    # read from CSV file
+    else:
+        # sentinel check for input
+        try:
+            json.load(input_f)
+            raise TypeError('Upload should be CSVs not CLKs')
+        except ValueError:
+            reader = unicode_reader(input_f)
+            if header:
+                next(reader)
+            for line in reader:
+                pii_data.append(tuple(element.strip() for element in line))
 
     # generate candidate blocks
     blocking_obj = generate_candidate_blocks(pii_data, blocking_config)
