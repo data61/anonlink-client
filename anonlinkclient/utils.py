@@ -74,6 +74,7 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
             json.load(input_f)
             raise TypeError('Upload should be CSVs not CLKs')
         except ValueError:
+            input_f.seek(0)
             reader = unicode_reader(input_f)
             if header:
                 next(reader)
