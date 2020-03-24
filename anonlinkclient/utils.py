@@ -58,6 +58,7 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
         raise_from(ValueError(msg), e)
 
     blocking_method = blocking_config['type']
+    suffix_input = input_f.name.split('.')[-1]
 
     pii_data = []  # type: List[Any]
     # read from clks
@@ -65,16 +66,14 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
         try:
             pii_data = json.load(input_f)['clks']
         except ValueError:  # since JSONDecodeError is inherited from ValueError
-            raise TypeError('Upload should be CLKs not CSVs')
+            raise TypeError(f'Upload should be CLKs not {suffix_input.upper()} file')
 
     # read from CSV file
     else:
         # sentinel check for input
-        try:
-            json.load(input_f)
-            raise TypeError('Upload should be CSVs not CLKs')
-        except ValueError:
-            input_f.seek(0)
+        if suffix_input != 'csv':
+            raise TypeError(f'Upload should be CSVs not {suffix_input.upper()} file')
+        else:
             reader = unicode_reader(input_f)
             if header:
                 next(reader)
