@@ -29,8 +29,7 @@ pip install anonlink-client
 
 ### Documentation
 
-https://clkhash.readthedocs.io/en/stable/cli.html
-Note that the documentation are for clkhash now, we will add a readthedocs page for anonlink-client very soon.
+https://anonlink-client.readthedocs.io/en/stable/
 
 ### CLI Tool
 
