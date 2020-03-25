@@ -2,6 +2,9 @@
 
 ## new version
 
+## 0.1.2
+Add input format check to uploaded data when combining with blocks
+
 ## 0.1.1
 Update requirements
 
