@@ -3,6 +3,7 @@ from setuptools import setup, find_packages
 
 requirements = [
         "anonlink >= 0.12.5",
+        "blocklib >= 0.1.3",
         "click >= 7.1.1",
         "clkhash >= 0.15.0",
         "jsonschema >= 3.2.0",
