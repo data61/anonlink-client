@@ -2,15 +2,20 @@ import json
 import os
 import shutil
 from multiprocessing import freeze_support
+from typing import List, Callable
 
 import click
+from bashplotlib.histogram import plot_hist
+
 import clkhash
-import anonlinkclient
-from clkhash import benchmark as bench, clk, randomnames, validate_data, describe as descr
+
+from clkhash import benchmark as bench, randomnames, validate_data
+from clkhash.describe import get_encoding_popcounts
 from clkhash.schema import SchemaError, validate_schema_dict, convert_to_latest_version
 from .rest_client import ClientWaitingConfiguration, ServiceError, format_run_status, RestClient
 
-from typing import List, Callable
+
+import anonlinkclient
 from .utils import generate_clk_from_csv, generate_candidate_blocks_from_csv, combine_clks_blocks
 
 
@@ -450,9 +455,11 @@ def benchmark():
 @cli.command('describe', short_help='show distribution of clk popcounts')
 @click.argument('clk_json', type=click.File('r'))
 def describe(clk_json):
-    """show distribution of clk's popcounts
+    """show distribution of clk's popcounts using a ascii plot.
     """
-    descr.plot(clk_json)
+    clks = json.load(clk_json)['clks']
+    counts = get_encoding_popcounts(clks)
+    plot_hist(counts, bincount=60, title='popcounts', xlab=True, showSummary=True)
 
 
 @cli.command('convert-schema', short_help='converts schema file to latest version')
