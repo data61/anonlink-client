@@ -48,7 +48,7 @@ stages:
           displayName: 'Tests'
           timeoutInMinutes: 10  # it should pass in 2.5 minutes, so 10 should be more than enough even if server is busy
           env:
-            TEST_ENTITY_SERVICE: 'https://anonlink-client-ci.easd.data61.xyz'
+            TEST_ENTITY_SERVICE: 'https://blocked.anonlink.easd.data61.xyz/'
 
         # Test tutorial Jupyter notebooks in docs
         - script: |
