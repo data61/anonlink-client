@@ -2,7 +2,7 @@ Rest Client API Documentation
 =============================
 
 
-``anonnlink-client`` includes a module for interacting with the anonlink-entity-service.
+``anonlink-client`` includes a module for interacting with the Anonlink Entity Service.
 
 
 .. automodule:: anonlinkclient.rest_client

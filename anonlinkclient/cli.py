@@ -1,3 +1,4 @@
+import io
 import json
 import os
 import shutil
@@ -12,6 +13,10 @@ import clkhash
 from clkhash import benchmark as bench, randomnames, validate_data
 from clkhash.describe import get_encoding_popcounts
 from clkhash.schema import SchemaError, validate_schema_dict, convert_to_latest_version
+from minio import Minio
+from minio.credentials import Credentials, Chain, Static
+from minio.credentials.file_aws_credentials import FileAWSCredentials
+
 from .rest_client import ClientWaitingConfiguration, ServiceError, format_run_status, RestClient
 
 
@@ -331,36 +336,75 @@ def create(name, project, apikey, output, threshold, server, retry_multiplier, r
         json.dump(response, output)
 
 
+#todo
+#@click.option('--upload-to', help="User supplied object store path. e.g. 's3://bucket/path'", default=None)
+
 @cli.command('upload', short_help='upload hashes to entity service')
-@click.argument('clk_json', type=click.File('rb'))
+@click.argument('clk_json', type=click.Path(exists=True, dir_okay=False))
 @click.option('--project', help='Project identifier')
 @click.option('--apikey', help='Authentication API key for the server.')
 @click.option('-o', '--output', type=click.File('w'), default='-')
 @click.option('--blocks', help='Generated blocks JSON file', type=click.File('rb'))
 @add_options(rest_client_option)
+@click.option('--profile', help="AWS profile to use if uploading to own S3 Bucket", default=None)
 @verbose_option
-def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, retry_max_exp, retry_stop, verbose):
-    """Upload CLK data to entity matching server.
+def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, retry_max_exp, retry_stop, profile, verbose):
+    """Upload CLK data to the Anonlink Entity server.
 
     Given a json file containing hashed clk data as CLK_JSON, upload to
     the entity resolution service.
 
-    Use "-" to read from stdin.
+    The following environment variables can be used to override default behaviour:
+
+    * UPLOAD_OBJECT_STORE_SERVER
+
     """
     msg = 'CLK and Blocks' if blocks else 'CLK'
+
     if verbose:
-        log("Uploading CLK data from {}".format(clk_json.name))
+        log("Uploading CLK data from {}".format(clk_json))
         log("Project ID: {}".format(project))
         log("Uploading {} data to the server".format(msg))
 
     rest_client = create_rest_client(server, retry_multiplier, retry_max_exp, retry_stop, verbose)
 
+    if verbose: log("Fetching temporary credentials")
+    res = rest_client.get_temporary_objectstore_credentials(project, apikey)
+    credentials = res['credentials']
+    upload_info = res['upload']
+
+    endpoint = os.getenv('UPLOAD_OBJECT_STORE_SERVER', upload_info['endpoint'])
+
+    object_store_credential_providers = []
+    if profile is not None:
+        object_store_credential_providers.append(FileAWSCredentials(profile=profile))
+
+    object_store_credential_providers.append(
+        Static(access_key=credentials['AccessKeyId'],
+               secret_key=credentials['SecretAccessKey'],
+               token=credentials['SessionToken']))
+
+    mc = Minio(
+        endpoint,
+        credentials=Credentials(provider=Chain(object_store_credential_providers)),
+        region='us-east-1',
+        secure=False
+    )
+
+    if verbose:
+        log('Checking we have permission to upload')
+    mc.put_object(upload_info['bucket'], upload_info['path'] + "/upload-test", io.BytesIO(b"something"), length=9)
+
     # combine clk and blocks if blocks is provided
     if blocks:
-        out = combine_clks_blocks(clk_json, blocks)
+        with open(clk_json, 'rb') as encodings:
+            out = combine_clks_blocks(encodings, blocks)
         response = rest_client.project_upload_clks(project, apikey, out)
     else:
-        response = rest_client.project_upload_clks(project, apikey, clk_json)
+        # For now we upload twice - once to Minio and once to the entity service api
+        with open(clk_json, 'rb') as encodings:
+            response = rest_client.project_upload_clks(project, apikey, encodings)
+        mc.fput_object(upload_info['bucket'], upload_info['path'] + "/encodings.json", clk_json)
 
     if verbose:
         msg = '\n'.join(['{}: {}'.format(key, value) for key, value in response.items()])

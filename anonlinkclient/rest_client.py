@@ -145,6 +145,22 @@ class RestClient:
         )
         return _handle_json_response(response, "Error getting project description", 200)
 
+    def get_temporary_objectstore_credentials(self, project, apikey):
+        """Retrieve temporary object store credentials to upload
+
+        :param project: A project ID
+        :param apikey: A dataprovider's upload token
+        :return: The credentials and upload information from the Anonlink Entity Service API.
+        """
+        response = self.__request_wrapper(
+            'get',
+             f"{self.server}/api/v1/projects/{project}/authorize-external-upload",
+             headers={
+                 'Authorization': apikey
+             }
+        )
+        return _handle_json_response(response, "Error getting temporary project upload credentials", 200)
+
     def project_upload_clks(self, project, apikey, clk_data):
         response = self.__request_wrapper(
             'post',

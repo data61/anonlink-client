@@ -5,6 +5,7 @@ click == 7.1.1
 clkhash == 0.16.0a1
 jsonschema == 3.2.0
 numpy == 1.18.3
+minio == 5.0.10
 pandas == 1.0.3
 pytest == 5.4.1
 requests == 2.23.0
