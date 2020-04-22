@@ -388,7 +388,7 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
         endpoint,
         credentials=Credentials(provider=Chain(object_store_credential_providers)),
         region='us-east-1',
-        secure=False
+        secure=upload_info['secure']
     )
 
     if verbose:

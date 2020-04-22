@@ -159,7 +159,7 @@ class RestClient:
                  'Authorization': apikey
              }
         )
-        return _handle_json_response(response, "Error getting temporary project upload credentials", 200)
+        return _handle_json_response(response, "Error getting temporary project upload credentials", 201)
 
     def project_upload_clks(self, project, apikey, clk_data):
         response = self.__request_wrapper(
