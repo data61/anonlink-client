@@ -368,32 +368,39 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
 
     rest_client = create_rest_client(server, retry_multiplier, retry_max_exp, retry_stop, verbose)
 
-    if verbose: log("Fetching temporary credentials")
-    res = rest_client.get_temporary_objectstore_credentials(project, apikey)
-    credentials = res['credentials']
-    upload_info = res['upload']
-
-    endpoint = os.getenv('UPLOAD_OBJECT_STORE_SERVER', upload_info['endpoint'])
-
-    object_store_credential_providers = []
-    if profile is not None:
-        object_store_credential_providers.append(FileAWSCredentials(profile=profile))
-
-    object_store_credential_providers.append(
-        Static(access_key=credentials['AccessKeyId'],
-               secret_key=credentials['SecretAccessKey'],
-               token=credentials['SessionToken']))
-
-    mc = Minio(
-        endpoint,
-        credentials=Credentials(provider=Chain(object_store_credential_providers)),
-        region='us-east-1',
-        secure=upload_info['secure']
-    )
-
     if verbose:
-        log('Checking we have permission to upload')
-    mc.put_object(upload_info['bucket'], upload_info['path'] + "/upload-test", io.BytesIO(b"something"), length=9)
+        log("Fetching temporary credentials")
+    try:
+        res = rest_client.get_temporary_objectstore_credentials(project, apikey)
+        credentials = res['credentials']
+        upload_info = res['upload']
+        upload_to_object_store = True
+    except ServiceError as e:
+        log("Failed to retrieve temporary credentials")
+        upload_to_object_store = False
+
+    if upload_to_object_store:
+        object_store_credential_providers = []
+        if profile is not None:
+            object_store_credential_providers.append(FileAWSCredentials(profile=profile))
+
+        endpoint = os.getenv('UPLOAD_OBJECT_STORE_SERVER', upload_info['endpoint'])
+
+        object_store_credential_providers.append(
+            Static(access_key=credentials['AccessKeyId'],
+                   secret_key=credentials['SecretAccessKey'],
+                   token=credentials['SessionToken']))
+
+        mc = Minio(
+            endpoint,
+            credentials=Credentials(provider=Chain(object_store_credential_providers)),
+            region='us-east-1',
+            secure=upload_info['secure']
+        )
+
+        if verbose:
+            log('Checking we have permission to upload')
+        mc.put_object(upload_info['bucket'], upload_info['path'] + "/upload-test", io.BytesIO(b"something"), length=9)
 
     # combine clk and blocks if blocks is provided
     if blocks:
@@ -404,7 +411,9 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
         # For now we upload twice - once to Minio and once to the entity service api
         with open(clk_json, 'rb') as encodings:
             response = rest_client.project_upload_clks(project, apikey, encodings)
-        mc.fput_object(upload_info['bucket'], upload_info['path'] + "/encodings.json", clk_json)
+
+        if upload_to_object_store:
+            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/encodings.json", clk_json)
 
     if verbose:
         msg = '\n'.join(['{}: {}'.format(key, value) for key, value in response.items()])
