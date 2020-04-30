@@ -54,6 +54,7 @@ stages:
         - script: |
             pip install -e .
             python -m pip install -U -r docs/doc-requirements.txt
+            python -m pip install -r docs/tutorial/tutorial-requirements.txt
             pytest --nbval docs/tutorial
           displayName: 'Test all notebooks'
 
