@@ -53,6 +53,7 @@ stages:
         # Test tutorial Jupyter notebooks in docs
         - script: |
             pip install wheel
+            pip install -r requirements.txt
             pip install --upgrade pip setuptools wheel
             pip install -e .
             python -m pip install -U -r docs/doc-requirements.txt
