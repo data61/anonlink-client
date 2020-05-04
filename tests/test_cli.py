@@ -372,7 +372,6 @@ class TestHashCommand(unittest.TestCase):
             assert 'Invalid entry' in result.output
 
 
-
 class TestBlockCommand(unittest.TestCase):
 
     def test_cli_includes_help(self):
