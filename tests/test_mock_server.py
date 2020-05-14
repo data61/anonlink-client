@@ -20,6 +20,14 @@ def create_rest_client_response(server, retry_multiplier, retry_max_exp, retry_s
     raise ServiceError('Create rest client failed', response)
 
 
+def get_temporary_objectstore_credentials_response(project, apikey):
+    response = Response()
+    response.code = 'error'
+    response.status_code = 400
+
+    raise ServiceError('Create rest client failed', response)
+
+
 def test_create_project():
     """Test service error with mocked server."""
     command = ['create-project', '--server', 'https://test', '--schema', SIMPLE_SCHEMA_PATH]
@@ -67,13 +75,17 @@ def test_upload():
         '--server', 'https://test',
         '--project', '1',
         '--apikey', 'secretAPI',
+        '--retry-multiplier', 50,
+        '--retry-exponential-max', 1000,
+        '--retry-max-time', 30000,
+        '--verbose',
         clk_file.name
     ]
 
     runner = CliRunner()
-    with mock.patch('anonlinkclient.cli.create_rest_client', side_effect=create_rest_client_response):
+    with mock.patch('anonlinkclient.rest_client.RestClient.get_temporary_objectstore_credentials', side_effect=get_temporary_objectstore_credentials_response):
         response = runner.invoke(cli.cli, command)
-        assert response.exception.args[0] == 'Create rest client failed'
+        assert 'Failed to establish a new connection' in response.exception.args[0]
 
 
 def test_delete():
