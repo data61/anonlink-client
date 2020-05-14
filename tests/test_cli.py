@@ -372,7 +372,6 @@ class TestHashCommand(unittest.TestCase):
             assert 'Invalid entry' in result.output
 
 
-
 class TestBlockCommand(unittest.TestCase):
 
     def test_cli_includes_help(self):
@@ -750,6 +749,14 @@ class TestCliInteractionWithService(CLITestHelper):
                     '--schema', schema_path
                 ]
             )
+
+    def test_get_temp_credential(self):
+        project = self._create_project()
+        res = self.rest_client.get_temporary_objectstore_credentials(
+                    project['project_id'],
+                    project['update_tokens'][0])
+        assert 'credentials' in res
+        assert 'AccessKeyId' in res['credentials']
 
     def test_upload_help(self):
         self._test_helps('upload', ['--project', '--apikey', '--output', '--verbose', '--help'],
