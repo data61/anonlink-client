@@ -14,6 +14,7 @@ from clkhash import benchmark as bench, randomnames, validate_data
 from clkhash.describe import get_encoding_popcounts
 from clkhash.schema import SchemaError, validate_schema_dict, convert_to_latest_version
 from minio import Minio
+from .progress import Progress
 from minio.credentials import Credentials, Chain, Static
 from minio.credentials.file_aws_credentials import FileAWSCredentials
 
@@ -391,6 +392,7 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
                    secret_key=credentials['SecretAccessKey'],
                    token=credentials['SessionToken']))
 
+
         mc = Minio(
             endpoint,
             credentials=Credentials(provider=Chain(object_store_credential_providers)),
@@ -400,6 +402,7 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
 
         if verbose:
             log('Checking we have permission to upload')
+
         mc.put_object(upload_info['bucket'], upload_info['path'] + "/upload-test", io.BytesIO(b"something"), length=9)
 
     # combine clk and blocks if blocks is provided
@@ -413,7 +416,9 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
             response = rest_client.project_upload_clks(project, apikey, encodings)
 
         if upload_to_object_store:
-            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/encodings.json", clk_json)
+            progress = Progress()
+
+            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/encodings.json", clk_json, progress=progress)
 
     if verbose:
         msg = '\n'.join(['{}: {}'.format(key, value) for key, value in response.items()])
