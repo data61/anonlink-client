@@ -417,7 +417,7 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
         if upload_to_object_store:
             progress = Progress()
             mc.fput_object(upload_info['bucket'], upload_info['path'] + "/encodings.json", clk_json, progress=progress)
-            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/blocks.json", blocks, progress=Progress())
+            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/blocks.json", blocks, progress=progress)
 
     else:
         # For now we upload twice - once to Minio and once to the entity service api
