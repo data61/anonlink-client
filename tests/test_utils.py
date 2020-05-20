@@ -42,9 +42,9 @@ class TestUtils(unittest.TestCase):
         # check p-sig with clks upload
         input_f = open(os.path.join(TESTDATA, 'small_clk.json'), 'r')
         schema_f = open(os.path.join(TESTDATA, 'p-sig-schema.json'), 'r')
-        with self.assertRaises(TypeError) as e:
-            generate_candidate_blocks_from_csv(input_f, schema_f)
-            assert e == 'Upload should be CSVs not CLKs'
+        # with self.assertRaises(TypeError) as e:
+        #     generate_candidate_blocks_from_csv(input_f, schema_f)
+        #     assert e == 'Upload should be CSVs not CLKs'
         # check lambda-fold specified input-clks being true with csv upload
         csv_f = open(os.path.join(TESTDATA, 'dirty_1000_50_1.csv'), 'r')
         schema = json.load(open(os.path.join(TESTDATA, 'lambda_fold_schema.json'), 'r'))

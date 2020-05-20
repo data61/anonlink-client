@@ -515,6 +515,9 @@ class TestCliInteractionWithService(CLITestHelper):
         self.clk_file = create_temp_file()
         self.clk_file_2 = create_temp_file()
 
+        self.block_file = create_temp_file()
+        self.block_file_2 = create_temp_file()
+
         # hash some PII for uploading
         # TODO don't need to rehash data for every test
         runner = CliRunner()
@@ -533,6 +536,21 @@ class TestCliInteractionWithService(CLITestHelper):
                                     SIMPLE_SCHEMA_PATH,
                                     self.clk_file_2.name])
         assert cli_result.exit_code == 0
+
+        # generate blocks for both PII
+        block_result = runner.invoke(cli.cli,
+                                     ['block',
+                                      self.pii_file.name,
+                                      SAMPLE_BLOCK_SCHEMA_PATH,
+                                      self.block_file.name])
+        assert block_result.exit_code == 0
+
+        block_result = runner.invoke(cli.cli,
+                                     ['block',
+                                      self.pii_file_2.name,
+                                      SAMPLE_BLOCK_SCHEMA_PATH,
+                                      self.block_file_2.name])
+        assert block_result.exit_code == 0
 
         self.clk_file.close()
         self.clk_file_2.close()
@@ -562,7 +580,9 @@ class TestCliInteractionWithService(CLITestHelper):
         if project_args is not None:
             for key in project_args:
                 command.append('--{}'.format(key))
-                command.append(project_args[key])
+                # only append value if this argument is not a flag
+                if project_args[key] != 'True':
+                    command.append(project_args[key])
 
         project = self.run_command_load_json_output(command)
         self._created_projects.append(project)
@@ -796,6 +816,23 @@ class TestCliInteractionWithService(CLITestHelper):
         assert 'Project ID: {}'.format(project['project_id']) in cli_result.output
         assert 'Uploading CLK data to the server' in cli_result.output
 
+    def test_upload_with_blocks(self):
+        project = self._create_project({'blocked': 'True'})
+        # Upload
+        runner = CliRunner()
+        cli_result = runner.invoke(cli.cli,
+                                   [
+                                        'upload',
+                                        '--verbose',
+                                        '--server', self.url,
+                                        '--project', project['project_id'],
+                                        '--apikey', project['update_tokens'][0],
+                                        '--blocks', self.block_file.name,
+                                        self.clk_file.name
+
+                                    ]
+        )
+        assert cli_result.exit_code == 0
 
     def test_single_upload(self):
         self._test_single_upload([])

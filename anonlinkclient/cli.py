@@ -345,7 +345,7 @@ def create(name, project, apikey, output, threshold, server, retry_multiplier, r
 @click.option('--project', help='Project identifier')
 @click.option('--apikey', help='Authentication API key for the server.')
 @click.option('-o', '--output', type=click.File('w'), default='-')
-@click.option('--blocks', help='Generated blocks JSON file', type=click.File('rb'))
+@click.option('--blocks', help='Generated blocks JSON file', type=click.Path(exists=True, dir_okay=False))
 @add_options(rest_client_option)
 @click.option('--profile', help="AWS profile to use if uploading to own S3 Bucket", default=None)
 @verbose_option
@@ -407,9 +407,18 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
 
     # combine clk and blocks if blocks is provided
     if blocks:
+        # upload to entity service API once
         with open(clk_json, 'rb') as encodings:
-            out = combine_clks_blocks(encodings, blocks)
-        response = rest_client.project_upload_clks(project, apikey, out)
+            with open(blocks, 'rb') as blockings:
+                out = combine_clks_blocks(encodings, blockings)
+                response = rest_client.project_upload_clks(project, apikey, out)
+
+        # upload to Minio
+        if upload_to_object_store:
+            progress = Progress()
+            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/encodings.json", clk_json, progress=progress)
+            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/blocks.json", blocks, progress=Progress())
+
     else:
         # For now we upload twice - once to Minio and once to the entity service api
         with open(clk_json, 'rb') as encodings:

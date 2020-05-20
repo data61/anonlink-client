@@ -70,15 +70,15 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
 
     # read from CSV file
     else:
-        # sentinel check for input
-        if suffix_input != 'csv':
-            raise TypeError(f'Upload should be CSVs not {suffix_input.upper()} file')
-        else:
-            reader = unicode_reader(input_f)
-            if header:
-                next(reader)
-            for line in reader:
-                pii_data.append(tuple(element.strip() for element in line))
+        # # sentinel check for input
+        # if suffix_input != 'csv':
+        #     raise TypeError(f'Upload should be CSVs not {suffix_input.upper()} file')
+        # else:
+        reader = unicode_reader(input_f)
+        if header:
+            next(reader)
+        for line in reader:
+            pii_data.append(tuple(element.strip() for element in line))
 
     # generate candidate blocks
     blocking_obj = generate_candidate_blocks(pii_data, blocking_config)
