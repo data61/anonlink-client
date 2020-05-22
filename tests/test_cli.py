@@ -543,6 +543,10 @@ class TestCliInteractionWithService(CLITestHelper):
                                       self.pii_file.name,
                                       SAMPLE_BLOCK_SCHEMA_PATH,
                                       self.block_file.name])
+        print(block_result.exception)
+        print(block_result.exc_info)
+        print(block_result.output)
+
         assert block_result.exit_code == 0
 
         block_result = runner.invoke(cli.cli,
