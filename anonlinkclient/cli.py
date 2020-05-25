@@ -415,9 +415,13 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
 
         # upload to Minio
         if upload_to_object_store:
-            progress = Progress()
-            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/encodings.json", clk_json, progress=progress)
-            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/blocks.json", blocks, progress=progress)
+            print('Anonlink client: Uploading to the external object store - MINIO')
+            progress1 = Progress()
+            progress1.object_name = f'Upload {clk_json.split("/")[-1]}'
+            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/encodings.json", clk_json, progress=progress1)
+            progress2 = Progress()
+            progress2.object_name = f'Upload {blocks.split("/")[-1]}'
+            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/blocks.json", blocks, progress=progress2)
 
     else:
         # For now we upload twice - once to Minio and once to the entity service api
@@ -425,8 +429,9 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
             response = rest_client.project_upload_clks(project, apikey, encodings)
 
         if upload_to_object_store:
+            print('Anonlink client: Uploading to the external object store - MINIO')
             progress = Progress()
-
+            progress.object_name = f'Upload {clk_json.split("/")[-1]}'
             mc.fput_object(upload_info['bucket'], upload_info['path'] + "/encodings.json", clk_json, progress=progress)
 
     if verbose:

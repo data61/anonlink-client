@@ -79,8 +79,9 @@ class Progress(Thread):
         :param total_length: Total length of object.
         :param object_name: Object name to be showed.
         """
+        if object_name is None:
+            self.object_name = object_name
         self.total_length = total_length
-        self.object_name = object_name
         self.prefix = self.object_name + ': ' if self.object_name else ''
 
     def run(self):
@@ -132,8 +133,9 @@ class Progress(Thread):
         if total_length > 0:
             formatted_str = prefix + format_string(
                 current_size, total_length, displayed_time)
-            self.stdout.write(_REFRESH_CHAR + formatted_str + ' ' *
-                              max(self.last_printed_len - len(formatted_str), 0))
+            # self.stdout.write(_REFRESH_CHAR + formatted_str + ' ' *
+            #                   max(self.last_printed_len - len(formatted_str), 0))
+            print(_REFRESH_CHAR + formatted_str + ' ' * max(self.last_printed_len - len(formatted_str), 0))
             self.stdout.flush()
             self.last_printed_len = len(formatted_str)
 
