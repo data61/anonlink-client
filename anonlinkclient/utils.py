@@ -135,7 +135,8 @@ def combine_clks_blocks(clk_f: TextIO, block_f: TextIO):
 
     clknblocks = [[clk] for clk in clks]
 
-    for rec_id, block_ids in blocks['blocks'].items():
+    for rec_id, block_ids in blocks.items():
+        rec_id = int(rec_id)
         for block_key in block_ids:
             clknblocks[rec_id].append(block_key)
     out_stream = io.StringIO()
