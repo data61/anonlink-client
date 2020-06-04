@@ -1,7 +1,7 @@
 import time
 
 import requests
-import clkhash
+import anonlinkclient
 import logging
 from retrying import retry
 
@@ -109,7 +109,7 @@ class RestClient:
 
     def project_create(self, schema, result_type, name, notes=None, parties=2, uses_blocking=False):
         if notes is None:
-            notes = 'Project created by clkhash version {}'.format(clkhash.__version__)
+            notes = 'Project created by anonlink-client version {}'.format(anonlinkclient.__version__)
 
         response = self.__request_wrapper(
             'post',
@@ -175,7 +175,7 @@ class RestClient:
 
     def run_create(self, project_id, apikey, threshold, name, notes=None):
         if notes is None:
-            notes = 'Run created by clkhash {}'.format(clkhash.__version__)
+            notes = 'Run created by anonlink-client {}'.format(anonlinkclient.__version__)
 
         response = self.__request_wrapper(
             'post',
