@@ -137,7 +137,7 @@ class Progress(Thread):
             formatted_str = prefix + format_string(
                 current_size, total_length, displayed_time)
 
-            print(_REFRESH_CHAR + formatted_str + ' ' * max(self.last_printed_len - len(formatted_str), 0))
+            self.stdout.write(_REFRESH_CHAR + formatted_str + ' ' * max(self.last_printed_len - len(formatted_str), 0))
             self.stdout.flush()
             self.last_printed_len = len(formatted_str)
 

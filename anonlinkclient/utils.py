@@ -91,6 +91,13 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
     for key in blocks:
         blocks[key] = [int(x) for x in blocks[key]]
 
+    # convert blocking key from list to string
+    new_blocks = {}
+    for key in blocks:
+        newkey = str(key)
+        new_blocks[newkey] = blocks[key]
+    blocks = new_blocks
+
     # convert block_key: row_index to a list of dict
     flat_blocks = []  # type: List[Dict[Any, List[int]]]
     for block_key, row_indices in blocks.items():
