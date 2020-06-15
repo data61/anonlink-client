@@ -219,7 +219,7 @@ def block(pii_csv, schema, block_json, no_header, verbose):
         header = False
 
     # generate candidate blocks and save to json file
-    result = generate_candidate_blocks_from_csv(pii_csv, schema, header)
+    result = generate_candidate_blocks_from_csv(pii_csv, schema, header, verbose=verbose)
     json.dump(result, block_json, indent=4)
 
 
