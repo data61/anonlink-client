@@ -154,18 +154,16 @@ def cli(verbose):
 def hash(pii_csv, secret, schema, clk_json, no_header, check_header, validate, verbose):
     """Process data to create CLKs
 
-    Given a file containing CSV data as PII_CSV, and a JSON
-    document defining the blocking configuration, then generate
-    candidate blocks writing to JSON output. Note the CSV
-    file should contain a header row - however this row is not used
-    by this tool.
+        Given a file containing CSV data as PII_CSV, and a JSON
+        document defining the expected schema, verify the schema, then
+        hash the data to create CLKs writing them as JSON to CLK_JSON.
 
-    For example:
+        It is important that the secret is only known by the two data providers. One word must be provided. For example:
 
-    $anonlink hash pii.csv pii-schema.json blocks.json
+        $anonlink hash pii.csv horse_stable pii-schema.json clks.json
 
-    Use "-" for BLOCKS_JSON to write JSON to stdout.
-    """
+        Use "-" for CLK_JSON to write JSON to stdout.
+        """
     try:
         schema_object = clkhash.schema.from_json_file(schema_file=schema)
     except SchemaError as e:
@@ -200,20 +198,21 @@ def hash(pii_csv, secret, schema, clk_json, no_header, check_header, validate, v
 @click.option('--no-header', default=False, is_flag=True, help="Don't skip the first row")
 @verbose_option
 def block(pii_csv, schema, block_json, no_header, verbose):
-    """Process data to create candiate blocks
+    """Process data to create blocking information
 
-    Given a file containing CSV data as PII_CSV, and a JSON
-    document defining the expected schema, verify the schema, then
-    hash the data to create CLKs writing them as JSON to BLOCK_JSON. Note the CSV
-    file should contain a header row - however this row is not used
-    by this tool.
+        Given a file containing CSV data as PII_CSV, and a JSON
+        document defining the blocking configuration, then generate
+        candidate blocks writing to JSON output. Note the CSV
+        file should contain a header row - however this row is not used
+        by this tool.
+        Setting the verbose flag outputs more detailed blocking statistics.
 
-    It is important that the secret is only known by the two data providers. One word must be provided. For example:
+        For example:
 
-    $anonlink block pii.csv horse-staple pii-schema.json candidate_block.json
+        $anonlink block pii.csv blocking-schema.json blocks.json
 
-    Use "-" for BLOCK_JSON to write JSON to stdout.
-    """
+        Use "-" for BLOCKS_JSON to write JSON to stdout.
+        """
     header = True
     if no_header:
         header = False
