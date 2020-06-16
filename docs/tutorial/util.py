@@ -73,12 +73,11 @@ def reduction_ratio(filtered_reverse_indices, data, K):
     filtered_reversed_indices_dict = []
     block_keys = defaultdict(int)  # type: Dict[Any, int]
     for reversed_index in filtered_reverse_indices:
-        fdict = {}
-        for pair in reversed_index:
-            key = pair['block_key']
-            index = pair['indices']
-            fdict[key] = index
-            block_keys[key] += 1
+        fdict = defaultdict(list)
+        for index, blks in reversed_index.items():
+            for blk in blks:
+                block_keys[blk] += 1
+                fdict[blk].append(index)
         filtered_reversed_indices_dict.append(fdict)
     final_block_keys = [key for key, count in block_keys.items() if count >= K]
 
@@ -98,12 +97,11 @@ def set_completeness(filtered_reverse_indices, truth, K):
     block_keys = defaultdict(int)  # type: Dict[Any, int]
     filtered_reversed_indices_dict = []
     for reversed_index in filtered_reverse_indices:
-        fdict = {}
-        for pair in reversed_index:
-            key = pair['block_key']
-            index = pair['indices']
-            fdict[key] = index
-            block_keys[key] += 1
+        fdict = defaultdict(list)
+        for index, blks in reversed_index.items():
+            for blk in blks:
+                block_keys[blk] += 1
+                fdict[blk].append(int(index))
         filtered_reversed_indices_dict.append(fdict)
     final_block_keys = [key for key, count in block_keys.items() if count >= K]
 
