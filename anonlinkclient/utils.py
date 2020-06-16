@@ -30,7 +30,8 @@ def deserialize_filters(filters):
 
 def generate_candidate_blocks_from_csv(input_f: TextIO,
                                        schema_f: TextIO,
-                                       header: bool = True):
+                                       header: bool = True,
+                                       verbose: bool = False):
     """ Generate candidate blocks from CSV file
 
          This function also computes and outputs the Hamming weight
@@ -42,6 +43,7 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
          :param header: Set to `False` if the CSV file does not have
              a header. Set to `'ignore'` if the CSV file does have a
              header but it should not be checked against the schema.
+         :param verbose: enables output of extra information, i.e.: the stats for the individual PSig strategies.
          :return: A dictionary of blocks, state and config
      """
     if header not in {False, True, 'ignore'}:
@@ -82,7 +84,7 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
             pii_data.append(tuple(element.strip() for element in line))
 
     # generate candidate blocks
-    blocking_obj = generate_candidate_blocks(pii_data, blocking_config)
+    blocking_obj = generate_candidate_blocks(pii_data, blocking_config, verbose=verbose)
     log.info("Blocking took {:.2f} seconds".format(time.time() - start_time))
 
     # save results to dictionary
