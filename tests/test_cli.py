@@ -820,6 +820,27 @@ class TestCliInteractionWithService(CLITestHelper):
         assert 'Project ID: {}'.format(project['project_id']) in cli_result.output
         assert 'Uploading CLK data to the server' in cli_result.output
 
+    def test_upload_to_entityservice(self):
+        project = self._create_project()
+        # Upload
+        runner = CliRunner()
+        cli_result = runner.invoke(cli.cli,
+                                   [
+                                        'upload',
+                                        '--verbose',
+                                        '--server', self.url,
+                                        '--project', project['project_id'],
+                                        '--apikey', project['update_tokens'][0],
+                                        '--to_entityservice',
+                                        self.clk_file.name
+
+                                    ]
+        )
+        assert cli_result.exit_code == 0
+        assert 'Uploading CLK data from {}'.format(self.clk_file.name) in cli_result.output
+        assert 'Project ID: {}'.format(project['project_id']) in cli_result.output
+        assert 'Uploading CLK data to the server' in cli_result.output
+
     def test_upload_with_blocks(self):
         project = self._create_project({'blocked': 'True'})
         # Upload
@@ -832,6 +853,25 @@ class TestCliInteractionWithService(CLITestHelper):
                                         '--project', project['project_id'],
                                         '--apikey', project['update_tokens'][0],
                                         '--blocks', self.block_file.name,
+                                        self.clk_file.name
+
+                                    ]
+        )
+        assert cli_result.exit_code == 0
+
+    def test_upload_with_blocks_to_entityservice(self):
+        project = self._create_project({'blocked': 'True'})
+        # Upload
+        runner = CliRunner()
+        cli_result = runner.invoke(cli.cli,
+                                   [
+                                        'upload',
+                                        '--verbose',
+                                        '--server', self.url,
+                                        '--project', project['project_id'],
+                                        '--apikey', project['update_tokens'][0],
+                                        '--blocks', self.block_file.name,
+                                        '--to_entityservice',
                                         self.clk_file.name
 
                                     ]
