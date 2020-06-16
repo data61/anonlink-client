@@ -85,7 +85,7 @@ def test_upload():
     runner = CliRunner()
     with mock.patch('anonlinkclient.rest_client.RestClient.get_temporary_objectstore_credentials', side_effect=get_temporary_objectstore_credentials_response):
         response = runner.invoke(cli.cli, command)
-        assert 'Failed to establish a new connection' in response.exception.args[0]
+        assert response.exit_code == 1
 
 
 def test_delete():
