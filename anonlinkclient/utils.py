@@ -4,6 +4,7 @@ import logging
 import time
 from clkhash.clk import generate_clk_from_csv
 from clkhash.backports import unicode_reader, raise_from
+from collections import defaultdict
 from typing import Tuple, TextIO, Any, List, Dict
 from bitarray import bitarray
 from blocklib import generate_candidate_blocks
@@ -72,15 +73,15 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
 
     # read from CSV file
     else:
-        # sentinel check for input
-        if suffix_input != 'csv':
-            raise TypeError(f'Upload should be CSVs not {suffix_input.upper()} file')
-        else:
-            reader = unicode_reader(input_f)
-            if header:
-                next(reader)
-            for line in reader:
-                pii_data.append(tuple(element.strip() for element in line))
+        # # sentinel check for input
+        # if suffix_input != 'csv':
+        #     raise TypeError(f'Upload should be CSVs not {suffix_input.upper()} file')
+        # else:
+        reader = unicode_reader(input_f)
+        if header:
+            next(reader)
+        for line in reader:
+            pii_data.append(tuple(element.strip() for element in line))
 
     # generate candidate blocks
     blocking_obj = generate_candidate_blocks(pii_data, blocking_config, verbose=verbose)
@@ -92,12 +93,26 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
     for key in blocks:
         blocks[key] = [int(x) for x in blocks[key]]
 
+    # convert blocking key from list to string
+    new_blocks = {}
+    for key in blocks:
+        newkey = str(key)
+        new_blocks[newkey] = blocks[key]
+    blocks = new_blocks
+
     # convert block_key: row_index to a list of dict
     flat_blocks = []  # type: List[Dict[Any, List[int]]]
     for block_key, row_indices in blocks.items():
         flat_blocks.append(dict(block_key=block_key, indices=row_indices))
+
+    # make encoding to blocks map
+    encoding_to_blocks_map = defaultdict(list)
+    for block_dict in flat_blocks:
+        block_id = block_dict['block_key']
+        for ind in block_dict['indices']:
+            encoding_to_blocks_map[ind].append(block_id)
     result = {} # type: Dict[str, Any]
-    result['blocks'] = flat_blocks
+    result['blocks'] = encoding_to_blocks_map
 
     # step2 - get all member variables in blocking state
     block_state_vars = {}  # type: Dict[str, Any]
@@ -129,11 +144,10 @@ def combine_clks_blocks(clk_f: TextIO, block_f: TextIO):
 
     clknblocks = [[clk] for clk in clks]
 
-    for blk in blocks:
-        block_key = blk['block_key']
-        rec_ids = blk['indices']
-        for rid in rec_ids:
-            clknblocks[rid].append(block_key)
+    for rec_id, block_ids in blocks.items():
+        rec_id = int(rec_id)
+        for block_key in block_ids:
+            clknblocks[rec_id].append(block_key)
     out_stream = io.StringIO()
     json.dump({'clknblocks': clknblocks}, out_stream)
     out_stream.seek(0)
