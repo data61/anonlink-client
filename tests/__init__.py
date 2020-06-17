@@ -12,6 +12,8 @@ SIMPLE_SCHEMA_PATH = os.path.join(TESTDATA, 'simple-schema.json')
 
 SAMPLE_DATA_SCHEMA_PATH = os.path.join(TESTDATA, 'dirty-data-schema.json')
 
+SAMPLE_BLOCK_SCHEMA_PATH = os.path.join(TESTDATA, 'lambda-fold-schema.json')
+
 GOOD_SCHEMA_V1_PATH = os.path.join(TESTDATA, 'good-schema-v1.json')
 GOOD_SCHEMA_V2_PATH = os.path.join(TESTDATA, 'good-schema-v2.json')
 GOOD_SCHEMA_V3_PATH = os.path.join(TESTDATA, 'good-schema-v3.json')

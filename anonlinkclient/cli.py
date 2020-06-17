@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import sys
 import shutil
 from multiprocessing import freeze_support
 from typing import List, Callable
@@ -22,7 +23,7 @@ from .rest_client import ClientWaitingConfiguration, ServiceError, format_run_st
 
 
 import anonlinkclient
-from .utils import generate_clk_from_csv, generate_candidate_blocks_from_csv, combine_clks_blocks
+from .utils import generate_clk_from_csv, generate_candidate_blocks_from_csv, combine_clks_blocks, deserialize_bitarray
 
 
 DEFAULT_SERVICE_URL = 'https://anonlink.easd.data61.xyz'
@@ -344,11 +345,13 @@ def create(name, project, apikey, output, threshold, server, retry_multiplier, r
 @click.option('--project', help='Project identifier')
 @click.option('--apikey', help='Authentication API key for the server.')
 @click.option('-o', '--output', type=click.File('w'), default='-')
-@click.option('--blocks', help='Generated blocks JSON file', type=click.File('rb'))
+@click.option('--blocks', help='Generated blocks JSON file', type=click.Path(exists=True, dir_okay=False))
 @add_options(rest_client_option)
 @click.option('--profile', help="AWS profile to use if uploading to own S3 Bucket", default=None)
+@click.option('--to_entityservice', is_flag=True, default=False, help="Upload directly to entity service server")
 @verbose_option
-def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, retry_max_exp, retry_stop, profile, verbose):
+def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, retry_max_exp, retry_stop, profile,
+           to_entityservice, verbose):
     """Upload CLK data to the Anonlink Entity server.
 
     Given a json file containing hashed clk data as CLK_JSON, upload to
@@ -379,7 +382,18 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
         log("Failed to retrieve temporary credentials")
         upload_to_object_store = False
 
-    if upload_to_object_store:
+    # metadata for clks
+    with open(clk_json, 'rb') as f:
+        clks = json.load(f)['clks']
+
+    hash_count = len(clks)
+    hash_size = int(deserialize_bitarray(clks[0]).length() / 8)
+    encoding_metadata = {
+        'hash-count': hash_count,
+        'hash-size': hash_size
+    }
+
+    if upload_to_object_store and not to_entityservice:
         object_store_credential_providers = []
         if profile is not None:
             object_store_credential_providers.append(FileAWSCredentials(profile=profile))
@@ -403,21 +417,65 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
             log('Checking we have permission to upload')
 
         mc.put_object(upload_info['bucket'], upload_info['path'] + "/upload-test", io.BytesIO(b"something"), length=9)
+        print(upload_info['bucket'])
 
-    # combine clk and blocks if blocks is provided
     if blocks:
-        with open(clk_json, 'rb') as encodings:
-            out = combine_clks_blocks(encodings, blocks)
-        response = rest_client.project_upload_clks(project, apikey, out)
+        if upload_to_object_store and not to_entityservice:
+            print('Anonlink client: Uploading to the external object store - MINIO')
+            # upload to Minio
+            progress1 = Progress()
+            progress1.display_name = f'Upload {clk_json.split("/")[-1]}'
+            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/encodings.json", clk_json, progress=progress1,
+                           metadata=encoding_metadata)
+
+            progress2 = Progress()
+            progress2.display_name = f'Upload {blocks.split("/")[-1]}'
+            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/blocks.json", blocks, progress=progress2)
+
+            clk_file = upload_info['path'] + '/encodings.json'
+            block_file = upload_info['path'] + '/blocks.json'
+
+            # upload metadata to entity service
+            to_entity_service = {
+                'encodings': {'file': {'path': clk_file, 'bucket': upload_info['bucket']},
+                              'credentials': credentials},
+                'blocks': {'file': {'path': block_file, 'bucket': upload_info['bucket']},
+                           'credentials': credentials}
+            }
+            to_entity_service_stream = io.StringIO()
+            json.dump(to_entity_service, to_entity_service_stream)
+            to_entity_service_stream.seek(0)
+            response = rest_client.project_upload_clks(project, apikey, to_entity_service_stream)
+
+        else:
+            print('Anonlink client: Uploading to entity service')
+            with open(clk_json, 'rb') as encodings:
+                with open(blocks, 'rb') as blockings:
+                    out = combine_clks_blocks(encodings, blockings)
+                    response = rest_client.project_upload_clks(project, apikey, out)
+
     else:
-        # For now we upload twice - once to Minio and once to the entity service api
-        with open(clk_json, 'rb') as encodings:
-            response = rest_client.project_upload_clks(project, apikey, encodings)
-
-        if upload_to_object_store:
+        if upload_to_object_store and not to_entityservice:
+            print('Anonlink client: Uploading to the external object store - MINIO')
             progress = Progress()
+            progress.display_name = f'Upload {clk_json.split("/")[-1]}'
+            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/encodings.json", clk_json, progress=progress,
+                           metadata=encoding_metadata)
 
-            mc.fput_object(upload_info['bucket'], upload_info['path'] + "/encodings.json", clk_json, progress=progress)
+            # upload metadata to entity service
+            clk_file = upload_info['path'] + '/encodings.json'
+            to_entity_service = {
+                'encodings': {'file': {'path': clk_file, 'bucket': upload_info['bucket']},
+                             'credentials': credentials}
+            }
+            to_entity_service_stream = io.StringIO()
+            json.dump(to_entity_service, to_entity_service_stream)
+            to_entity_service_stream.seek(0)
+            response = rest_client.project_upload_clks(project, apikey, to_entity_service_stream)
+        else:
+            print('Anonlink client: Uploading to entity service')
+            with open(clk_json, 'rb') as encodings:
+                response = rest_client.project_upload_clks(project, apikey, encodings)
 
     if verbose:
         msg = '\n'.join(['{}: {}'.format(key, value) for key, value in response.items()])
