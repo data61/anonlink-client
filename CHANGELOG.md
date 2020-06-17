@@ -2,6 +2,11 @@
 
 ## new version
 
+## 0.1.3
+Support upload to object store
+Add progress bar for upload command
+Print info about destination of upload
+
 ## 0.1.2
 Add input format check to uploaded data when combining with blocks
 
