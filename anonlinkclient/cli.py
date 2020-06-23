@@ -646,14 +646,52 @@ def validate_schema(schema):
 @cli.command('compare', short_help="compare two schemas")
 @click.argument('schema1', type=click.File('r', lazy=True))
 @click.argument('schema2', type=click.File('r', lazy=True))
-@click.option('-n', 'output_type', flag_value='n', default=True, help='Produce a ndiff format diff (default)')
-@click.option('-u', 'output_type', flag_value='u', help='Produce a unified format diff')
-@click.option('-m', 'output_type', flag_value='m', help='Produce HTML side by side diff')
-@click.option('-c', 'output_type', flag_value='c', help='Produce a context format diff')
-def compare(schema1, schema2, output_type):
+@click.option('-n', 'output_format', flag_value='n', default=True, help='Produce a ndiff format diff (default)')
+@click.option('-u', 'output_format', flag_value='u', help='Produce a unified format diff')
+@click.option('-m', 'output_format', flag_value='m', help='Produce HTML side by side diff')
+@click.option('-c', 'output_format', flag_value='c', help='Produce a context format diff')
+@click.option('-n', 'num_context_lines', type=int, default=3, help='The number of context lines for context and unified format')
+def compare(schema1, schema2, output_format, num_context_lines):
     """Compare two schemas
 
-    and output the differences
+    and output the differences. The output can be formatted in the following ways:
+
+    \b
+    - Context format:
+      Context diffs are a compact way of showing just the lines that have
+      changed plus a few lines of context. The changes are shown in a
+      before/after style. The number of context lines is set by n which
+      defaults to three.
+    - Unified format:
+      Unified diffs are a compact way of showing just the lines that have
+      changed plus a few lines of context. The changes are shown in an inline
+      style (instead of separate before/after blocks). The number of context
+      lines is set by n which defaults to three.
+    - HTML side by side:
+      creates a complete HTML file containing a table showing a side by side,
+      line by line comparison of text with inter-line and intra-line change
+      highlights. It is advisable to pipe this output into a file and open it
+      in your favorite browser.
+
+      >>> anonlink compare -m schema1.json schema2.json > diff.html
+
+      \b
+    - ndiff format:
+      Produces human-readable differences. Each line begins with a two-letter
+      code:
+
+      \b
+      ====== =========================================
+      Code   Meaning
+      ====== =========================================
+      '- '   line unique to file 1
+      '+ '   line unique to file 2
+      '  '   line common to both sequences
+      '? '   line not present in either input sequence
+      ====== =========================================
+
+      Lines beginning with ‘?’ attempt to guide the eye to intraline differences, and were not present in either
+      input sequence. These lines can be confusing if the sequences contain tab characters.
     """
 
     def file_mtime(lazy_file):
@@ -664,7 +702,7 @@ def compare(schema1, schema2, output_type):
     fromdate = file_mtime(schema1)
     todate = file_mtime(schema2)
 
-    if output_type == 'm':
+    if output_format == 'm':
         # we encode the json into a readable format. No one wants a one-liner
         enc = json.JSONEncoder(sort_keys=True, indent=0)
         fromlines = [line for line in enc.iterencode(json.load(schema1))]
@@ -673,12 +711,12 @@ def compare(schema1, schema2, output_type):
     else:
         fromlines = schema1.readlines()
         tolines = schema2.readlines()
-        if output_type == 'u':
-            diff = difflib.unified_diff(fromlines, tolines, schema1.name, schema2.name, fromdate, todate)
-        elif output_type == 'n':
+        if output_format == 'u':
+            diff = difflib.unified_diff(fromlines, tolines, schema1.name, schema2.name, fromdate, todate, n=num_context_lines)
+        elif output_format == 'n':
             diff = difflib.ndiff(fromlines, tolines)
         else:
-            diff = difflib.context_diff(fromlines, tolines, schema1.name, schema2.name, fromdate, todate)
+            diff = difflib.context_diff(fromlines, tolines, schema1.name, schema2.name, fromdate, todate, n=num_context_lines)
     sys.stdout.writelines(diff)
 
 
