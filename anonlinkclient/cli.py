@@ -1,8 +1,10 @@
+import difflib
 import io
 import json
 import os
 import sys
 import shutil
+from datetime import datetime, timezone
 from multiprocessing import freeze_support
 from typing import List, Callable
 
@@ -639,6 +641,45 @@ def validate_schema(schema):
     except SchemaError as e:
         log(str(e))
         raise SystemExit(-1)
+
+
+@cli.command('compare', short_help="compare two schemas")
+@click.argument('schema1', type=click.File('r', lazy=True))
+@click.argument('schema2', type=click.File('r', lazy=True))
+@click.option('-n', 'output_type', flag_value='n', default=True, help='Produce a ndiff format diff (default)')
+@click.option('-u', 'output_type', flag_value='u', help='Produce a unified format diff')
+@click.option('-m', 'output_type', flag_value='m', help='Produce HTML side by side diff')
+@click.option('-c', 'output_type', flag_value='c', help='Produce a context format diff')
+def compare(schema1, schema2, output_type):
+    """Compare two schemas
+
+    and output the differences
+    """
+
+    def file_mtime(lazy_file):
+        t = datetime.fromtimestamp(os.stat(lazy_file.name).st_mtime,
+                                   timezone.utc)
+        return t.astimezone().isoformat()
+
+    fromdate = file_mtime(schema1)
+    todate = file_mtime(schema2)
+
+    if output_type == 'm':
+        # we encode the json into a readable format. No one wants a one-liner
+        enc = json.JSONEncoder(sort_keys=True, indent=0)
+        fromlines = [line for line in enc.iterencode(json.load(schema1))]
+        tolines = [line for line in enc.iterencode(json.load(schema2))]
+        diff = difflib.HtmlDiff().make_file(fromlines, tolines, schema1.name, schema2.name)
+    else:
+        fromlines = schema1.readlines()
+        tolines = schema2.readlines()
+        if output_type == 'u':
+            diff = difflib.unified_diff(fromlines, tolines, schema1.name, schema2.name, fromdate, todate)
+        elif output_type == 'n':
+            diff = difflib.ndiff(fromlines, tolines)
+        else:
+            diff = difflib.context_diff(fromlines, tolines, schema1.name, schema2.name, fromdate, todate)
+    sys.stdout.writelines(diff)
 
 
 if __name__ == "__main__":
