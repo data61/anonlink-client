@@ -650,7 +650,7 @@ def validate_schema(schema):
 @click.option('-u', 'output_format', flag_value='u', help='Produce a unified format diff')
 @click.option('-m', 'output_format', flag_value='m', help='Produce HTML side by side diff')
 @click.option('-c', 'output_format', flag_value='c', help='Produce a context format diff')
-@click.option('-n', 'num_context_lines', type=int, default=3, help='The number of context lines for context and unified format')
+@click.option('-l', 'num_context_lines', type=int, default=3, help='The number of context lines for context and unified format')
 def compare(schema1, schema2, output_format, num_context_lines):
     """Compare two schemas
 
@@ -660,13 +660,13 @@ def compare(schema1, schema2, output_format, num_context_lines):
     - Context format:
       Context diffs are a compact way of showing just the lines that have
       changed plus a few lines of context. The changes are shown in a
-      before/after style. The number of context lines is set by n which
+      before/after style. The number of context lines is set by 'l' which
       defaults to three.
     - Unified format:
       Unified diffs are a compact way of showing just the lines that have
       changed plus a few lines of context. The changes are shown in an inline
       style (instead of separate before/after blocks). The number of context
-      lines is set by n which defaults to three.
+      lines is set by 'l' which defaults to three.
     - HTML side by side:
       creates a complete HTML file containing a table showing a side by side,
       line by line comparison of text with inter-line and intra-line change
@@ -676,7 +676,7 @@ def compare(schema1, schema2, output_format, num_context_lines):
       >>> anonlink compare -m schema1.json schema2.json > diff.html
 
       \b
-    - ndiff format:
+    - ndiff format (default):
       Produces human-readable differences. Each line begins with a two-letter
       code:
 
@@ -692,6 +692,75 @@ def compare(schema1, schema2, output_format, num_context_lines):
 
       Lines beginning with ‘?’ attempt to guide the eye to intraline differences, and were not present in either
       input sequence. These lines can be confusing if the sequences contain tab characters.
+
+
+    Example:
+
+      \b
+      schema A:                 schema B:
+      {                         {
+        "version": 3,             "version": 2,
+        "clkConfig": {            "clkConfig": {
+          "l": 1024                 "l": 1024,
+        }                           "m": 33
+      }                           }
+                                }
+
+    Output in ndiff format:
+
+    \b
+    {
+    -   "version": 3,
+    ?              ^
+    +   "version": 2,
+    ?              ^
+        "clkConfig": {
+    -     "l": 1024
+    +      "l": 1024,
+    ? +             +
+    +      "m": 33
+        }
+    - }
+    + }
+
+    Output in unified format:
+
+    \b
+    --- schema_A.json       2020-06-24T10:58:23.005298+10:00
+    +++ schema_B.json       2020-06-24T10:59:06.648638+10:00
+    @@ -1,6 +1,7 @@
+    {
+    -  "version": 3,
+    +  "version": 2,
+       "clkConfig": {
+    -    "l": 1024
+    +     "l": 1024,
+    +     "m": 33
+       }
+    -}
+
+    Output in context format:
+
+    \b
+    *** schema_A.json       2020-06-24T10:58:23.005298+10:00
+    --- schema_B.json       2020-06-24T10:59:06.648638+10:00
+    ***************
+    *** 1,6 ****
+      {
+    !   "version": 3,
+        "clkConfig": {
+    !     "l": 1024
+        }
+    ! }
+    --- 1,7 ----
+      {
+    !   "version": 2,
+        "clkConfig": {
+    !      "l": 1024,
+    !      "m": 33
+        }
+    ! }
+
     """
 
     def file_mtime(lazy_file):
