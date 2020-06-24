@@ -1,4 +1,3 @@
-anonlink == 0.12.5
 bashplotlib == 0.6.5
 blocklib == 0.1.4
 click == 7.1.2
