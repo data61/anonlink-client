@@ -2,7 +2,6 @@ from setuptools import setup, find_packages
 
 
 requirements = [
-        "anonlink >= 0.12.5",
         "blocklib >= 0.1.4",
         "click >= 7.1.1",
         "clkhash >= 0.16.0a1",
@@ -28,7 +27,7 @@ setup(
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'pytest-cov', 'mock'],
     extras_require={
-        "tutorials": ['numpy', 'pandas']
+        "tutorials": ['numpy', 'pandas', 'anonlink']
     },
     packages=find_packages(exclude=['tests']),
     package_data={'anonlinkclient': ['data/*.csv', 'data/*.json', 'schemas/*.json']},
