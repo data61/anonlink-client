@@ -405,6 +405,60 @@ class TestBlockCommand(unittest.TestCase):
                 self.assertIn('config', outjson)
 
 
+class TestCompareCommand(unittest.TestCase):
+
+    def setUp(self):
+        self.runner = CliRunner()
+
+    def test_cli_includes_help(self):
+        result = self.runner.invoke(cli.cli, ['--help'])
+        self.assertEqual(result.exit_code, 0, result.output)
+
+        assert 'compare' in result.output.lower()
+
+    def test_compare_ndiff(self):
+        cli_result = self.runner.invoke(cli.cli, ['compare', '-n', os.path.join(TESTDATA, 'bad-schema-v2.json'), os.path.join(TESTDATA, 'bad-schema-v3.json')])
+        self.assertEqual(cli_result.exit_code, 0, msg='result={}; exception={}'.format(cli_result, cli_result.exception))
+        default_result = self.runner.invoke(cli.cli, ['compare', os.path.join(TESTDATA, 'bad-schema-v2.json'), os.path.join(TESTDATA, 'bad-schema-v3.json')])
+        self.assertEqual(default_result.exit_code, 0, msg='result={}; exception={}'.format(default_result, default_result.exception))
+        self.assertEqual(cli_result.output, default_result.output, msg='ndiff format is not the default, but should')
+        self.assertIn('?', cli_result.output)
+
+    def test_compare_context_diff(self):
+        cli_result = self.runner.invoke(cli.cli, ['compare', '-c', os.path.join(TESTDATA, 'bad-schema-v2.json'),
+                                                  os.path.join(TESTDATA, 'bad-schema-v3.json')])
+        self.assertEqual(cli_result.exit_code, 0,
+                         msg='result={}; exception={}'.format(cli_result, cli_result.exception))
+        cli_result_larger_l = self.runner.invoke(cli.cli, ['compare', '-c', '-l 5',
+                                                 os.path.join(TESTDATA, 'bad-schema-v2.json'),
+                                                 os.path.join(TESTDATA, 'bad-schema-v3.json')])
+        self.assertEqual(cli_result_larger_l.exit_code, 0,
+                         msg='result={}; exception={}'.format(cli_result_larger_l, cli_result_larger_l.exception))
+        self.assertGreater(cli_result_larger_l.output, cli_result.output)
+        self.assertIn('!', cli_result.output)
+
+    def test_compare_unified_diff(self):
+        cli_result = self.runner.invoke(cli.cli, ['compare', '-u', os.path.join(TESTDATA, 'bad-schema-v2.json'),
+                                                  os.path.join(TESTDATA, 'bad-schema-v3.json')])
+        self.assertEqual(cli_result.exit_code, 0,
+                         msg='result={}; exception={}'.format(cli_result, cli_result.exception))
+        cli_result_larger_l = self.runner.invoke(cli.cli, ['compare', '-u', '-l 5',
+                                                           os.path.join(TESTDATA, 'bad-schema-v2.json'),
+                                                           os.path.join(TESTDATA, 'bad-schema-v3.json')])
+        self.assertEqual(cli_result_larger_l.exit_code, 0,
+                         msg='result={}; exception={}'.format(cli_result_larger_l, cli_result_larger_l.exception))
+        self.assertGreater(cli_result_larger_l.output, cli_result.output)
+        self.assertIn('@@', cli_result.output)
+
+    def test_compare_html_diff(self):
+        cli_result = self.runner.invoke(cli.cli, ['compare', '-m', os.path.join(TESTDATA, 'bad-schema-v2.json'),
+                                                  os.path.join(TESTDATA, 'bad-schema-v3.json')])
+        self.assertEqual(cli_result.exit_code, 0,
+                         msg='result={}; exception={}'.format(cli_result, cli_result.exception))
+        self.assertIn('<html>', cli_result.output)
+        self.assertIn('</table>', cli_result.output)
+
+
 class TestHasherDefaultSchema(unittest.TestCase):
 
     samples = 100
