@@ -9,14 +9,14 @@ jobs:
     displayName: ' '
     strategy:
       matrix:
-      ${{ each py in parameters.pythonVersions }}:
-        ${{ each os in parameters.operatingSystems }}:
-          ${{ each architecture in parameters.architectures }}:
-            ${{ format('Python {0} on {1} ({2}), full tests {3}', py, os, architecture, parameters.fullTests) }}:
-              pythonVersion: ${{ py }}
-              operatingSystem: ${{ os }}
-              architecture: ${{ architecture }}
-              fullTests: ${{ parameters.fullTests }}
+        ${{ each py in parameters.pythonVersions }}:
+          ${{ each os in parameters.operatingSystems }}:
+            ${{ each architecture in parameters.architectures }}:
+              ${{ format('Python {0} on {1} ({2}), full tests {3}', py, os, architecture, parameters.fullTests) }}:
+                pythonVersion: ${{ py }}
+                operatingSystem: ${{ os }}
+                architecture: ${{ architecture }}
+                fullTests: ${{ parameters.fullTests }}
     pool:
       vmImage: $(operatingSystem)
     steps:
