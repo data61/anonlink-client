@@ -1,0 +1,69 @@
+parameters:
+  pythonVersions: []
+  operatingSystems: []
+  architectures: []
+  fullTests: False
+
+jobs:
+  - job:
+    displayName: ' '
+    strategy:
+      matrix:
+      ${{ each py in parameters.pythonVersions }}:
+        ${{ each os in parameters.operatingSystems }}:
+          ${{ each architecture in parameters.architectures }}:
+            ${{ format('Python {0} on {1} ({2}), full tests {3}', py, os, architecture, parameters.fullTests) }}:
+              pythonVersion: ${{ py }}
+              operatingSystem: ${{ os }}
+              architecture: ${{ architecture }}
+              fullTests: ${{ parameters.fullTests }}
+    pool:
+      vmImage: $(operatingSystem)
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(pythonVersions)'
+          architecture: '$(architecture)'
+      - script: |
+          pip install -U pip
+          pip install -U -r requirements.txt
+        displayName: 'Install requirements'
+      - script: |
+          pytest --cov=anonlinkclient --junitxml=testResults.xml  --cov-report=xml:coverage.xml
+        displayName: 'Tests'
+        timeoutInMinutes: 10  # it should pass in 2.5 minutes, so 10 should be more than enough even if server is busy
+        env:
+          ${{ if eq(parameters.fullTests, True) }}:
+            INCLUDE_CLI: 1
+            TEST_ENTITY_SERVICE: 'https://anonlink-client-ci.easd.data61.xyz/'
+
+      # Test tutorial Jupyter notebooks in docs
+      - script: |
+          pip install wheel
+          pip install -r requirements.txt
+          pip install --upgrade pip setuptools wheel
+          pip install -e .
+          python -m pip install -U -r docs/doc-requirements.txt
+          python -m pip install -r docs/tutorial/tutorial-requirements.txt
+          pip freeze
+          pytest --nbval docs/tutorial
+        displayName: 'Test all notebooks'
+
+      - bash: |
+          pip install -U pip codecov
+
+          report_name="$(operatingSystem)_$(architecture)_$(pythonVersion)"
+          if [ $(fullTests) == "True" ]
+          then
+            report_name=${report_name}_full_tests
+          fi
+          python -m codecov --token $(CODECOV_TOKEN) \
+            --file coverageReport.xml \
+            -n ${report_name}
+
+#          report_name="ubuntu18-04_$(PYTHON_VERSION)"
+#          python -m codecov --token $(CODECOV_TOKEN) \
+#            --file coverage.xml \
+#            -n ${report_name}
+        displayName: 'Send coverage to codecov'
+        condition: succeededOrFailed()
