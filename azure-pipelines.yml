@@ -31,10 +31,15 @@ stages:
         fullTests: True
     - template: .azurePipeline/wholeBuild.yml
       parameters:
-        pythonVersions: ['3.6', '3.7', '3.8']
-        operatingSystems: ['macos-10.13', 'vs2017-win2016']
+        pythonVersions: ['3.7', '3.6']
+        operatingSystems: ['vs2017-win2016']
         architectures: ['x64']
         fullTests: False
+    - template: .azurePipeline/wholeBuild.yml  # Template reference
+      parameters:
+        pythonVersions: ['3.7', '3.6']
+        operatingSystems: ['vs2017-win2016']
+        architectures: ['x86']
 - stage: package
   displayName: Build Wheel Packages
   dependsOn: [test_and_build]
