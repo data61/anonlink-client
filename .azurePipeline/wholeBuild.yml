@@ -22,7 +22,7 @@ jobs:
     steps:
       - task: UsePythonVersion@0
         inputs:
-          versionSpec: '$(pythonVersions)'
+          versionSpec: '$(pythonVersion)'
           architecture: '$(architecture)'
 
       - script: |
