@@ -25,20 +25,24 @@ stages:
   jobs:
     - template: .azurePipeline/wholeBuild.yml
       parameters:
-        pythonVersions: ['3.6', '3.7', '3.8']
+        pythonVersions: ['3.8']
         operatingSystems: ['ubuntu-18.04']
         architectures: ['x64']
         fullTests: True
-    - template: .azurePipeline/wholeBuild.yml
+    - template: .azurePipeline/skipNotebook.yml
+      parameters:
+        pythonVersions: ['3.6', '3.7']
+        operatingSystems: ['ubuntu-18.04']
+        architectures: ['x64']
+    - template: .azurePipeline/skipNotebook.yml
       parameters:
         pythonVersions: ['3.6', '3.7', '3.8']
         operatingSystems: ['vs2017-win2016']
         architectures: ['x64']
-        fullTests: False
-    - template: .azurePipeline/wholeBuild.yml  # Template reference
+    - template: .azurePipeline/skipNotebook.yml  # Template reference
       parameters:
         pythonVersions: ['3.6', '3.7', '3.8']
-        operatingSystems: ['vs2017-win2016']
+        operatingSystems: ['macos-10.13']
         architectures: ['x64']
 - stage: package
   displayName: Build Wheel Packages
