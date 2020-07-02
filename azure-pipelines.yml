@@ -25,19 +25,19 @@ stages:
   jobs:
     - template: .azurePipeline/wholeBuild.yml
       parameters:
-        pythonVersions: ['3.6', '3.7', '3.8']
+        pythonVersions: ['3.6.10', '3.7.7', '3.8.3']
         operatingSystems: ['ubuntu-18.04']
         architectures: ['x64']
         fullTests: True
     - template: .azurePipeline/wholeBuild.yml
       parameters:
-        pythonVersions: ['3.7', '3.6']
+        pythonVersions: ['3.7.7', '3.6.8', '3.8.3']
         operatingSystems: ['vs2017-win2016']
         architectures: ['x64']
         fullTests: False
     - template: .azurePipeline/wholeBuild.yml  # Template reference
       parameters:
-        pythonVersions: ['3.7', '3.6']
+        pythonVersions: ['3.7.7', '3.6.8', '3.8.3']
         operatingSystems: ['vs2017-win2016']
         architectures: ['x86']
 - stage: package
