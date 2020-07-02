@@ -42,7 +42,7 @@ stages:
     - template: .azurePipeline/skipNotebook.yml  # Template reference
       parameters:
         pythonVersions: ['3.6', '3.7', '3.8']
-        operatingSystems: ['macos-10.13']
+        operatingSystems: ['macOS-10.13']
         architectures: ['x64']
 - stage: package
   displayName: Build Wheel Packages
