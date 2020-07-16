@@ -44,13 +44,6 @@ jobs:
           fi
 
           bash <(curl -s https://codecov.io/bash)
-#          python -m codecov --token $(CODECOV_TOKEN) \
-#            --file coverageReport.xml \
-#            -n ${report_name}
 
-#          report_name="ubuntu18-04_$(PYTHON_VERSION)"
-#          python -m codecov --token $(CODECOV_TOKEN) \
-#            --file coverage.xml \
-#            -n ${report_name}
         displayName: 'Send coverage to codecov'
         condition: succeededOrFailed()
