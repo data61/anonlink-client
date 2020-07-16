@@ -38,12 +38,8 @@ jobs:
           pip install -U pip codecov
 
           report_name="$(operatingSystem)_$(architecture)_$(pythonVersion)"
-          if [ $(fullTests) == "True" ]
-          then
-            report_name=${report_name}_full_tests
-          fi
 
-          bash <(curl -s https://codecov.io/bash)
+          bash <(curl -s https://codecov.io/bash -F ${report_name})
 
         displayName: 'Send coverage to codecov'
         condition: succeededOrFailed()

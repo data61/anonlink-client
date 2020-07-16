@@ -26,16 +26,11 @@ jobs:
       - script: |
           pip install -U pip
           pip install -U -r requirements.txt
+          python -m pip install -U -r docs/doc-requirements.txt
+          python -m pip install -r docs/tutorial/tutorial-requirements.txt
         displayName: 'Install requirements'
 
       # Test tutorial Jupyter notebooks in docs
       - script: |
-          pip install wheel
-          pip install -r requirements.txt
-          pip install --upgrade pip setuptools wheel
-          pip install -e .
-          python -m pip install -U -r docs/doc-requirements.txt
-          python -m pip install -r docs/tutorial/tutorial-requirements.txt
-          pip freeze
           pytest --nbval docs/tutorial
         displayName: 'Test all notebooks'

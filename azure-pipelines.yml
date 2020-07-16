@@ -41,7 +41,7 @@ stages:
 
 
 - stage: test_notebook
-  displayName: 'Test Notebook'
+  displayName: 'Test All Notebooks'
   dependsOn: []
   jobs:
     - template: .azurePipeline/testNotebook.yml
