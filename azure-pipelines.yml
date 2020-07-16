@@ -25,25 +25,31 @@ stages:
   jobs:
     - template: .azurePipeline/wholeBuild.yml
       parameters:
-        pythonVersions: ['3.8']
+        pythonVersions: ['3.6', '3.7', '3.8']
         operatingSystems: ['ubuntu-18.04']
         architectures: ['x64']
-        fullTests: True
-    - template: .azurePipeline/skipNotebook.yml
-      parameters:
-        pythonVersions: ['3.6', '3.7']
-        operatingSystems: ['ubuntu-18.04']
-        architectures: ['x64']
-    - template: .azurePipeline/skipNotebook.yml
+    - template: .azurePipeline/wholeBuild.yml
       parameters:
         pythonVersions: ['3.6', '3.7', '3.8']
         operatingSystems: ['vs2017-win2016']
         architectures: ['x64']
-    - template: .azurePipeline/skipNotebook.yml  # Template reference
+    - template: .azurePipeline/wholeBuild.yml  # Template reference
       parameters:
         pythonVersions: ['3.6', '3.7', '3.8']
         operatingSystems: ['macOS-10.14']
         architectures: ['x64']
+
+
+- stage: test_notebook
+  displayName: 'Test Notebook'
+  dependsOn: []
+  jobs:
+    - template: .azurePipeline/testNotebook.yml
+      parameters:
+        pythonVersions: ['3.8']
+        operatingSystems: ['ubuntu-18.04']
+        architectures: ['x64']
+
 - stage: package
   displayName: Build Wheel Packages
   dependsOn: [test_and_build]

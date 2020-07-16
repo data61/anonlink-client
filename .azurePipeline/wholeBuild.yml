@@ -34,18 +34,6 @@ jobs:
         env:
             TEST_ENTITY_SERVICE: 'https://anonlink-client-ci.easd.data61.xyz/'
 
-      # Test tutorial Jupyter notebooks in docs
-      - script: |
-          pip install wheel
-          pip install -r requirements.txt
-          pip install --upgrade pip setuptools wheel
-          pip install -e .
-          python -m pip install -U -r docs/doc-requirements.txt
-          python -m pip install -r docs/tutorial/tutorial-requirements.txt
-          pip freeze
-          pytest --nbval docs/tutorial
-        displayName: 'Test all notebooks'
-
       - bash: |
           pip install -U pip codecov
 
@@ -54,9 +42,11 @@ jobs:
           then
             report_name=${report_name}_full_tests
           fi
-          python -m codecov --token $(CODECOV_TOKEN) \
-            --file coverageReport.xml \
-            -n ${report_name}
+
+          bash <(curl -s https://codecov.io/bash)
+#          python -m codecov --token $(CODECOV_TOKEN) \
+#            --file coverageReport.xml \
+#            -n ${report_name}
 
 #          report_name="ubuntu18-04_$(PYTHON_VERSION)"
 #          python -m codecov --token $(CODECOV_TOKEN) \
