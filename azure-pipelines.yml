@@ -23,53 +23,32 @@ stages:
   displayName: 'Test and build'
   dependsOn: []
   jobs:
-    - job:
-      displayName: ' '
-      strategy:
-        matrix:
-          python36:
-            PYTHON_VERSION: '3.6'
-          python37:
-            PYTHON_VERSION: '3.7'
-          python38:
-            PYTHON_VERSION: '3.8'
-      pool:
-        vmImage: 'ubuntu-18.04'
-      steps:
-        - task: UsePythonVersion@0
-          inputs:
-            versionSpec: $(PYTHON_VERSION)
-        - script: |
-            pip install -U pip
-            pip install -U -r requirements.txt
-          displayName: 'Install requirements'
-        - script: |
-            pytest --cov=anonlinkclient --junitxml=testResults.xml  --cov-report=xml:coverage.xml
-          displayName: 'Tests'
-          timeoutInMinutes: 10  # it should pass in 2.5 minutes, so 10 should be more than enough even if server is busy
-          env:
-            TEST_ENTITY_SERVICE: 'https://anonlink-client-ci.easd.data61.xyz/'
+    - template: .azurePipeline/wholeBuild.yml
+      parameters:
+        pythonVersions: ['3.6', '3.7', '3.8']
+        operatingSystems: ['ubuntu-18.04']
+        architectures: ['x64']
+    - template: .azurePipeline/wholeBuild.yml
+      parameters:
+        pythonVersions: ['3.6', '3.7', '3.8']
+        operatingSystems: ['vs2017-win2016']
+        architectures: ['x64']
+    - template: .azurePipeline/wholeBuild.yml  # Template reference
+      parameters:
+        pythonVersions: ['3.6', '3.7', '3.8']
+        operatingSystems: ['macOS-10.14']
+        architectures: ['x64']
 
-        # Test tutorial Jupyter notebooks in docs
-        - script: |
-            pip install wheel
-            pip install -r requirements.txt
-            pip install --upgrade pip setuptools wheel
-            pip install -e .
-            python -m pip install -U -r docs/doc-requirements.txt
-            python -m pip install -r docs/tutorial/tutorial-requirements.txt
-            pip freeze
-            pytest --nbval docs/tutorial
-          displayName: 'Test all notebooks'
 
-        - bash: |
-            pip install -U pip codecov
-            report_name="ubuntu18-04_$(PYTHON_VERSION)"
-            python -m codecov --token $(CODECOV_TOKEN) \
-              --file coverage.xml \
-              -n ${report_name}
-          displayName: 'Send coverage to codecov'
-          condition: succeededOrFailed()
+- stage: test_notebook
+  displayName: 'Test All Notebooks'
+  dependsOn: []
+  jobs:
+    - template: .azurePipeline/testNotebook.yml
+      parameters:
+        pythonVersions: ['3.8']
+        operatingSystems: ['ubuntu-18.04']
+        architectures: ['x64']
 
 - stage: package
   displayName: Build Wheel Packages
