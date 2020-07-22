@@ -2,7 +2,7 @@
         "type": "p-sig",
         "version": 1,
         "config": {
-            "blocking_features": [1, 2, 3],
+            "blocking-features": [1, 2, 3],
             "filter": {
                 "type": "count",
                 "max": 200,
@@ -15,19 +15,19 @@
             },
             "signatureSpecs": [
                 [
-                     {"type": "characters-at", "config": {"pos": ["0:"]}, "feature-idx": 1}
+                     {"type": "characters-at", "config": {"pos": ["0:"]}, "feature": 1}
                 ],
                 [
-                    {"type": "characters-at", "config": {"pos": ["0:"]}, "feature-idx": 2}
+                    {"type": "characters-at", "config": {"pos": ["0:"]}, "feature": 2}
                 ],
                 [
-                    {"type": "characters-at", "config": {"pos": [":2"]}, "feature-idx": 1},
-                    {"type": "characters-at", "config": {"pos": [":2"]}, "feature-idx": 2}
+                    {"type": "characters-at", "config": {"pos": [":2"]}, "feature": 1},
+                    {"type": "characters-at", "config": {"pos": [":2"]}, "feature": 2}
 
                 ],
                 [
-                    {"type": "metaphone", "feature-idx": 1},
-                    {"type": "metaphone", "feature-idx": 2}
+                    {"type": "metaphone", "feature": 1},
+                    {"type": "metaphone", "feature": 2}
                 ]
             ]
         }
