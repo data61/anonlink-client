@@ -3,7 +3,7 @@ blocklib == 0.1.6
 click == 7.1.2
 clkhash == 0.16.0a1
 jsonschema == 3.2.0
-numpy == 1.19.0
+numpy == 1.19.1
 minio == 5.0.10
 pandas == 1.0.5
 pytest == 5.4.3
