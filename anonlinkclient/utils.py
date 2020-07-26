@@ -120,15 +120,17 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
     for name in dir(state):
         if '__' not in name and not callable(getattr(state, name)) and name != 'stats':
             block_state_vars[name] = getattr(state, name)
-    result['state'] = block_state_vars
+
+    result['meta'] = {}  # type: Dict[str, Any]
+    result['meta']['state'] = block_state_vars
 
     # step3 - get config meta data
-    result['config'] = blocking_config
+    result['meta']['config'] = blocking_config
 
     # step4 - add CLK counts and blocking statistics to metadata
-    result['clk_count'] = len(encoding_to_blocks_map)
+    result['meta']['source'] = {'clk_count': len(encoding_to_blocks_map)}
     del state.stats['num_of_blocks_per_rec']
-    result['stats'] = state.stats
+    result['meta']['stats'] = state.stats
     return result
 
 
