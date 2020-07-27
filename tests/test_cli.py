@@ -401,8 +401,8 @@ class TestBlockCommand(unittest.TestCase):
             with open(output_filename, 'rt') as output:
                 outjson = json.load(output)
                 self.assertIn('blocks', outjson)
-                self.assertIn('state', outjson)
-                self.assertIn('config', outjson)
+                self.assertIn('state', outjson['meta'])
+                self.assertIn('config', outjson['meta'])
 
 
 class TestCompareCommand(unittest.TestCase):

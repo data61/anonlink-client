@@ -38,6 +38,14 @@ class TestUtils(unittest.TestCase):
         with self.assertRaises(ValueError):
             generate_candidate_blocks_from_csv(input_f, input_f, True)
 
+    def test_metadata_in_result(self):
+        """Test generate candidate blocks from csv and metadata."""
+        csv_f = open(os.path.join(TESTDATA, 'dirty_1000_50_1.csv'), 'r')
+        schema_f = open(os.path.join(TESTDATA, 'p-sig-schema.json'), 'r')
+        result = generate_candidate_blocks_from_csv(csv_f, schema_f)
+        assert result['meta']['source']['clk_count'] == 1000
+        assert 'stats' in result['meta']
+
     def test_sentinel_check(self):
         # check p-sig with clks upload
         input_f = open(os.path.join(TESTDATA, 'small_clk.json'), 'r')
