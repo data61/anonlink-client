@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 requirements = [
         "blocklib >= 0.1.4",
         "click >= 7.1.1",
-        "clkhash >= 0.16.0a1",
+        "clkhash >= 0.16.0b1",
         "jsonschema >= 3.2.0",
         "requests >= 2.22.0",
         "minio >= 5.0.10",

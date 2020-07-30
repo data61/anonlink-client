@@ -15,6 +15,7 @@ import clkhash
 
 from clkhash import benchmark as bench, randomnames, validate_data
 from clkhash.describe import get_encoding_popcounts
+from clkhash.serialization import serialize_bitarray, deserialize_bitarray
 from clkhash.schema import SchemaError, validate_schema_dict, convert_to_latest_version
 from minio import Minio
 from .progress import Progress
@@ -179,11 +180,11 @@ def hash(pii_csv, secret, schema, clk_json, no_header, check_header, validate, v
         header = False
 
     try:
-        clk_data = generate_clk_from_csv(
+        clk_data = [serialize_bitarray(bf) for bf in generate_clk_from_csv(
             pii_csv, secret, schema_object,
             validate=validate,
             header=header,
-            progress_bar=verbose)
+            progress_bar=verbose)]
     except (validate_data.EntryError, validate_data.FormatError) as e:
         msg, = e.args
         log(msg)
@@ -575,7 +576,7 @@ def describe(clk_json):
     """show distribution of clk's popcounts using a ascii plot.
     """
     clks = json.load(clk_json)['clks']
-    counts = get_encoding_popcounts(clks)
+    counts = get_encoding_popcounts([deserialize_bitarray(clk) for clk in clks])
     plot_hist(counts, bincount=60, title='popcounts', xlab=True, showSummary=True)
 
 

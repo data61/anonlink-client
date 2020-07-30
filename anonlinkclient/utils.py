@@ -1,12 +1,12 @@
+import csv
 import io
 import json
 import logging
 import time
-from clkhash.clk import generate_clk_from_csv
-from clkhash.backports import unicode_reader, raise_from
 from collections import defaultdict
 from typing import Tuple, TextIO, Any, List, Dict
 from bitarray import bitarray
+from clkhash.clk import generate_clk_from_csv
 from blocklib import generate_candidate_blocks
 import base64
 
@@ -58,7 +58,7 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
         blocking_config = json.load(schema_f)
     except ValueError as e:
         msg = 'The schema is not a valid JSON file'
-        raise_from(ValueError(msg), e)
+        raise ValueError(msg) from e
 
     blocking_method = blocking_config['type']
     suffix_input = input_f.name.split('.')[-1]
@@ -77,7 +77,7 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
         if suffix_input == 'json':
             raise TypeError(f'Upload should be CSVs not CLKs')
         else:
-            reader = unicode_reader(input_f)
+            reader = csv.reader(input_f)
             if header:
                 next(reader)
             for line in reader:
@@ -147,7 +147,7 @@ def combine_clks_blocks(clk_f: TextIO, block_f: TextIO):
         clks = json.load(clk_f)['clks']
     except ValueError as e:
         msg = 'Invalid CLKs or Blocks'
-        raise_from(ValueError(msg), e)
+        raise ValueError(msg) from e
 
     clknblocks = [[clk] for clk in clks]
 

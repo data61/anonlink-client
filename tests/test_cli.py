@@ -1,7 +1,6 @@
 """
 http://click.pocoo.org/5/testing/
 """
-from __future__ import division, print_function
 
 import os
 import json
@@ -12,7 +11,6 @@ import unittest
 
 import pytest
 from click.testing import CliRunner
-from future.builtins import range
 import anonlinkclient
 import anonlinkclient.cli as cli
 from clkhash import randomnames, schema
