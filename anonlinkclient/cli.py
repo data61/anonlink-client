@@ -19,8 +19,7 @@ from clkhash.serialization import serialize_bitarray, deserialize_bitarray
 from clkhash.schema import SchemaError, validate_schema_dict, convert_to_latest_version
 from minio import Minio
 from .progress import Progress
-from minio.credentials import Credentials, Chain, Static
-from minio.credentials.file_aws_credentials import FileAWSCredentials
+from minio.credentials import Credentials, Chain, Static, FileAWSCredentials
 
 from .rest_client import ClientWaitingConfiguration, ServiceError, format_run_status, RestClient
 
