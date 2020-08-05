@@ -405,7 +405,7 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
         object_store_credential_providers.append(
             Static(access_key=credentials['AccessKeyId'],
                    secret_key=credentials['SecretAccessKey'],
-                   token=credentials['SessionToken']))
+                   session_token=credentials['SessionToken']))
 
 
         mc = Minio(
