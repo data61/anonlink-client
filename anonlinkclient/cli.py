@@ -19,8 +19,7 @@ from clkhash.serialization import serialize_bitarray, deserialize_bitarray
 from clkhash.schema import SchemaError, validate_schema_dict, convert_to_latest_version
 from minio import Minio
 from .progress import Progress
-from minio.credentials import Credentials, Chain, Static
-from minio.credentials.file_aws_credentials import FileAWSCredentials
+from minio.credentials import Credentials, Chain, Static, FileAWSCredentials
 
 from .rest_client import ClientWaitingConfiguration, ServiceError, format_run_status, RestClient
 
@@ -406,7 +405,7 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
         object_store_credential_providers.append(
             Static(access_key=credentials['AccessKeyId'],
                    secret_key=credentials['SecretAccessKey'],
-                   token=credentials['SessionToken']))
+                   session_token=credentials['SessionToken']))
 
 
         mc = Minio(

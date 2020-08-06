@@ -7,7 +7,7 @@ requirements = [
         "clkhash >= 0.16.0b1",
         "jsonschema >= 3.2.0",
         "requests >= 2.22.0",
-        "minio >= 5.0.10",
+        "minio >= 6.0.0",
         "bashplotlib >= 0.6.5",
         "retrying>=1.3.3",
     ]
