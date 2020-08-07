@@ -1,2 +1,2 @@
 anonlink-client>=0.0.1
-anonlink==0.13.0
+anonlink==0.13.1

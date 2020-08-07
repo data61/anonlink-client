@@ -26,7 +26,7 @@ import sys
 import time
 from threading import Thread
 
-from minio.compat import queue, queue_empty
+from queue import Queue, Empty
 
 _BAR_SIZE = 20
 _KILOBYTE = 1024
@@ -68,7 +68,7 @@ class Progress(Thread):
         self.last_printed_len = 0
         self.current_size = 0
 
-        self.display_queue = queue()
+        self.display_queue = Queue()
         self.initial_time = time.time()
         self.stdout = stdout
         self.start()

@@ -1,7 +1,6 @@
 """
 http://click.pocoo.org/5/testing/
 """
-from __future__ import division, print_function
 
 import os
 import json
@@ -12,7 +11,6 @@ import unittest
 
 import pytest
 from click.testing import CliRunner
-from future.builtins import range
 import anonlinkclient
 import anonlinkclient.cli as cli
 from clkhash import randomnames, schema
@@ -401,8 +399,8 @@ class TestBlockCommand(unittest.TestCase):
             with open(output_filename, 'rt') as output:
                 outjson = json.load(output)
                 self.assertIn('blocks', outjson)
-                self.assertIn('state', outjson)
-                self.assertIn('config', outjson)
+                self.assertIn('state', outjson['meta'])
+                self.assertIn('config', outjson['meta'])
 
 
 class TestCompareCommand(unittest.TestCase):

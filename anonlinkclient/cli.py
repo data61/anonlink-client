@@ -15,11 +15,11 @@ import clkhash
 
 from clkhash import benchmark as bench, randomnames, validate_data
 from clkhash.describe import get_encoding_popcounts
+from clkhash.serialization import serialize_bitarray, deserialize_bitarray
 from clkhash.schema import SchemaError, validate_schema_dict, convert_to_latest_version
 from minio import Minio
 from .progress import Progress
-from minio.credentials import Credentials, Chain, Static
-from minio.credentials.file_aws_credentials import FileAWSCredentials
+from minio.credentials import Credentials, Chain, Static, FileAWSCredentials
 
 from .rest_client import ClientWaitingConfiguration, ServiceError, format_run_status, RestClient
 
@@ -179,11 +179,11 @@ def hash(pii_csv, secret, schema, clk_json, no_header, check_header, validate, v
         header = False
 
     try:
-        clk_data = generate_clk_from_csv(
+        clk_data = [serialize_bitarray(bf) for bf in generate_clk_from_csv(
             pii_csv, secret, schema_object,
             validate=validate,
             header=header,
-            progress_bar=verbose)
+            progress_bar=verbose)]
     except (validate_data.EntryError, validate_data.FormatError) as e:
         msg, = e.args
         log(msg)
@@ -405,7 +405,7 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
         object_store_credential_providers.append(
             Static(access_key=credentials['AccessKeyId'],
                    secret_key=credentials['SecretAccessKey'],
-                   token=credentials['SessionToken']))
+                   session_token=credentials['SessionToken']))
 
 
         mc = Minio(
@@ -581,7 +581,7 @@ def describe(clk_json):
     """show distribution of clk's popcounts using a ascii plot.
     """
     clks = json.load(clk_json)['clks']
-    counts = get_encoding_popcounts(clks)
+    counts = get_encoding_popcounts([deserialize_bitarray(clk) for clk in clks])
     plot_hist(counts, bincount=60, title='popcounts', xlab=True, showSummary=True)
 
 
