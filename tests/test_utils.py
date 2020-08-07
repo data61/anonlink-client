@@ -43,7 +43,7 @@ class TestUtils(unittest.TestCase):
         csv_f = open(os.path.join(TESTDATA, 'dirty_1000_50_1.csv'), 'r')
         schema_f = open(os.path.join(TESTDATA, 'p-sig-schema.json'), 'r')
         result = generate_candidate_blocks_from_csv(csv_f, schema_f)
-        assert result['meta']['source']['clk_count'] == 1000
+        assert result['meta']['source']['clk_count'] == [1000]
         assert 'stats' in result['meta']
 
     def test_sentinel_check(self):

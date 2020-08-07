@@ -1,6 +1,7 @@
 import difflib
 import io
 import json
+import ijson
 import os
 import sys
 import shutil
@@ -424,7 +425,7 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
     if blocks:
         # check size of blocks and clks consistent
         with open(blocks, 'rb') as f:
-            block_counts = len(json.load(f)['blocks'])
+            block_counts = next(ijson.items(f, 'meta.source.clk_count.item'))
             msg = 'Size inconsistency: there are {} CLKs but {} encoding-to-blocks maps'.format(hash_count, block_counts)
             assert block_counts == hash_count, msg
 

@@ -129,7 +129,7 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
     result['meta']['config'] = blocking_config
 
     # step4 - add CLK counts and blocking statistics to metadata
-    result['meta']['source'] = {'clk_count': len(encoding_to_blocks_map)}
+    result['meta']['source'] = {'clk_count': [len(pii_data)]}
     del state.stats['num_of_blocks_per_rec']
     result['meta']['stats'] = state.stats
     return result
