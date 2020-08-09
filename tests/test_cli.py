@@ -25,40 +25,45 @@ ES_TIMEOUT = os.environ.get("ES_TIMEOUT", 60)
 class CLITestHelper(unittest.TestCase):
     SAMPLES = 100
 
-    def setUp(self):
-        super(CLITestHelper, self).setUp()
-        self.pii_file = create_temp_file()
-        self.pii_file_2 = create_temp_file()
+    @classmethod
+    def setUpClass(cls) -> None:
+        CLITestHelper.pii_file = create_temp_file()
+        CLITestHelper.pii_file_2 = create_temp_file()
 
         # Get random PII
-        pii_data = randomnames.NameList(self.SAMPLES)
+        pii_data = randomnames.NameList(CLITestHelper.SAMPLES)
         data = [(name, dob) for _, name, dob, _ in pii_data.names]
 
         headers = ['NAME freetext', 'DOB YYYY/MM/DD']
-        randomnames.save_csv(data, headers, self.pii_file)
+        randomnames.save_csv(data, headers, CLITestHelper.pii_file)
 
         random.shuffle(data)
-        randomnames.save_csv(data[::2], headers, self.pii_file_2)
+        randomnames.save_csv(data[::2], headers, CLITestHelper.pii_file_2)
 
-        self.default_schema = [
+        CLITestHelper.default_schema = [
             {"identifier": "INDEX"},
             {"identifier": "NAME freetext"},
             {"identifier": "DOB YYYY/MM/DD"},
             {"identifier": "GENDER M or F"}
         ]
 
-        self.pii_file.close()
-        self.pii_file_2.close()
+        CLITestHelper.pii_file.close()
+        CLITestHelper.pii_file_2.close()
 
-    def tearDown(self):
-        super(CLITestHelper, self).tearDown()
+    def setUp(self):
+        super(CLITestHelper, self).setUp()
 
+    @classmethod
+    def tearDownClass(cls) -> None:
         # Delete temporary files if they exist.
-        for f in self.pii_file, self.pii_file_2:
+        for f in CLITestHelper.pii_file, CLITestHelper.pii_file_2:
             try:
                 os.remove(f.name)
             except:
                 pass
+
+    def tearDown(self):
+        super(CLITestHelper, self).tearDown()
 
     def run_command_capture_output(self, command):
         """
@@ -558,43 +563,40 @@ class TestCliInteractionWithService(CLITestHelper):
 
     retry_options_values = ['--retry-multiplier', 50, '--retry-exponential-max', 1000, '--retry-max-time', 30000]
 
-    def setUp(self):
-        super(TestCliInteractionWithService, self).setUp()
-        self.url = os.environ['TEST_ENTITY_SERVICE']
+    @classmethod
+    def setUpClass(cls) -> None:
+        super(TestCliInteractionWithService, cls).setUpClass()
+        TestCliInteractionWithService.clk_file = create_temp_file()
+        TestCliInteractionWithService.clk_file_2 = create_temp_file()
 
-        self.rest_client = RestClient(self.url)
-
-        self.clk_file = create_temp_file()
-        self.clk_file_2 = create_temp_file()
-
-        self.block_file = create_temp_file()
-        self.block_file_2 = create_temp_file()
+        TestCliInteractionWithService.block_file = create_temp_file()
+        TestCliInteractionWithService.block_file_2 = create_temp_file()
 
         # hash some PII for uploading
         # TODO don't need to rehash data for every test
         runner = CliRunner()
         cli_result = runner.invoke(cli.cli,
                                    ['hash',
-                                   self.pii_file.name,
-                                   'secret',
+                                    TestCliInteractionWithService.pii_file.name,
+                                    'secret',
                                     SIMPLE_SCHEMA_PATH,
-                                    self.clk_file.name])
+                                    TestCliInteractionWithService.clk_file.name])
         assert cli_result.exit_code == 0
 
         cli_result = runner.invoke(cli.cli,
                                    ['hash',
-                                   self.pii_file_2.name,
-                                   'secret',
+                                    TestCliInteractionWithService.pii_file_2.name,
+                                    'secret',
                                     SIMPLE_SCHEMA_PATH,
-                                    self.clk_file_2.name])
+                                    TestCliInteractionWithService.clk_file_2.name])
         assert cli_result.exit_code == 0
 
         # generate blocks for both PII
         block_result = runner.invoke(cli.cli,
                                      ['block',
-                                      self.pii_file.name,
+                                      TestCliInteractionWithService.pii_file.name,
                                       SAMPLE_BLOCK_SCHEMA_PATH,
-                                      self.block_file.name])
+                                      TestCliInteractionWithService.block_file.name])
         print(block_result.exception)
         print(block_result.exc_info)
         print(block_result.output)
@@ -603,22 +605,33 @@ class TestCliInteractionWithService(CLITestHelper):
 
         block_result = runner.invoke(cli.cli,
                                      ['block',
-                                      self.pii_file_2.name,
+                                      TestCliInteractionWithService.pii_file_2.name,
                                       SAMPLE_BLOCK_SCHEMA_PATH,
-                                      self.block_file_2.name])
+                                      TestCliInteractionWithService.block_file_2.name])
         assert block_result.exit_code == 0
 
-        self.clk_file.close()
-        self.clk_file_2.close()
+        TestCliInteractionWithService.clk_file.close()
+        TestCliInteractionWithService.clk_file_2.close()
+
+    def setUp(self):
+        super(TestCliInteractionWithService, self).setUp()
+        self.url = os.environ['TEST_ENTITY_SERVICE']
+
+        self.rest_client = RestClient(self.url)
+
         self._created_projects = []
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        super(TestCliInteractionWithService, cls).tearDownClass()
+        try:
+            os.remove(TestCliInteractionWithService.clk_file.name)
+            os.remove(TestCliInteractionWithService.clk_file_2.name)
+        except:
+            pass
 
     def tearDown(self):
         super(TestCliInteractionWithService, self).tearDown()
-        try:
-            os.remove(self.clk_file.name)
-            os.remove(self.clk_file_2.name)
-        except:
-            pass
         self.delete_created_projects()
 
     def delete_created_projects(self):
