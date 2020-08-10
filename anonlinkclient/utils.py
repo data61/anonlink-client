@@ -64,6 +64,7 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
     suffix_input = input_f.name.split('.')[-1]
 
     pii_data = []  # type: List[Any]
+    headers = None
     # read from clks
     if blocking_method == 'lambda-fold' and blocking_config['config']['input-clks']:
         try:
@@ -79,12 +80,12 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
         else:
             reader = csv.reader(input_f)
             if header:
-                next(reader)
+                headers = next(reader)
             for line in reader:
                 pii_data.append(tuple(element.strip() for element in line))
 
     # generate candidate blocks
-    blocking_obj = generate_candidate_blocks(pii_data, blocking_config, verbose=verbose)
+    blocking_obj = generate_candidate_blocks(pii_data, blocking_config, verbose=verbose, header=headers)
     log.info("Blocking took {:.2f} seconds".format(time.time() - start_time))
 
     # save results to dictionary
@@ -128,7 +129,7 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
     result['meta']['config'] = blocking_config
 
     # step4 - add CLK counts and blocking statistics to metadata
-    result['meta']['source'] = {'clk_count': len(encoding_to_blocks_map)}
+    result['meta']['source'] = {'clk_count': [len(pii_data)]}
     del state.stats['num_of_blocks_per_rec']
     result['meta']['stats'] = state.stats
     return result

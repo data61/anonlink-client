@@ -1,6 +1,7 @@
 import difflib
 import io
 import json
+import ijson
 import os
 import sys
 import shutil
@@ -422,6 +423,12 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
         print(upload_info['bucket'])
 
     if blocks:
+        # check size of blocks and clks consistent
+        with open(blocks, 'rb') as f:
+            block_counts = next(ijson.items(f, 'meta.source.clk_count.item'))
+            msg = 'Size inconsistency: there are {} CLKs but {} encoding-to-blocks maps'.format(hash_count, block_counts)
+            assert block_counts == hash_count, msg
+
         if upload_to_object_store and not to_entityservice:
             print('Anonlink client: Uploading to the external object store - MINIO')
             # upload to Minio

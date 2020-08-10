@@ -924,6 +924,25 @@ class TestCliInteractionWithService(CLITestHelper):
         )
         assert cli_result.exit_code == 0
 
+    def test_upload_with_wrong_clks_blocks(self):
+        project = self._create_project({'blocked': 'True'})
+        # Upload
+        runner = CliRunner()
+        cli_result = runner.invoke(cli.cli,
+                                   [
+                                        'upload',
+                                        '--verbose',
+                                        '--server', self.url,
+                                        '--project', project['project_id'],
+                                        '--apikey', project['update_tokens'][0],
+                                        '--blocks', self.block_file.name,
+                                        self.clk_file_2.name
+
+                                    ]
+        )
+        assert cli_result.exit_code == 1
+        assert 'Size inconsistency: there are 50 CLKs but 100 encoding-to-blocks maps' == cli_result.exception.args[0]
+
     def test_upload_with_blocks_to_entityservice(self):
         project = self._create_project({'blocked': 'True'})
         # Upload
