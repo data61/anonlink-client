@@ -2,6 +2,17 @@
 
 ## new version
 
+## 0.1.4
+- Fixed setup.py, install via 'pip install' should now install all required dependencies (#70)
+- Added 'compare' command to CLI which allows comparisons of schema files. (#73)
+- Better input sanity checks for the 'block' command (#75)
+- CI now also tests on Windows (#78)
+- Consistency check for uploads (#83)
+- The block file now contains CLK count and blocking statistics as metadata. (#87)
+- Adapted to API changes of clkhash. We now require clkhash>=0.16.0 (#89)
+- Adapted to API changes of minio. We now require minio>=6.0.0 (#94)
+- removed redundant work in the tests (#99)
+
 ## 0.1.3
 Support upload to object store
 Add progress bar for upload command
