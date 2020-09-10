@@ -390,10 +390,10 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
         clks = json.load(f)['clks']
 
     hash_count = len(clks)
-    hash_size2 = (len(deserialize_bitarray(clks[0])) + 7) // 8
+    hash_size = (len(deserialize_bitarray(clks[0])) + 7) // 8
     encoding_metadata = {
         'hash-count': hash_count,
-        'hash-size': hash_size2
+        'hash-size': hash_size
     }
 
     if upload_to_object_store and not to_entityservice:
