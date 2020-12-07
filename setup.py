@@ -10,6 +10,7 @@ requirements = [
         "minio >= 6.0.0",
         "bashplotlib >= 0.6.5",
         "retrying>=1.3.3",
+        "ijson>=3.1.1",
     ]
 
 with open('README.md', 'r', encoding='utf-8') as f:
