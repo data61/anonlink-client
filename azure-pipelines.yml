@@ -25,17 +25,17 @@ stages:
   jobs:
     - template: .azurePipeline/wholeBuild.yml
       parameters:
-        pythonVersions: ['3.6', '3.7', '3.8']
+        pythonVersions: ['3.6', '3.7', '3.8', '3.9']
         operatingSystems: ['ubuntu-18.04']
         architectures: ['x64']
     - template: .azurePipeline/wholeBuild.yml
       parameters:
-        pythonVersions: ['3.6', '3.7', '3.8']
+        pythonVersions: ['3.6', '3.7', '3.8', '3.9']
         operatingSystems: ['vs2017-win2016']
         architectures: ['x64']
     - template: .azurePipeline/wholeBuild.yml  # Template reference
       parameters:
-        pythonVersions: ['3.6', '3.7', '3.8']
+        pythonVersions: ['3.6', '3.7', '3.8', '3.9']
         operatingSystems: ['macOS-10.14']
         architectures: ['x64']
 
@@ -64,6 +64,8 @@ stages:
             python.version: '3.7'
           Python38:
             python.version: '3.8'
+          Python39:
+            python.version: '3.9'
 
       steps:
         - task: UsePythonVersion@0
