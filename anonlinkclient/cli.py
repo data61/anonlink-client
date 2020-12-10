@@ -20,7 +20,7 @@ from clkhash.serialization import serialize_bitarray, deserialize_bitarray
 from clkhash.schema import SchemaError, validate_schema_dict, convert_to_latest_version
 from minio import Minio
 from .progress import Progress
-from minio.credentials import Credentials, Chain, Static, FileAWSCredentials
+from minio.credentials import ChainedProvider, StaticProvider, AWSConfigProvider
 
 from .rest_client import ClientWaitingConfiguration, ServiceError, format_run_status, RestClient
 
@@ -399,19 +399,19 @@ def upload(clk_json, project, apikey, output, blocks, server, retry_multiplier, 
     if upload_to_object_store and not to_entityservice:
         object_store_credential_providers = []
         if profile is not None:
-            object_store_credential_providers.append(FileAWSCredentials(profile=profile))
+            object_store_credential_providers.append(AWSConfigProvider(profile=profile))
 
         endpoint = os.getenv('UPLOAD_OBJECT_STORE_SERVER', upload_info['endpoint'])
 
         object_store_credential_providers.append(
-            Static(access_key=credentials['AccessKeyId'],
+            StaticProvider(access_key=credentials['AccessKeyId'],
                    secret_key=credentials['SecretAccessKey'],
                    session_token=credentials['SessionToken']))
 
 
         mc = Minio(
             endpoint,
-            credentials=Credentials(provider=Chain(object_store_credential_providers)),
+            credentials=ChainedProvider(object_store_credential_providers),
             region='us-east-1',
             secure=upload_info['secure']
         )
