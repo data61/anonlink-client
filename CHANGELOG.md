@@ -2,6 +2,11 @@
 
 ## new version
 
+## 0.1.5
+- addressed deprecated code #106
+- fixed broken setup.py file #123
+- added CI testing for Python 3.9 #126
+
 ## 0.1.4
 - Fixed setup.py, install via 'pip install' should now install all required dependencies (#70)
 - Added 'compare' command to CLI which allows comparisons of schema files. (#73)

@@ -14,11 +14,11 @@ requirements = [
     ]
 
 with open('README.md', 'r', encoding='utf-8') as f:
-        readme = f.read()
+    readme = f.read()
 
 setup(
     name="anonlink-client",
-    version='0.1.4',
+    version='0.1.5',
     description='Client side tool for clkhash and blocklib',
     long_description=readme,
     long_description_content_type='text/markdown',
@@ -44,9 +44,10 @@ setup(
     },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         "License :: OSI Approved :: Apache Software License",
