@@ -7,13 +7,16 @@ trigger:
   branches:
     include:
     - '*'
+  tags:
+    include:
+      - 'v*'
 
 stages:
 - stage: static_checks
   displayName: Static Checks
   dependsOn: []
   jobs:
-    - job:
+    - job: checkGitTags
       displayName: "Check Git Tags"
       steps:
       - script: echo "##vso[build.addbuildtag]Automated"
@@ -38,7 +41,6 @@ stages:
         pythonVersions: ['3.6', '3.7', '3.8', '3.9']
         operatingSystems: ['macOS-10.14']
         architectures: ['x64']
-
 
 - stage: test_notebook
   displayName: 'Test All Notebooks'
