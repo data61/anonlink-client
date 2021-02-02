@@ -1,7 +1,7 @@
 bashplotlib == 0.6.5
 blocklib == 0.1.7
 click == 7.1.2
-clkhash == 0.16.0
+clkhash == 0.16.1
 jsonschema == 3.2.0
 numpy == 1.19.5
 minio == 7.0.1
