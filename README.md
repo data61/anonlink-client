@@ -21,9 +21,9 @@ The way to interact with anonlink system is via Command Line Tool `anonlink`. Yo
 
 ### Installation
 
-Currently manual install:
+Install from PyPi, e.g. via pip:
 
-```python3
+```bash
 pip install anonlink-client
 ```
 
@@ -40,6 +40,6 @@ $ anonlink hash 'alice.csv' 'horse' 'schema.json' 'encoded-entities.json'
 ```
 
 It will generate the CLK output and store in `clk.json`. To find out how to define the schema
-for your PII data, please refer [this page](https://clkhash.readthedocs.io/en/stable/schema.html) for 
+for your PII data, please refer [this page](https://anonlink-client.readthedocs.io/en/stable/schema.html) for 
 details.
 
