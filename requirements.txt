@@ -5,7 +5,7 @@ clkhash == 0.16.1
 jsonschema == 3.2.0
 numpy == 1.19.5
 minio == 7.0.1
-pandas == 1.2.1; python_version >= '3.7.1'
+pandas == 1.2.2; python_version >= '3.7.1'
 pandas == 1.1.5; python_version < '3.7.1'
 pytest == 6.2.1
 requests == 2.25.1
