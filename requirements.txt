@@ -3,7 +3,8 @@ blocklib == 0.1.7
 click == 7.1.2
 clkhash == 0.16.1
 jsonschema == 3.2.0
-numpy == 1.20.1
+numpy==1.20.1; python_version >= '3.7'
+numpy==1.19.5; python_version < '3.7'
 minio == 7.0.2
 pandas == 1.2.2; python_version >= '3.7.1'
 pandas == 1.1.5; python_version < '3.7.1'
