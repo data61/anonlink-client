@@ -6,6 +6,7 @@ import time
 from collections import defaultdict
 from typing import TextIO, Any, List, Dict
 from bitarray import bitarray
+from clkhash.clk import generate_clk_from_csv
 from blocklib import generate_candidate_blocks
 from pydantic import BaseModel
 import base64
