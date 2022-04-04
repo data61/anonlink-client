@@ -29,17 +29,17 @@ stages:
     - template: .azurePipeline/wholeBuild.yml
       parameters:
         pythonVersions: ['3.7', '3.8', '3.9', '3.10']
-        operatingSystems: ['ubuntu-18.04']
+        operatingSystems: ['ubuntu-latest']
         architectures: ['x64']
     - template: .azurePipeline/wholeBuild.yml
       parameters:
         pythonVersions: ['3.7', '3.8', '3.9', '3.10']
-        operatingSystems: ['vs2017-win2016']
+        operatingSystems: ['windows-latest']
         architectures: ['x64']
     - template: .azurePipeline/wholeBuild.yml  # Template reference
       parameters:
         pythonVersions: ['3.7', '3.8', '3.9', '3.10']
-        operatingSystems: ['macOS-10.14']
+        operatingSystems: ['macOS-latest']
         architectures: ['x64']
 
 - stage: test_notebook
@@ -49,7 +49,7 @@ stages:
     - template: .azurePipeline/testNotebook.yml
       parameters:
         pythonVersions: ['3.8']
-        operatingSystems: ['ubuntu-18.04']
+        operatingSystems: ['ubuntu-latest']
         architectures: ['x64']
 
 - stage: package
@@ -57,7 +57,7 @@ stages:
   dependsOn: [test_and_build]
   jobs:
     - job: linux
-      pool: {vmImage: 'Ubuntu-16.04'}
+      pool: {vmImage: 'Ubuntu-18.04'}
       strategy:
         matrix:
           Python37:
