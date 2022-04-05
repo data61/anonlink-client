@@ -4,10 +4,11 @@ import json
 import logging
 import time
 from collections import defaultdict
-from typing import Tuple, TextIO, Any, List, Dict
+from typing import TextIO, Any, List, Dict
 from bitarray import bitarray
 from clkhash.clk import generate_clk_from_csv
 from blocklib import generate_candidate_blocks
+from pydantic import BaseModel
 import base64
 
 log = logging.getLogger('anonlink')
@@ -85,32 +86,17 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
                 pii_data.append(tuple(element.strip() for element in line))
 
     # generate candidate blocks
-    blocking_obj = generate_candidate_blocks(pii_data, blocking_config, verbose=verbose, header=headers)
+    blocking_obj = generate_candidate_blocks(pii_data, blocking_config, header=headers)
     log.info("Blocking took {:.2f} seconds".format(time.time() - start_time))
 
     # save results to dictionary
     # step1 - get blocks (need to convert numpy.int64 to normal int
     blocks = blocking_obj.blocks
-    for key in blocks:
-        blocks[key] = [int(x) for x in blocks[key]]
-
-    # convert blocking key from list to string
-    new_blocks = {}
-    for key in blocks:
-        newkey = str(key)
-        new_blocks[newkey] = blocks[key]
-    blocks = new_blocks
-
-    # convert block_key: row_index to a list of dict
-    flat_blocks = []  # type: List[Dict[Any, List[int]]]
-    for block_key, row_indices in blocks.items():
-        flat_blocks.append(dict(block_key=block_key, indices=row_indices))
 
     # make encoding to blocks map
     encoding_to_blocks_map = defaultdict(list)
-    for block_dict in flat_blocks:
-        block_id = block_dict['block_key']
-        for ind in block_dict['indices']:
+    for block_id, indices in blocks.items():
+        for ind in indices:
             encoding_to_blocks_map[ind].append(block_id)
     result = {} # type: Dict[str, Any]
     result['blocks'] = encoding_to_blocks_map
@@ -118,9 +104,19 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
     # step2 - get all member variables in blocking state
     block_state_vars = {}  # type: Dict[str, Any]
     state = blocking_obj.state
+
+    def base_model_to_dict(value):
+        if isinstance(value, list):
+            return [base_model_to_dict(item) for item in value]
+        if isinstance(value, BaseModel):
+            return value.dict()
+        else:
+            return value
+
     for name in dir(state):
-        if '__' not in name and not callable(getattr(state, name)) and name != 'stats':
-            block_state_vars[name] = getattr(state, name)
+        if '__' not in name and not callable(getattr(state, name)):
+            value = getattr(state, name)
+            block_state_vars[name] = base_model_to_dict(value)
 
     result['meta'] = {}  # type: Dict[str, Any]
     result['meta']['state'] = block_state_vars
@@ -130,8 +126,10 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
 
     # step4 - add CLK counts and blocking statistics to metadata
     result['meta']['source'] = {'clk_count': [len(pii_data)]}
-    del state.stats['num_of_blocks_per_rec']
-    result['meta']['stats'] = state.stats
+    result['meta']['stats'] = blocking_obj.stats
+
+    if verbose:
+        blocking_obj.print_summary_statistics()
     return result
 
 
