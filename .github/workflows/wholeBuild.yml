@@ -1,0 +1,42 @@
+name: Testing
+
+on: push
+
+jobs:
+  notebooktests:
+    name: Notebook tests / ${{ matrix.python }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest , windows-latest, macOS-latest]
+        python: [ '3.7', '3.8', '3.9', '3.10' ]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+      # install dependencies if cache does not exist
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: |
+          poetry install --no-interaction --no-root
+      - name: Run Tests
+        shell: bash
+        run: pytest --cov=anonlinkclient --junitxml=testResults.xml  --cov-report=xml:coverage.xml
+        timeout-minutes: 10
+        env:
+            TEST_ENTITY_SERVICE: 'https://anonlink-client-ci.easd.data61.xyz/'
