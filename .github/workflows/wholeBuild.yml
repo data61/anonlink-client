@@ -36,7 +36,7 @@ jobs:
           poetry install --no-interaction --no-root
       - name: Run Tests
         shell: bash
-        run: pytest --cov=anonlinkclient --junitxml=testResults.xml  --cov-report=xml:coverage.xml
+        run: poetry run pytest --cov=anonlinkclient --junitxml=testResults.xml  --cov-report=xml:coverage.xml
         timeout-minutes: 10
         env:
             TEST_ENTITY_SERVICE: 'https://anonlink-client-ci.easd.data61.xyz/'
