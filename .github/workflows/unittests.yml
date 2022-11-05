@@ -3,14 +3,14 @@ name: Testing
 on: push
 
 jobs:
-  notebooktests:
-    name: Notebook tests / ${{ matrix.python }} / ${{ matrix.os }}
+  unittests:
+    name: Unittests / ${{ matrix.python }} / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ ubuntu-latest , windows-latest, macOS-latest]
         python: [ '3.7', '3.8', '3.9', '3.10' ]
-
+      fail-fast: false  # only temporarily, until we have everything passing again...
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python }}
@@ -36,7 +36,14 @@ jobs:
           poetry install --no-interaction --no-root
       - name: Run Tests
         shell: bash
-        run: poetry run pytest --cov=anonlinkclient --junitxml=testResults.xml  --cov-report=xml:coverage.xml
+        run: poetry run pytest --cov=./ --cov-report=xml
         timeout-minutes: 10
-        env:
-            TEST_ENTITY_SERVICE: 'https://anonlink-client-ci.easd.data61.xyz/'
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          directory: ./coverage/reports/
+          env_vars: OS,PYTHON
+          files: ./coverage.xml,./coverage2.xml
+          flags: unittests
+          path_to_write_report: ./coverage/codecov_report.txt
+          verbose: true
