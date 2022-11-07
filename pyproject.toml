@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "anonlink-client"
-version = "0.1.5"
+version = "0.1.6a0"
 description = "Client side tool for clkhash and blocklib"
 authors = [
     "Wilko Henecka <wilkohenecka@gmx.net>",
@@ -8,6 +8,34 @@ authors = [
 ]
 readme = "README.md"
 packages = [{include = "anonlinkclient"}]
+repository = "https://github.com/data61/anonlink-client"
+documentation = "https://anonlink-client.readthedocs.io/en/latest/"
+license = "Apache-2.0"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Topic :: Security :: Cryptography",
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+]
+
+include = [
+    "CHANGELOG.md"
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/data61/anonlink-client/issues"
+
+[tool.poetry.scripts]
+anonlink = 'anonlinkclient.cli:cli'
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
@@ -29,6 +57,8 @@ pytest-timeout="^1.4.2"
 nbval="^0.9.6"
 mock="^4.0.2"
 ijson="^3.1.4"
+mypy = "^0.982"
+
 
 [build-system]
 requires = ["poetry-core"]
