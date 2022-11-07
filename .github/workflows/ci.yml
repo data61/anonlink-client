@@ -8,7 +8,7 @@ defaults:
 
 jobs:
   notebooktests:
-    name: Notebook tests 
+    name: Notebook Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -38,7 +38,7 @@ jobs:
           poetry run pytest --nbval docs/tutorial
 
   unittests:
-    name: Unittests / ${{ matrix.python }} / ${{ matrix.os }}
+    name: Unit tests / ${{ matrix.python }} / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -83,7 +83,7 @@ jobs:
           verbose: true
 
   buildpackage:
-    name: Buildpackage
+    name: Packaging
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

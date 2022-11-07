@@ -15,13 +15,13 @@ Anonlink system needs the following three components to work together:
 
 This package provides an easy to use API to interact with the above packages to complete a record linkage job.
 
-The way to interact with anonlink system is via Command Line Tool `anonlink`. You can hash data containing PII (Personal
+The way to interact with anonlink system is via Command Line Tool `anonlink`. You can hash data containing PI (Personal
  Identifying Information) locally using `anonlink hash`, generate candidate blocks locally to scale up record linkage 
  using `anonlink block`, create a record linkage job in entity service with `anonlink create-project` etc.
 
 ### Installation
 
-Currently manual install:
+Install with pip/poetry etc:
 
 ```python3
 pip install anonlink-client
