@@ -1,0 +1,120 @@
+name: Testing
+
+on: push
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  notebooktests:
+    name: Notebook Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        id: setup-python
+        with:
+          python-version: "3.10"
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      # install dependencies if cache does not exist
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction --no-root
+      - name: Test notebooks
+        run: |
+          source $VENV
+          poetry run pytest --nbval docs/tutorial
+
+  unittests:
+    name: Unit tests / ${{ matrix.python }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest , windows-latest, macOS-latest]
+        python: [ '3.8', '3.9', '3.10' ]
+      fail-fast: false  # only temporarily, until we have everything passing again...
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python }}
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction --no-root
+      - name: Run Tests
+        run: |
+          source $VENV
+          poetry run pytest --cov=./ --cov-report=xml
+        timeout-minutes: 10
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          directory: ./coverage/reports/
+          env_vars: OS,PYTHON
+          files: ./coverage.xml,./coverage2.xml
+          flags: unittests
+          path_to_write_report: ./coverage/codecov_report.txt
+          verbose: true
+
+  buildpackage:
+    name: Packaging
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      # install dependencies if cache does not exist
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: |
+          poetry install --no-interaction --no-root
+      - name: Artifact creation
+        run: |
+          source $VENV
+          poetry build
+      - name: Save artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: anonlink-client
+          path: ./dist
