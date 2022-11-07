@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "anonlink-client"
-version = "0.1.0"
-description = "Client-facing API to interact with anonlink system including command line tools and Rest API communication."
+version = "0.1.5"
+description = "Client side tool for clkhash and blocklib"
 authors = [
     "Wilko Henecka <wilkohenecka@gmx.net>",
     "Brian Thorne <brian@hardbyte.nz>"
 ]
 readme = "README.md"
-packages = [{include = "anonlink_client"}]
+packages = [{include = "anonlinkclient"}]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
