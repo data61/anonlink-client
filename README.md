@@ -1,7 +1,7 @@
-[![codecov](https://codecov.io/gh/data61/anonlink-client/branch/master/graph/badge.svg)](https://codecov.io/gh/data61/anonlink-client)
+[![codecov](https://codecov.io/gh/data61/anonlink-client/branch/main/graph/badge.svg)](https://codecov.io/gh/data61/anonlink-client)
 [![Documentation Status](https://readthedocs.org/projects/anonlink-client/badge/?version=latest)](http://anonlink-client.readthedocs.io/en/latest/?badge=latest)
-![Build Status](https://dev.azure.com/data61/Anonlink/_apis/build/status/data61.anonlink-client?branchName=master)
-[![Requirements Status](https://requires.io/github/data61/anonlink-client/requirements.svg?branch=master)](https://requires.io/github/data61/anonlink-client/requirements/?branch=master)
+[![Testing](https://github.com/data61/anonlink-client/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/data61/anonlink-client/actions/workflows/ci.yml)
+[![Requirements Status](https://requires.io/github/data61/anonlink-client/requirements.svg?branch=main)](https://requires.io/github/data61/anonlink-client/requirements/?branch=main)
 [![Downloads](https://pepy.tech/badge/anonlink-client)](https://pepy.tech/project/anonlink-client)
 # Anonlink Client
 
