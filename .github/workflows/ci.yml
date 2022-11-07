@@ -2,6 +2,10 @@ name: Testing
 
 on: push
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   notebooktests:
     name: Notebook tests 
@@ -29,7 +33,6 @@ jobs:
         run: |
           poetry install --no-interaction --no-root
       - name: Test notebooks
-        shell: bash
         run: poetry run pytest --nbval docs/tutorial
 
   unittests:
@@ -64,7 +67,6 @@ jobs:
         run: |
           poetry install --no-interaction --no-root
       - name: Run Tests
-        shell: bash
         run: poetry run pytest --cov=./ --cov-report=xml
         timeout-minutes: 10
       - name: Upload coverage to Codecov
@@ -104,7 +106,6 @@ jobs:
         run: |
           poetry install --no-interaction --no-root
       - name: Artifact creation
-        shell: bash
         run: poetry build
       - name: Save artifacts
         uses: actions/upload-artifact@v3
