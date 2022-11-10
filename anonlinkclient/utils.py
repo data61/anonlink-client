@@ -4,6 +4,7 @@ import io
 import json
 import logging
 import time
+from clkhash.clk import generate_clk_from_csv
 from collections import defaultdict
 from typing import Any, Dict, List, TextIO
 
