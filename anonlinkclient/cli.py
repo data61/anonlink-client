@@ -157,8 +157,8 @@ def cli(verbose):
 def hash(pii_csv, secret, schema, clk_json, no_header, check_header, validate, verbose):
     """ This command is deprecated. Please use anonlink encode command
         """
-    pass
-
+    print("This command is deprecated. Please use this command to encode your data - anonlink encode private_data.csv secret schema.json output-clks.json")
+    
 
 @cli.command('encode', short_help="generate hashes from local PII data")
 @click.argument('pii_csv', type=click.File('r'))
