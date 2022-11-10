@@ -11,7 +11,6 @@ communication. It works with the following three components in Anonlink system:
 
 * `clkhash <https://github.com/data61/clkhash>`_
 * `blocklib <https://github.com/data61/blocklib>`_
-* `anonlink-entity-service <https://github.com/data61/anonlink-entity-service>`_
 
 
 Anonlink-client is Apache 2.0 licensed, supports Python version 3.6+ and run on Windows, OSX and Linux.

@@ -17,14 +17,6 @@ Now run the unit tests and print out code coverage with `pytest`::
     $ python -m pytest --cov=anonlinkclient
 
 
-Note several tests will be skipped by default. To enable
-the tests which interact with an entity service set the
-`TEST_ENTITY_SERVICE` environment variable to the target service's
-address::
-
-    $ TEST_ENTITY_SERVICE= INCLUDE_CLI= python -m pytest --cov=anonlinkclient
-
-
 Type Checking
 -------------
 

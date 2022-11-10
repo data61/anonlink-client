@@ -58,6 +58,7 @@ nbval="^0.9.6"
 mock="^4.0.2"
 ijson="^3.1.4"
 mypy = "^0.982"
+anonlink="0.15.1"
 
 
 [build-system]

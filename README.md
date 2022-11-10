@@ -11,13 +11,12 @@ Anonlink system needs the following three components to work together:
 
 * [clkhash](https://github.com/data61/clkhash)
 * [blocklib](https://github.com/data61/blocklib)
-* [anonlink-entity-service](https://github.com/data61/anonlink-entity-service)
 
 This package provides an easy to use API to interact with the above packages to complete a record linkage job.
 
 The way to interact with anonlink system is via Command Line Tool `anonlink`. You can hash data containing PI (Personal
- Identifying Information) locally using `anonlink hash`, generate candidate blocks locally to scale up record linkage 
- using `anonlink block`, create a record linkage job in entity service with `anonlink create-project` etc.
+ Identifying Information) locally using `anonlink hash` and generate candidate blocks locally to scale up record linkage 
+ using `anonlink block`.
 
 ### Installation
 
