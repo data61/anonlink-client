@@ -145,7 +145,7 @@ def cli(verbose):
     All rights reserved Confidential Computing 2016.
     """
 
-@cli.command('hash', short_help="command is deprecated")
+@cli.command('hash', deprecated=True, short_help="command is deprecated")
 @click.argument('pii_csv', type=click.File('r'))
 @click.argument('secret', type=str)
 @click.argument('schema', type=click.File('r', lazy=True))
