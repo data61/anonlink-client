@@ -57,7 +57,7 @@ It doesn't really matter how we join the different parts of a signature. As long
 ```" ".join(signature_parts)```
 
 We can do something similar to our current privacy protection techniques. In order to hide the PII from the linkage unit,
-we cannot send the signatures as-is. Instead we run them trough a keyed hash function, (BLAKE hash, or HMAC) where only 
+we cannot send the signatures as-is. Instead we run them through a keyed hash function, (BLAKE hash, or HMAC) where only 
 the data provider know the secret (same thing as inserting tokens into CLK). 
 
 ### Schema for KASN (kasn_sim and kasn_size)

@@ -107,7 +107,7 @@ class BasicCLITests(unittest.TestCase):
         result = runner.invoke(cli.cli, [])
         expected_options = ['--version', '--verbose', '--help']
         expected_commands = ['benchmark', 'create', 'create-project', 'delete', 'delete-project', 'describe',
-                             'generate', 'generate-default-schema', 'hash', 'results', 'status', 'upload',
+                             'generate', 'generate-default-schema', 'encode', 'results', 'status', 'upload',
                              'validate-schema']
         for expected_option in expected_options:
             assert expected_option in result.output
@@ -141,7 +141,7 @@ class BasicCLITests(unittest.TestCase):
 
             runner.invoke(
                 cli.cli,
-                ['hash', 'in.csv', 'a', SIMPLE_SCHEMA_PATH,
+                ['encode', 'in.csv', 'a', SIMPLE_SCHEMA_PATH,
                  'out.json', '--no-header'])
 
             result = runner.invoke(cli.cli,
@@ -248,23 +248,23 @@ class TestSchemaConversionCommand(unittest.TestCase):
         assert 'schema is not valid.' in result.exception.msg
 
 
-class TestHashCommand(unittest.TestCase):
+class TestEncodeCommand(unittest.TestCase):
 
     def setUp(self):
         self.runner = CliRunner()
 
-    def test_hash_auto_help(self):
+    def test_encode_auto_help(self):
         runner = CliRunner()
-        result = runner.invoke(cli.cli, ['hash'])
+        result = runner.invoke(cli.cli, ['encode'])
         assert 'Missing argument' in result.output
 
-    def test_hash_help(self):
+    def test_encode_help(self):
         runner = CliRunner()
-        result = runner.invoke(cli.cli, ['hash', '--help'])
+        result = runner.invoke(cli.cli, ['encode', '--help'])
         assert 'secret' in result.output.lower()
         assert 'schema' in result.output
 
-    def test_hash_requires_secret(self):
+    def test_encode_requires_secret(self):
         runner = self.runner
 
         with runner.isolated_filesystem():
@@ -272,12 +272,12 @@ class TestHashCommand(unittest.TestCase):
                 f.write('Alice, 1967')
 
             result = runner.invoke(cli.cli,
-                                   ['hash', 'in.csv'])
+                                   ['encode', 'in.csv'])
             assert result.exit_code != 0
-            self.assertIn('Usage: anonlink hash', result.output)
+            self.assertIn('Usage: anonlink encode', result.output)
             self.assertIn('Missing argument', result.output)
 
-    def test_hash_with_provided_schema(self):
+    def test_encode_with_provided_schema(self):
         runner = self.runner
 
         with runner.isolated_filesystem():
@@ -286,13 +286,13 @@ class TestHashCommand(unittest.TestCase):
 
             result = runner.invoke(
                 cli.cli,
-                ['hash', 'in.csv', 'a', SIMPLE_SCHEMA_PATH,
+                ['encode', 'in.csv', 'a', SIMPLE_SCHEMA_PATH,
                  'out.json', '--no-header'])
 
             with open('out.json') as f:
                 self.assertIn('clks', json.load(f))
 
-    def test_hash_febrl_data(self):
+    def test_encode_febrl_data(self):
         runner = self.runner
         schema_file = os.path.join(
             os.path.dirname(__file__),
@@ -306,22 +306,22 @@ class TestHashCommand(unittest.TestCase):
         with runner.isolated_filesystem():
             result = runner.invoke(
                 cli.cli,
-                ['hash', a_pii, 'a', schema_file, 'out.json'])
+                ['encode', a_pii, 'a', schema_file, 'out.json'])
 
             result_2 = runner.invoke(
                 cli.cli,
-                ['hash', a_pii, 'a', schema_file, 'out-2.json'])
+                ['encode', a_pii, 'a', schema_file, 'out-2.json'])
 
             with open('out.json') as f:
-                hasha = json.load(f)['clks']
+                encodea = json.load(f)['clks']
 
             with open('out-2.json') as f:
-                hashb = json.load(f)['clks']
+                encodeb = json.load(f)['clks']
 
         for i in range(1000):
-            self.assertEqual(hasha[i], hashb[i])
+            self.assertEqual(encodea[i], encodeb[i])
 
-    def test_hash_wrong_schema(self):
+    def test_encode_wrong_schema(self):
         runner = self.runner
 
         # This schema only has 4 features
@@ -338,7 +338,7 @@ class TestHashCommand(unittest.TestCase):
 
         with runner.isolated_filesystem():
 
-            result = runner.invoke(cli.cli, ['hash',
+            result = runner.invoke(cli.cli, ['encode',
                                                      '--quiet',
                                                      '--schema',
                                                             schema_file,
@@ -347,7 +347,7 @@ class TestHashCommand(unittest.TestCase):
 
         assert result.exit_code != 0
 
-    def test_hash_schemaerror(self):
+    def test_encode_schemaerror(self):
         runner = self.runner
 
         schema_file = os.path.join(TESTDATA, 'bad-schema-v1.json')
@@ -356,12 +356,12 @@ class TestHashCommand(unittest.TestCase):
         # with self.assertRaises(SchemaError):
         with runner.isolated_filesystem():
             result = runner.invoke(cli.cli,
-                                   ['hash', a_pii, 'horse', schema_file, 'out.json'
+                                   ['encode', a_pii, 'horse', schema_file, 'out.json'
                                     ])
         assert result.exit_code != 0
         assert 'schema is not valid' in result.output
 
-    def test_hash_invalid_data(self):
+    def test_encode_invalid_data(self):
         runner = self.runner
         with runner.isolated_filesystem():
             with open('in.csv', 'w') as f:
@@ -369,7 +369,7 @@ class TestHashCommand(unittest.TestCase):
 
             result = runner.invoke(
                 cli.cli,
-                ['hash', 'in.csv', 'a', SIMPLE_SCHEMA_PATH,
+                ['encode', 'in.csv', 'a', SIMPLE_SCHEMA_PATH,
                  'out.json', '--no-header'])
 
             assert 'Invalid entry' in result.output
@@ -511,19 +511,19 @@ class TestHasherDefaultSchema(unittest.TestCase):
             self.assertEqual(generate_schema_result.exit_code, 0,
                              msg=generate_schema_result.output)
 
-            hash_result = runner.invoke(
+            encode_result = runner.invoke(
                 cli.cli,
-                ['hash', self.pii_file.name, 'secret',
+                ['encode', self.pii_file.name, 'secret',
                  'pii-schema.json', 'pii-hashes.json'])
-            self.assertEqual(hash_result.exit_code, 0, msg=hash_result.output)
+            self.assertEqual(encode_result.exit_code, 0, msg=encode_result.output)
 
-    def test_basic_hashing(self):
+    def test_basic_encoding(self):
         runner = CliRunner()
         with temporary_file() as output_filename:
             with open(output_filename, 'wt') as output:
                 cli_result = runner.invoke(
                     cli.cli,
-                    ['hash', self.pii_file.name, 'secret',
+                    ['encode', self.pii_file.name, 'secret',
                      RANDOMNAMES_SCHEMA_PATH, output.name])
             self.assertEqual(cli_result.exit_code, 0, msg=cli_result.output)
 
@@ -531,8 +531,8 @@ class TestHasherDefaultSchema(unittest.TestCase):
                 self.assertIn('clks', json.load(output))
 
 
-class TestHasherSchema(CLITestHelper):
-    def test_hashing_json_schema(self):
+class TestEncoderSchema(CLITestHelper):
+    def test_encoding_json_schema(self):
         runner = CliRunner()
 
         pii_data = randomnames.NameList(self.SAMPLES)
@@ -546,7 +546,7 @@ class TestHasherSchema(CLITestHelper):
             with open(output_filename) as output:
                 cli_result = runner.invoke(
                     cli.cli,
-                    ['hash', pii_file.name, 'secret', RANDOMNAMES_SCHEMA_PATH, output.name])
+                    ['encode', pii_file.name, 'secret', RANDOMNAMES_SCHEMA_PATH, output.name])
 
             self.assertEqual(cli_result.exit_code, 0, msg=cli_result.output)
 
@@ -572,11 +572,11 @@ class TestCliInteractionWithService(CLITestHelper):
         TestCliInteractionWithService.block_file = create_temp_file()
         TestCliInteractionWithService.block_file_2 = create_temp_file()
 
-        # hash some PII for uploading
-        # TODO don't need to rehash data for every test
+        # encode some PII for uploading
+        # TODO don't need to re-encode data for every test
         runner = CliRunner()
         cli_result = runner.invoke(cli.cli,
-                                   ['hash',
+                                   ['encode',
                                     TestCliInteractionWithService.pii_file.name,
                                     'secret',
                                     SIMPLE_SCHEMA_PATH,
@@ -584,7 +584,7 @@ class TestCliInteractionWithService(CLITestHelper):
         assert cli_result.exit_code == 0
 
         cli_result = runner.invoke(cli.cli,
-                                   ['hash',
+                                   ['encode',
                                     TestCliInteractionWithService.pii_file_2.name,
                                     'secret',
                                     SIMPLE_SCHEMA_PATH,

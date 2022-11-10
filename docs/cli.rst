@@ -21,14 +21,14 @@ The ``anonlink`` tool has help pages for all commands built in - simply append `
 to the command.
 
 
-Hashing
+Encoding
 -------
 
-The command line tool ``anonlink`` can be used to hash a csv file of personally identifiable information.
+The command line tool ``anonlink`` can be used to encode a csv file of personally identifiable information.
 The tool needs to be provided with keys and a :ref:`schema`; it will output a file containing
 json serialized hashes.
 
-.. command-output:: anonlink hash --help
+.. command-output:: anonlink encode --help
 
 
 Example
@@ -41,14 +41,14 @@ Assume a csv (``fake-pii.csv``) contains rows like the following::
     1,Garold Staten,1928/11/23,M
     2,Yaritza Edman,1972/11/30,F
 
-It can be hashed using ``anonlink`` with::
+It can be encoded using ``anonlink`` with::
 
-    $ anonlink hash --schema simple-schema.json fake-pii.csv horse clk.json
+    $ anonlink encode --schema simple-schema.json fake-pii.csv horse clk.json
 
 Where:
 
-- ``horse`` is the secret that both participants will use to hash their data.
-- ``simple-schema.json`` is a :ref:`schema` describing how to hash the csv. E.g, ignore the first
+- ``horse`` is the secret that both participants will use to encode their data.
+- ``simple-schema.json`` is a :ref:`schema` describing how to encode the csv. E.g, ignore the first
   column, use bigram tokens of the name, use positional unigrams of the date of birth etc.
 - ``clk.json`` is the output file.
 
@@ -70,7 +70,7 @@ Assume a csv (``fake-pii.csv``) contains rows like the following::
     1,Garold Staten,1928/11/23,M
     2,Yaritza Edman,1972/11/30,F
 
-It can be hashed using ``anonlink`` with::
+It can be encoded using ``anonlink`` with::
 
     $ anonlink block --schema blocking-schema.json fake-pii.csv horse candidate_blocks.json
 
@@ -78,7 +78,7 @@ Describing
 ----------
 
 Users can inspect the distribution of the number of bits set in ``CLKs`` by using the ``describe`` command. Note that
-this `describe` only works on the CLKs produced by `anonlink hash`.
+this `describe` only works on the CLKs produced by `anonlink encode`.
 
 .. command-output:: anonlink describe --help
 
