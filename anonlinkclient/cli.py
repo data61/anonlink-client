@@ -145,6 +145,20 @@ def cli(verbose):
     All rights reserved Confidential Computing 2016.
     """
 
+@cli.command('hash', short_help="command is deprecated")
+@click.argument('pii_csv', type=click.File('r'))
+@click.argument('secret', type=str)
+@click.argument('schema', type=click.File('r', lazy=True))
+@click.argument('clk_json', type=click.File('w'))
+@click.option('--no-header', default=False, is_flag=True, help="Don't skip the first row")
+@click.option('--check-header', default=True, type=bool, help="If true, check the header against the schema")
+@click.option('--validate', default=True, type=bool, help="If true, validate the entries against the schema")
+@verbose_option
+def hash(pii_csv, secret, schema, clk_json, no_header, check_header, validate, verbose):
+    """ This command is deprecated. Please use anonlink encode command
+        """
+    pass
+
 
 @cli.command('encode', short_help="generate hashes from local PII data")
 @click.argument('pii_csv', type=click.File('r'))
