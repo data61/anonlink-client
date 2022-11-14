@@ -9,7 +9,7 @@
 
 ## 0.1.4
 - Fixed setup.py, install via 'pip install' should now install all required dependencies (#70)
-- Added 'compare' command to CLI which allows comparisons of schema files. (#73)
+- Added 'compare-schema' command to CLI which allows comparisons of schema files. (#73)
 - Better input sanity checks for the 'block' command (#75)
 - CI now also tests on Windows (#78)
 - Consistency check for uploads (#83)

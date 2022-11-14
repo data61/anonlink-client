@@ -394,7 +394,7 @@ class TestBlockCommand(unittest.TestCase):
                 self.assertIn("config", outjson["meta"])
 
 
-class TestCompareCommand(unittest.TestCase):
+class TestCompareSchemaCommand(unittest.TestCase):
     def setUp(self):
         self.runner = CliRunner()
 
@@ -402,13 +402,13 @@ class TestCompareCommand(unittest.TestCase):
         result = self.runner.invoke(cli.cli, ["--help"])
         self.assertEqual(result.exit_code, 0, result.output)
 
-        assert "compare" in result.output.lower()
+        assert "compare-schema" in result.output.lower()
 
     def test_compare_ndiff(self):
         cli_result = self.runner.invoke(
             cli.cli,
             [
-                "compare",
+                "compare-schema",
                 "-n",
                 os.path.join(TESTDATA, "bad-schema-v2.json"),
                 os.path.join(TESTDATA, "bad-schema-v3.json"),
@@ -422,7 +422,7 @@ class TestCompareCommand(unittest.TestCase):
         default_result = self.runner.invoke(
             cli.cli,
             [
-                "compare",
+                "compare-schema",
                 os.path.join(TESTDATA, "bad-schema-v2.json"),
                 os.path.join(TESTDATA, "bad-schema-v3.json"),
             ],
@@ -441,11 +441,11 @@ class TestCompareCommand(unittest.TestCase):
         )
         self.assertIn("?", cli_result.output)
 
-    def test_compare_context_diff(self):
+    def test_compare_schema_context_diff(self):
         cli_result = self.runner.invoke(
             cli.cli,
             [
-                "compare",
+                "compare-schema",
                 "-c",
                 os.path.join(TESTDATA, "bad-schema-v2.json"),
                 os.path.join(TESTDATA, "bad-schema-v3.json"),
@@ -459,7 +459,7 @@ class TestCompareCommand(unittest.TestCase):
         cli_result_larger_l = self.runner.invoke(
             cli.cli,
             [
-                "compare",
+                "compare-schema",
                 "-c",
                 "-l 5",
                 os.path.join(TESTDATA, "bad-schema-v2.json"),
@@ -476,11 +476,11 @@ class TestCompareCommand(unittest.TestCase):
         self.assertGreater(cli_result_larger_l.output, cli_result.output)
         self.assertIn("!", cli_result.output)
 
-    def test_compare_unified_diff(self):
+    def test_compare_schema_unified_diff(self):
         cli_result = self.runner.invoke(
             cli.cli,
             [
-                "compare",
+                "compare-schema",
                 "-u",
                 os.path.join(TESTDATA, "bad-schema-v2.json"),
                 os.path.join(TESTDATA, "bad-schema-v3.json"),
@@ -494,7 +494,7 @@ class TestCompareCommand(unittest.TestCase):
         cli_result_larger_l = self.runner.invoke(
             cli.cli,
             [
-                "compare",
+                "compare-schema",
                 "-u",
                 "-l 5",
                 os.path.join(TESTDATA, "bad-schema-v2.json"),
@@ -511,11 +511,11 @@ class TestCompareCommand(unittest.TestCase):
         self.assertGreater(cli_result_larger_l.output, cli_result.output)
         self.assertIn("@@", cli_result.output)
 
-    def test_compare_html_diff(self):
+    def test_compare_schema_html_diff(self):
         cli_result = self.runner.invoke(
             cli.cli,
             [
-                "compare",
+                "compare-schema",
                 "-m",
                 os.path.join(TESTDATA, "bad-schema-v2.json"),
                 os.path.join(TESTDATA, "bad-schema-v3.json"),
@@ -639,3 +639,73 @@ class TestHasherSchema(CLITestHelper):
 
             with open(output_filename) as output:
                 self.assertIn("clks", json.load(output))
+
+
+class TestFindSimilarityCommand(unittest.TestCase):
+    def setUp(self):
+        self.runner = CliRunner()
+
+    def test_cli_includes_help(self):
+        runner = self.runner
+        result = runner.invoke(cli.cli, ["--help"])
+        self.assertEqual(result.exit_code, 0, result.output)
+
+        assert "find-similarity" in result.output.lower()
+
+    def test_version(self):
+        runner = self.runner
+        result = runner.invoke(cli.cli, ["--version"])
+        assert result.exit_code == 0
+        self.assertIn(anonlinkclient.__version__, result.output)
+
+    def test_find_similarities(self):
+        runner = self.runner
+        clks_a = os.path.join(TESTDATA, "novt_clk_0.json")
+        blocks_a = os.path.join(TESTDATA, "novt_blocks_0.json")
+        clks_b = os.path.join(TESTDATA, "novt_clk_1.json")
+        blocks_b = os.path.join(TESTDATA, "novt_blocks_1.json")
+
+        with temporary_file() as output_filename:
+            with open(output_filename) as output:
+                result = runner.invoke(
+                    cli.cli,
+                    [
+                        "find-similarity",
+                        "0.8",
+                        output.name,
+                        "--files",
+                        clks_a,
+                        blocks_a,
+                        "--files",
+                        clks_b,
+                        blocks_b,
+                        "--blocking",
+                        "True",
+                    ],
+                )
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            self.assertEqual(result.output.rstrip(), "Found 1309 matches")
+
+    def test_find_similarities_nonblocking(self):
+        runner = self.runner
+        clks_a = os.path.join(TESTDATA, "clks_a.json")
+        clks_b = os.path.join(TESTDATA, "clks_b.json")
+
+        with temporary_file() as output_filename:
+            with open(output_filename) as output:
+                result = runner.invoke(
+                    cli.cli,
+                    [
+                        "find-similarity",
+                        "0.8",
+                        output.name,
+                        "--clk",
+                        clks_a,
+                        "--clk",
+                        clks_b,
+                        "--blocking",
+                        "False",
+                    ],
+                )
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            self.assertEqual(result.output.rstrip(), "Found 1309 matches")

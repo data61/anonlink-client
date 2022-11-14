@@ -6,7 +6,6 @@ import sys
 from datetime import datetime, timezone
 from multiprocessing import freeze_support
 from typing import Callable, List
-
 import click
 import clkhash
 from bashplotlib.histogram import plot_hist
@@ -15,13 +14,14 @@ from clkhash import randomnames, validate_data
 from clkhash.describe import get_encoding_popcounts
 from clkhash.schema import SchemaError, convert_to_latest_version, validate_schema_dict
 from clkhash.serialization import deserialize_bitarray, serialize_bitarray
-
 import anonlinkclient
-
+from clkhash.clk import generate_clk_from_csv
 from .utils import (
     deserialize_bitarray,
     generate_candidate_blocks_from_csv,
-    generate_clk_from_csv,
+    combine_clks_blocks,
+    deserialize_filters,
+    solve,
 )
 
 # Labels for some options. If changed here, the name of the corresponding attributes MUST be changed in the methods
@@ -294,7 +294,7 @@ def validate_schema(schema):
         raise SystemExit(-1)
 
 
-@cli.command("compare", short_help="compare two schemas")
+@cli.command("compare-schema", short_help="compare two schemas")
 @click.argument("schema1", type=click.File("r", lazy=True))
 @click.argument("schema2", type=click.File("r", lazy=True))
 @click.option(
@@ -320,7 +320,7 @@ def validate_schema(schema):
     default=3,
     help="The number of context lines for context and unified format",
 )
-def compare(schema1, schema2, output_format, num_context_lines):
+def compare_schema(schema1, schema2, output_format, num_context_lines):
     """Compare two schemas
 
     and output the differences. The output can be formatted in the following ways:
@@ -342,7 +342,7 @@ def compare(schema1, schema2, output_format, num_context_lines):
       highlights. It is advisable to pipe this output into a file and open it
       in your favorite browser.
 
-      >>> anonlink compare -m schema1.json schema2.json > diff.html
+      >>> anonlink compare-schema -m schema1.json schema2.json > diff.html
 
       \b
     - ndiff format (default):
@@ -473,6 +473,58 @@ def compare(schema1, schema2, output_format, num_context_lines):
                 n=num_context_lines,
             )
     sys.stdout.writelines(diff)
+
+
+@cli.command(
+    "find-similarity", short_help="find similarities between the two sets of CLKs"
+)
+@click.argument("threshold", type=float)
+@click.argument("similarity_matches", type=click.File("w"))
+@click.option(
+    "--files",
+    type=click.Tuple([click.File("r"), click.File("r")]),
+    multiple=True,
+    required=False,
+)
+@click.option("--clk", type=click.File("r"), multiple=True, required=False)
+@click.option(
+    "--blocking",
+    type=bool,
+    required=True,
+    default=False,
+)
+def find_similarity(threshold, similarity_matches, files, clk, blocking):
+    """
+    Find similarities between multi party dataset with blocking and non-blocking methods
+
+    Given a set of files containing CLKs and blocks data,
+    generate similarty matches for multi party dataset
+
+    Example of similarity matching with blocks:
+    $anonlink find-similarity 0.8 result.txt --files clk_a.json  blocks_a.json  --files clk_b.json  blocks_b.json --blocking True
+
+    Example of similarity matching without blocks:
+    $anonlink find-similarity 0.8 result.txt --files clk_a.json  --files clk_b.json --blocking False
+    """
+    clk_groups = []
+    rec_to_blocks = {}
+    if blocking:
+        clk_blocks = []
+        for i, (clk_f, block_f) in enumerate(files):
+            clk_blocks.append(
+                json.load(combine_clks_blocks(clk_f, block_f))["clknblocks"]
+            )
+
+        for i, clk_blk in enumerate(clk_blocks):
+            clk_groups.append(deserialize_filters([r[0] for r in clk_blk]))
+            rec_to_blocks[i] = {rind: clk_blk[rind][1:] for rind in range(len(clk_blk))}
+    else:
+        for i, clk_blk in enumerate(clk):
+            clk_groups.append(deserialize_filters([r for r in clk_blk]))
+
+    found_groups = solve(clk_groups, rec_to_blocks, threshold, blocking)
+    print("Found {} matches".format(len(found_groups)))
+    json.dump(found_groups, similarity_matches, indent=4)
 
 
 if __name__ == "__main__":

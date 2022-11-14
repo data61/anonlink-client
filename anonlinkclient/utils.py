@@ -4,13 +4,15 @@ import io
 import json
 import logging
 import time
-from clkhash.clk import generate_clk_from_csv
 from collections import defaultdict
 from typing import Any, Dict, List, TextIO
 
 from bitarray import bitarray
 from blocklib import generate_candidate_blocks
 from pydantic import BaseModel
+from anonlink.candidate_generation import find_candidate_pairs
+from anonlink.solving import probabilistic_greedy_solve
+from anonlink.similarities import dice_coefficient
 
 log = logging.getLogger("anonlink")
 
@@ -159,3 +161,33 @@ def combine_clks_blocks(clk_f: TextIO, block_f: TextIO):
     json.dump({"clknblocks": clknblocks}, out_stream)
     out_stream.seek(0)
     return out_stream
+
+
+def solve(encodings, rec_to_blocks, threshold: float = 0.8, blocking: bool = False):
+    """entity resolution, baby
+
+    calls anonlink to do the heavy lifting.
+
+    :param encodings: a sequence of lists of Bloom filters (bitarray). One for each data provider
+    :param rec_to_blocks: a sequence of dictionaries, mapping a record id to the list of blocks it is part of. Again,
+                          one per data provider, same order as encodings.
+    :param threshold: similarity threshold for solving
+    :return: same as the anonlink solver.
+             An sequence of groups. Each group is an sequence of
+             records. Two records are in the same group iff they represent
+             the same entity. Here, a record is a two-tuple of dataset index
+             and record index.
+    """
+
+    def my_blocking_f(ds_idx, rec_idx, _):
+        return rec_to_blocks[ds_idx][rec_idx]
+
+    candidate_pairs = find_candidate_pairs(
+        encodings,
+        dice_coefficient,
+        threshold=threshold,
+        blocking_f=my_blocking_f if blocking else None,
+    )
+    # Need to use the probabilistic greedy solver to be able to remove the duplicate. It is not configurable
+    # with the native greedy solver.
+    return probabilistic_greedy_solve(candidate_pairs, merge_threshold=1.0)
