@@ -685,27 +685,3 @@ class TestFindSimilarityCommand(unittest.TestCase):
                 )
             self.assertEqual(result.exit_code, 0, msg=result.output)
             self.assertEqual(result.output.rstrip(), "Found 1309 matches")
-
-    def test_find_similarities_nonblocking(self):
-        runner = self.runner
-        clks_a = os.path.join(TESTDATA, "clks_a.json")
-        clks_b = os.path.join(TESTDATA, "clks_b.json")
-
-        with temporary_file() as output_filename:
-            with open(output_filename) as output:
-                result = runner.invoke(
-                    cli.cli,
-                    [
-                        "find-similarity",
-                        "0.8",
-                        output.name,
-                        "--clk",
-                        clks_a,
-                        "--clk",
-                        clks_b,
-                        "--blocking",
-                        "False",
-                    ],
-                )
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-            self.assertEqual(result.output.rstrip(), "Found 0 matches")
