@@ -708,4 +708,4 @@ class TestFindSimilarityCommand(unittest.TestCase):
                     ],
                 )
             self.assertEqual(result.exit_code, 0, msg=result.output)
-            self.assertEqual(result.output.rstrip(), "Found 1309 matches")
+            self.assertEqual(result.output.rstrip(), "Found 0 matches")
