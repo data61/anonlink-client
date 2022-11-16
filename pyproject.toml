@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "anonlink-client"
-version = "0.1.6a0"
+version = "0.1.6a1"
 description = "Client side tool for clkhash and blocklib"
 authors = [
     "Wilko Henecka <wilkohenecka@gmx.net>",

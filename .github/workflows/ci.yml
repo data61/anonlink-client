@@ -1,6 +1,11 @@
 name: Testing
 
-on: push
+on:
+  release:
+    types: [ published ]
+  pull_request:
+  push:
+    branches: [ main ]
 
 defaults:
   run:
