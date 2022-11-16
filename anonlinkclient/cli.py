@@ -499,12 +499,13 @@ def find_similarity(threshold, similarity_matches, files, clk, blocking):
 
     Given a set of files containing CLKs and blocks data,
     generate similarty matches for multi party dataset
+    The format of the ouput file is [[dataset_id, row_id], [dataset_id, row_id]]
 
     Example of similarity matching with blocks:
     $anonlink find-similarity 0.8 result.txt --files clk_a.json  blocks_a.json  --files clk_b.json  blocks_b.json --blocking True
 
     Example of similarity matching without blocks:
-    $anonlink find-similarity 0.8 result.txt --files clk_a.json  --files clk_b.json --blocking False
+    $anonlink find-similarity 0.8 result.txt --clk clk_a.json  --clk  clk_b.json --blocking False
     """
     clk_groups = []
     rec_to_blocks = {}
