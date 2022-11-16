@@ -121,3 +121,20 @@ jobs:
         with:
           name: anonlink-client
           path: ./dist
+
+  upload_pypi:
+    needs: [buildpackage]
+    runs-on: ubuntu-latest
+
+    # upload to PyPI only on release
+    if: github.event.release && github.event.action == 'published'
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: anonflow-client
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
