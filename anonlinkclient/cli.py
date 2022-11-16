@@ -16,7 +16,7 @@ from clkhash.schema import SchemaError, convert_to_latest_version, validate_sche
 from clkhash.serialization import deserialize_bitarray, serialize_bitarray
 import anonlinkclient
 from clkhash.clk import generate_clk_from_csv
-from utils import (
+from .utils import (
     deserialize_bitarray,
     generate_candidate_blocks_from_csv,
     combine_clks_blocks,
