@@ -121,6 +121,8 @@ jobs:
         run: |
           source $VENV
           poetry build
+      - name: Check build artifacts
+        run: python -m twine check --strict dist/*
       - name: Save artifacts
         uses: actions/upload-artifact@v3
         with:
