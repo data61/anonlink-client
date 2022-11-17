@@ -489,13 +489,7 @@ def compare_schema(schema1, schema2, output_format, num_context_lines):
     required=False,
 )
 @click.option("--clk", type=click.File("r"), multiple=True, required=False)
-@click.option(
-    "--blocking",
-    type=bool,
-    required=True,
-    default=False,
-)
-def find_similarity(threshold, similarity_matches, files, clk, blocking):
+def find_similarity(threshold, similarity_matches, files, clk):
     """
     Find similarities between multi party dataset with blocking and non-blocking methods
 
@@ -504,14 +498,14 @@ def find_similarity(threshold, similarity_matches, files, clk, blocking):
     The format of the ouput file is [[dataset_id, row_id], [dataset_id, row_id]]
 
     Example of similarity matching with blocks:
-    $anonlink find-similarity 0.8 result.txt --files clk_a.json  blocks_a.json  --files clk_b.json  blocks_b.json --blocking True
+    $anonlink find-similarity 0.8 result.txt --files clk_a.json  blocks_a.json  --files clk_b.json  blocks_b.json
 
     Example of similarity matching without blocks:
-    $anonlink find-similarity 0.8 result.txt --clk clk_a.json  --clk  clk_b.json --blocking False
+    $anonlink find-similarity 0.8 result.txt --clk clk_a.json  --clk  clk_b.json
     """
     clk_groups = []
     rec_to_blocks = {}
-    if blocking:
+    if len(files):
         clk_blocks = []
         for i, (clk_f, block_f) in enumerate(files):
             clk_blocks.append(
@@ -522,9 +516,12 @@ def find_similarity(threshold, similarity_matches, files, clk, blocking):
             clk_groups.append(deserialize_filters([r[0] for r in clk_blk]))
             rec_to_blocks[i] = {rind: clk_blk[rind][1:] for rind in range(len(clk_blk))}
     else:
-        for i, clk_blk in enumerate(clk):
-            clk_groups.append(deserialize_filters([r for r in clk_blk]))
+        clk_blocks = []
+        for clk_f in clk:
+            clk_data = json.load(clk_f)["clks"]
+            clk_groups.append(deserialize_filters([r for r in clk_data]))
 
+    blocking = True if len(files) else False
     found_groups = solve(clk_groups, rec_to_blocks, threshold, blocking)
     print("Found {} matches".format(len(found_groups)))
     json.dump(found_groups, similarity_matches, indent=4)

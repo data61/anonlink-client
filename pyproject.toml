@@ -60,6 +60,8 @@ ijson="^3.1.4"
 mypy = "^0.982"
 anonlink="0.15.1"
 pre-commit = "^2.20.0"
+recordlinkage = "^0.15"
+anonlink-client = "0.1.6a2"
 
 [build-system]
 requires = ["poetry-core"]
