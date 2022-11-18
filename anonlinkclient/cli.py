@@ -129,24 +129,23 @@ def create_rest_client(server, retry_multiplier, retry_max_exp, retry_stop, verb
 @verbose_option
 def cli(verbose):
     """
-    This command line application allows a user to hash their
+    This command line application allows a user to encode their
     data into cryptographic longterm keys for use in
     private comparison.
 
     This tool can also interact with a entity matching service;
-    creating new mappings, uploading locally hashed data,
+    creating new mappings, uploading locally encoded data,
     watching progress, and retrieving results.
 
     Example:
 
-        anonlink hash private_data.csv secret schema.json output-clks.json
+        anonlink encode private_data.csv secret schema.json output-clks.json
 
 
     All rights reserved Confidential Computing 2016.
     """
 
-
-@cli.command('hash', short_help="generate hashes from local PII data")
+@cli.command('hash', deprecated=True, short_help="command is deprecated")
 @click.argument('pii_csv', type=click.File('r'))
 @click.argument('secret', type=str)
 @click.argument('schema', type=click.File('r', lazy=True))
@@ -156,15 +155,30 @@ def cli(verbose):
 @click.option('--validate', default=True, type=bool, help="If true, validate the entries against the schema")
 @verbose_option
 def hash(pii_csv, secret, schema, clk_json, no_header, check_header, validate, verbose):
+    """ This command is deprecated. Please use anonlink encode command
+        """
+    print("This command is deprecated. Please use this command to encode your data - anonlink encode private_data.csv secret schema.json output-clks.json")
+    
+
+@cli.command('encode', short_help="generate hashes from local PII data")
+@click.argument('pii_csv', type=click.File('r'))
+@click.argument('secret', type=str)
+@click.argument('schema', type=click.File('r', lazy=True))
+@click.argument('clk_json', type=click.File('w'))
+@click.option('--no-header', default=False, is_flag=True, help="Don't skip the first row")
+@click.option('--check-header', default=True, type=bool, help="If true, check the header against the schema")
+@click.option('--validate', default=True, type=bool, help="If true, validate the entries against the schema")
+@verbose_option
+def encode(pii_csv, secret, schema, clk_json, no_header, check_header, validate, verbose):
     """Process data to create CLKs
 
         Given a file containing CSV data as PII_CSV, and a JSON
         document defining the expected schema, verify the schema, then
-        hash the data to create CLKs writing them as JSON to CLK_JSON.
+        encode the data to create CLKs writing them as JSON to CLK_JSON.
 
         It is important that the secret is only known by the two data providers. One word must be provided. For example:
 
-        $anonlink hash pii.csv horse_stable pii-schema.json clks.json
+        $anonlink encode pii.csv horse_stable pii-schema.json clks.json
 
         Use "-" for CLK_JSON to write JSON to stdout.
         """
@@ -188,7 +202,7 @@ def hash(pii_csv, secret, schema, clk_json, no_header, check_header, validate, v
     except (validate_data.EntryError, validate_data.FormatError) as e:
         msg, = e.args
         log(msg)
-        log('Hashing failed.')
+        log('Encoding failed.')
     else:
         json.dump({'clks': clk_data}, clk_json)
         if hasattr(clk_json, 'name'):
@@ -243,18 +257,18 @@ def status(output, server, retry_multiplier, retry_max_exp, retry_stop, verbose)
 
 
 MAPPING_CREATED_MSG = """
-The generated tokens can be used to upload hashed data and
+The generated tokens can be used to upload encoded data and
 fetch the resulting linkage table from the service.
 
 To upload using the cli tool for entity A:
 
-    anonlink hash a_people.csv key1 key2 schema.json A_HASHED_FILE.json
-    anonlink upload --project="{project_id}" --apikey="{update_tokens[0]}"  A_HASHED_FILE.json
+    anonlink encode a_people.csv key1 key2 schema.json A_ENCODED_FILE.json
+    anonlink upload --project="{project_id}" --apikey="{update_tokens[0]}"  A_ENCODED_FILE.json
 
 To upload using the cli tool for entity B:
 
-    anonlink hash b_people.csv key1 key2 schema.json B_HASHED_FILE.json
-    anonlink upload --project="{project_id}" --apikey="{update_tokens[1]}" B_HASHED_FILE.json
+    anonlink encode b_people.csv key1 key2 schema.json B_ENCODED_FILE.json
+    anonlink upload --project="{project_id}" --apikey="{update_tokens[1]}" B_ENCODED_FILE.json
 
 After both users have uploaded their data one can watch for and retrieve the results:
 

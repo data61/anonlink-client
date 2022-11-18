@@ -39,7 +39,7 @@ def generate_candidate_blocks_from_csv(input_f: TextIO,
          (a.k.a popcount -- the number of bits set to high) of the
          generated Bloom filters.
 
-         :param input_f: A file-like object of csv data to hash.
+         :param input_f: A file-like object of csv data to encode.
          :param schema_f: Schema specifying the blocking configuration
          :param header: Set to `False` if the CSV file does not have
              a header. Set to `'ignore'` if the CSV file does have a

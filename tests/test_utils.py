@@ -87,7 +87,7 @@ class TestUtils(unittest.TestCase):
         with open(fname_clks, 'wt') as output:
             runner.invoke(
                 cli.cli,
-                ['hash', data_path, 'horse', linking_schema_path, output.name]
+                ['encode', data_path, 'horse', linking_schema_path, output.name]
             )
 
         # test exception

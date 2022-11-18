@@ -15,8 +15,8 @@ Anonlink system needs the following three components to work together:
 
 This package provides an easy to use API to interact with the above packages to complete a record linkage job.
 
-The way to interact with anonlink system is via Command Line Tool `anonlink`. You can hash data containing PI (Personal
- Identifying Information) locally using `anonlink hash`, generate candidate blocks locally to scale up record linkage 
+The way to interact with anonlink system is via Command Line Tool `anonlink`. You can encode data containing PI (Personal
+ Identifying Information) locally using `anonlink encode`, generate candidate blocks locally to scale up record linkage 
  using `anonlink block`, create a record linkage job in entity service with `anonlink create-project` etc.
 
 ### Installation
@@ -34,9 +34,9 @@ https://anonlink-client.readthedocs.io/en/stable/
 ### CLI Tool
 
 After installation, you should have a `anonlink` program in your path. For
-example, to hash PII data  `alice.csv` locally with schema `schema.json` and secret `horse`, run:
+example, to encode PII data  `alice.csv` locally with schema `schema.json` and secret `horse`, run:
 ```bash
-$ anonlink hash 'alice.csv' 'horse' 'schema.json' 'encoded-entities.json'
+$ anonlink encode 'alice.csv' 'horse' 'schema.json' 'encoded-entities.json'
 ```
 
 It will generate the CLK output and store in `clk.json`. To find out how to define the schema
