@@ -282,7 +282,7 @@ python-versions = ">=3.5"
 name = "ijson"
 version = "3.1.4"
 description = "Iterative JSON parser with standard Python iterator interfaces"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -1171,7 +1171,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "c21f4d292cd2b4c0bee2f749b49732a8c47227bc33b753c3e0460ca9699ccda1"
+content-hash = "1de613c91848fd01b9ece4db2a95d278d0e0a8ad51b1fcb28fb00174e4a97e85"
 
 [metadata.files]
 appnope = [
