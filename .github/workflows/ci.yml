@@ -1,6 +1,11 @@
 name: Testing
 
-on: push
+on:
+  release:
+    types: [ published ]
+  pull_request:
+  push:
+    branches: [ main ]
 
 defaults:
   run:
@@ -116,8 +121,27 @@ jobs:
         run: |
           source $VENV
           poetry build
+      - name: Check build artifacts
+        run: poetry run twine check --strict dist/*
       - name: Save artifacts
         uses: actions/upload-artifact@v3
         with:
           name: anonlink-client
           path: ./dist
+
+  upload_pypi:
+    needs: [buildpackage]
+    runs-on: ubuntu-latest
+
+    # upload to PyPI only on release
+    if: github.event.release && github.event.action == 'published'
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: anonlink-client
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
