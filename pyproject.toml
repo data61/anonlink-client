@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "anonlink-client"
-version = "0.1.6a3"
+version = "0.1.6a7"
 description = "Client side tool for clkhash and blocklib"
 authors = [
     "Wilko Henecka <wilkohenecka@gmx.net>",
@@ -59,7 +59,9 @@ nbval="^0.9.6"
 mock="^4.0.2"
 mypy = "^0.982"
 twine = "^4.0.1"
-
+anonlink="0.15.1"
+pre-commit = "^2.20.0"
+recordlinkage = "^0.15"
 
 [build-system]
 requires = ["poetry-core"]

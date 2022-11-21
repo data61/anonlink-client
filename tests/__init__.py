@@ -3,28 +3,22 @@ import sys
 import tempfile
 import clkhash
 
-TESTDATA = os.path.join(
-    os.path.dirname(__file__),
-    'testdata'
-)
+TESTDATA = os.path.join(os.path.dirname(__file__), "testdata")
 
-SIMPLE_SCHEMA_PATH = os.path.join(TESTDATA, 'simple-schema.json')
+SIMPLE_SCHEMA_PATH = os.path.join(TESTDATA, "simple-schema.json")
 
-SAMPLE_DATA_SCHEMA_PATH = os.path.join(TESTDATA, 'dirty-data-schema.json')
+SAMPLE_DATA_SCHEMA_PATH = os.path.join(TESTDATA, "dirty-data-schema.json")
 
-SAMPLE_BLOCK_SCHEMA_PATH = os.path.join(TESTDATA, 'lambda-fold-schema.json')
+SAMPLE_BLOCK_SCHEMA_PATH = os.path.join(TESTDATA, "lambda-fold-schema.json")
 
-GOOD_SCHEMA_V1_PATH = os.path.join(TESTDATA, 'good-schema-v1.json')
-GOOD_SCHEMA_V2_PATH = os.path.join(TESTDATA, 'good-schema-v2.json')
-GOOD_SCHEMA_V3_PATH = os.path.join(TESTDATA, 'good-schema-v3.json')
-BAD_SCHEMA_V1_PATH = os.path.join(TESTDATA, 'bad-schema-v1.json')
-BAD_SCHEMA_V2_PATH = os.path.join(TESTDATA, 'bad-schema-v2.json')
-BAD_SCHEMA_V3_PATH = os.path.join(TESTDATA, 'bad-schema-v3.json')
+GOOD_SCHEMA_V1_PATH = os.path.join(TESTDATA, "good-schema-v1.json")
+GOOD_SCHEMA_V2_PATH = os.path.join(TESTDATA, "good-schema-v2.json")
+GOOD_SCHEMA_V3_PATH = os.path.join(TESTDATA, "good-schema-v3.json")
+BAD_SCHEMA_V1_PATH = os.path.join(TESTDATA, "bad-schema-v1.json")
+BAD_SCHEMA_V2_PATH = os.path.join(TESTDATA, "bad-schema-v2.json")
+BAD_SCHEMA_V3_PATH = os.path.join(TESTDATA, "bad-schema-v3.json")
 
-RANDOMNAMES_SCHEMA_PATH = os.path.join(
-    TESTDATA,
-    'randomnames-schema-v2.json'
-)
+RANDOMNAMES_SCHEMA_PATH = os.path.join(TESTDATA, "randomnames-schema-v2.json")
 
 
 class temporary_file(object):
@@ -49,13 +43,13 @@ class temporary_file(object):
         os.remove(self.tmpfile_name)
 
 
-def create_temp_file(suffix=''):
+def create_temp_file(suffix=""):
     """
     Creates, opens and returns a temporary file.
     Note this file will not be automatically deleted by Python.
     """
     os_fd, filename = tempfile.mkstemp(suffix=suffix, text=True)
     if sys.version_info[0] >= 3:
-        return open(filename, 'wt', encoding='utf8', newline='')
+        return open(filename, "wt", encoding="utf8", newline="")
     else:
-        return open(filename, 'wt')
+        return open(filename, "wt")

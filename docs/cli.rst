@@ -274,16 +274,4 @@ As a rule of thumb a single modern core will hash around 1M entities in about 20
 The output shows a running mean and std deviation of the generated clks' popcounts. This can be used
 as a basic sanity check - ensure the CLK's popcount is not around 0 or 1024.
 
-Interaction with Entity Service
--------------------------------
-
-There are several commands that interact with a REST api for carrying out privacy preserving linking.
-These commands are:
-
-- status
-- create-project
-- create
-- upload
-- results
-
 See also the :doc:`Tutorial for CLI<tutorial/index>`.

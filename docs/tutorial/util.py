@@ -5,7 +5,7 @@ from collections import defaultdict
 
 
 def solve(encodings, rec_to_blocks, threshold: float = 0.8):
-    """ entity resolution, baby
+    """entity resolution, baby
 
     calls anonlink to do the heavy lifting.
 
@@ -19,6 +19,7 @@ def solve(encodings, rec_to_blocks, threshold: float = 0.8):
              the same entity. Here, a record is a two-tuple of dataset index
              and record index.
     """
+
     def my_blocking_f(ds_idx, rec_idx, _):
         return rec_to_blocks[ds_idx][rec_idx]
 
@@ -26,14 +27,17 @@ def solve(encodings, rec_to_blocks, threshold: float = 0.8):
         encodings,
         anonlink.similarities.dice_coefficient,
         threshold=threshold,
-        blocking_f=my_blocking_f)
+        blocking_f=my_blocking_f,
+    )
     # Need to use the probabilistic greedy solver to be able to remove the duplicate. It is not configurable
     # with the native greedy solver.
-    return anonlink.solving.probabilistic_greedy_solve(candidate_pairs, merge_threshold=1.0)
+    return anonlink.solving.probabilistic_greedy_solve(
+        candidate_pairs, merge_threshold=1.0
+    )
 
 
 def naive_solve(encodings, threshold: float = 0.8):
-    """ entity resolution, baby
+    """entity resolution, baby
 
     calls anonlink to do the heavy lifting.
 
@@ -46,12 +50,13 @@ def naive_solve(encodings, threshold: float = 0.8):
              and record index.
     """
     candidate_pairs = anonlink.candidate_generation.find_candidate_pairs(
-        encodings,
-        anonlink.similarities.dice_coefficient,
-        threshold=threshold)
+        encodings, anonlink.similarities.dice_coefficient, threshold=threshold
+    )
     # Need to use the probabilistic greedy solver to be able to remove the duplicate. It is not configurable
     # with the native greedy solver.
-    return anonlink.solving.probabilistic_greedy_solve(candidate_pairs, merge_threshold=1.0)
+    return anonlink.solving.probabilistic_greedy_solve(
+        candidate_pairs, merge_threshold=1.0
+    )
 
 
 def evaluate(found_groups, true_matches):
