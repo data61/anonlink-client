@@ -247,7 +247,6 @@ def block(pii_csv, schema, block_json, no_header, verbose):
         pii_csv, schema, header, verbose=verbose
     )
     json.dump(result, block_json, indent=4)
-    log("after block_json " + os.path.realpath(block_json.name))
 
 
 @cli.command("benchmark", short_help="carry out a local benchmark")
