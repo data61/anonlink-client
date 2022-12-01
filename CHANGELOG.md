@@ -2,10 +2,13 @@
 
 ## new version
 
-## 0.1.6
+## 0.1.7
 - Migrate from Azure pipeline to Github Actions #169
 - Set env vars for codecov action #173
 - Update testing badge #170
+
+## 0.1.6 
+- Pre-release version
 
 ## 0.1.5
 - addressed deprecated code #106
