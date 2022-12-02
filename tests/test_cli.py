@@ -108,6 +108,7 @@ class BasicCLITests(unittest.TestCase):
             "generate",
             "generate-default-schema",
             "hash",
+            "encode",
             "validate-schema",
         ]
         for expected_option in expected_options:
