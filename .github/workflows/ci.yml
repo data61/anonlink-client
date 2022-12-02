@@ -49,7 +49,7 @@ jobs:
       - uses: actions/setup-python@v4
         id: setup-python
         with:
-          python-version: "3.10"
+          python-version: "3.11"
       - name: Install poetry
         uses: snok/install-poetry@v1
         with:
@@ -65,7 +65,8 @@ jobs:
       # install dependencies if cache does not exist
       - name: Install dependencies
         run: |
-          poetry install --no-interaction --no-root
+          poetry install --no-interaction --no-root --with docs
+          poetry install --no-interaction
       - name: Test notebooks
         run: |
           source $VENV
@@ -77,8 +78,8 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest , windows-latest, macOS-latest]
-        python: [ '3.8', '3.9', '3.10' ]
-      fail-fast: false  # only temporarily, until we have everything passing again...
+        python: [ '3.9', '3.10', '3.11' ]
+      fail-fast: true
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python }}

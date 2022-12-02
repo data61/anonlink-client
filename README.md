@@ -12,7 +12,7 @@ Anonlink system needs the following three components to work together:
 * [clkhash](https://github.com/data61/clkhash)
 * [blocklib](https://github.com/data61/blocklib)
 
-This package provides an easy to use API to interact with the above packages to complete a record linkage job.
+This package provides an easy-to-use API to interact with the above packages to complete a record linkage job.
 
 The way to interact with anonlink system is via Command Line Tool `anonlink`. You can encode data containing PI (Personal
  Identifying Information) locally using `anonlink encode` and generate candidate blocks locally to scale up record linkage 
@@ -20,9 +20,9 @@ The way to interact with anonlink system is via Command Line Tool `anonlink`. Yo
 
 ### Installation
 
-Install with pip/poetry etc:
+Install with pip/poetry etc.:
 
-```python3
+```shell
 pip install anonlink-client
 ```
 
