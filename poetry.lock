@@ -257,7 +257,7 @@ lxml = ["lxml"]
 name = "bitarray"
 version = "2.7.2"
 description = "efficient arrays of booleans -- C extension"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -655,21 +655,21 @@ files = [
 
 [[package]]
 name = "clkhash"
-version = "0.16.1"
+version = "0.17.0"
 description = "Encoding utility to create Cryptographic Linkage Keys"
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "clkhash-0.16.1-py2.py3-none-any.whl", hash = "sha256:3151629ac7cac265d2201aab99b3c7172311589f2b502271f72a073577066d20"},
-    {file = "clkhash-0.16.1.tar.gz", hash = "sha256:8c6054c5002303a1b29ba39fb244b2abd312fefde7bab96ab603a06fb8c9ebe7"},
+    {file = "clkhash-0.17.0-py3-none-any.whl", hash = "sha256:43f8b5bf47971b602cf378438167d06045a02016a18786d3180060ed511617a1"},
+    {file = "clkhash-0.17.0.tar.gz", hash = "sha256:4c9aaa8200ac5b953f5f373568b444b6bc0a6fbf57252e8508af1cc749933e90"},
 ]
 
 [package.dependencies]
 bashplotlib = ">=0.6.5"
-bitarray-hardbyte = ">=1.0.0"
-cryptography = ">=2.3"
-jsonschema = ">=3.0.2"
+bitarray = ">=2.4"
+cryptography = ">=36.0"
+jsonschema = ">=4.8"
 mypy-extensions = ">=0.3"
 tqdm = ">=4.24"
 
@@ -3544,4 +3544,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "4f9adc7cf0ab847dab928ac6c68b953c823ab24247355ea814f45ec1894cd446"
+content-hash = "73dd22ad966c5f9faf1449caf162bec8e0e52b9cd56f9a9167be0c724f3a870c"
