@@ -42,7 +42,7 @@ anonlink = 'anonlinkclient.cli:cli'
 python = ">=3.8,<3.12"
 bashplotlib = "^0.6"
 blocklib = "^0.1"
-click = "^7.1.2"
+click = ">=7.1.2,<9.0.0"
 clkhash = "^0.17"
 jsonschema = ">=3.2,<5.0"
 requests = "^2.25.1"
