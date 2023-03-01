@@ -128,7 +128,7 @@ def generate_candidate_blocks_from_csv(
 
     # step4 - add CLK counts and blocking statistics to metadata
     result["meta"]["source"] = {"clk_count": [len(pii_data)]}
-    result["meta"]["stats"] = blocking_obj.state.stats
+    result["meta"]["stats"] = blocking_obj.stats
 
     if verbose:
         blocking_obj.print_summary_statistics()
