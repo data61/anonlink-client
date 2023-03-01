@@ -2,8 +2,14 @@
 
 ## new version
 
+## 0.1.8
+- Support blocklib >= 0.1.8 #188
+
+## 0.1.7
+- Support for Python 3.11 and latest clkhash version #184
+
 ## 0.1.6
-- Migrate from Azure pipeline to Github Actions #169
+- Migrate from Azure pipeline to GitHub Actions #169
 - Set env vars for codecov action #173
 - Update testing badge #170
 
