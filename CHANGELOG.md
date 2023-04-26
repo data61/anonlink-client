@@ -3,7 +3,7 @@
 
 ## 0.1.9
 
-- Update clkhash to 0.18.0 #197
+- Update to much faster clkhash v0.18.0 #197
 
 ## 0.1.8
 - Support blocklib >= 0.1.8 #188
