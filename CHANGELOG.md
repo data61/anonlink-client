@@ -1,6 +1,9 @@
 # Change Log
 
-## new version
+
+## 0.1.9
+
+- Update to much faster clkhash v0.18.0 #197
 
 ## 0.1.8
 - Support blocklib >= 0.1.8 #188
